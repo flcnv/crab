@@ -1,9 +1,20 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import jobs
+from app.bootstrap import build_deps
 
-app = FastAPI(title="Trench Report Agent")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    app.state.deps = build_deps()
+    yield
+
+
+app = FastAPI(title="Trench Report Agent", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
