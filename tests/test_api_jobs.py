@@ -10,7 +10,7 @@ from app.adapters.storage.local import LocalStorage
 from app.api.deps import get_deps
 from app.api.main import app
 from app.bootstrap import Deps, build_deps
-from app.domain.models import TrenchReport
+from app.domain.models import GeoPoint, TrenchReport
 from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
 
@@ -84,7 +84,12 @@ def test_create_job_without_files(client: TestClient) -> None:
 
 def test_unknown_job_is_404(client: TestClient) -> None:
     job_id = uuid.uuid4()
-    for path in (f"/jobs/{job_id}", f"/jobs/{job_id}/report", f"/jobs/{job_id}/report.md"):
+    for path in (
+        f"/jobs/{job_id}",
+        f"/jobs/{job_id}/report",
+        f"/jobs/{job_id}/report.md",
+        f"/jobs/{job_id}/report.geojson",
+    ):
         assert client.get(path).status_code == 404, path
 
 
@@ -102,4 +107,20 @@ def test_report_not_ready_then_ready(client: TestClient, deps: Deps) -> None:
     deps.jobs.reports[uuid.UUID(job_id)] = report
 
     assert client.get(f"/jobs/{job_id}/report").json() == report.model_dump(mode="json")
-    assert client.get(f"/jobs/{job_id}/report.md").status_code == 501  # rendering: Day 2
+    md = client.get(f"/jobs/{job_id}/report.md")
+    assert md.status_code == 200
+    assert md.headers["content-type"].startswith("text/plain")
+    assert md.text.startswith("# Trench documentation report")
+    assert "No utility lines were identified." in md.text
+
+    no_gps = client.get(f"/jobs/{job_id}/report.geojson")
+    assert no_gps.status_code == 404
+    assert no_gps.json()["detail"] == "report has no GPS location"
+
+    deps.jobs.reports[uuid.UUID(job_id)] = report.model_copy(
+        update={"location": GeoPoint(lat=47.3769, lon=8.5417)}
+    )
+    geo = client.get(f"/jobs/{job_id}/report.geojson")
+    assert geo.status_code == 200
+    assert geo.headers["content-type"] == "application/geo+json"
+    assert geo.json()["features"][0]["geometry"]["coordinates"] == [8.5417, 47.3769]

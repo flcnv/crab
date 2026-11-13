@@ -157,17 +157,12 @@ async def verify(deps: Deps, job: Job) -> None:
     raise NotImplementedError
 
 
-async def render(deps: Deps, job: Job) -> None:
-    raise NotImplementedError
-
-
 STAGES: tuple[tuple[str, JobStatus, Stage], ...] = (
     ("ingest", JobStatus.EXTRACTING, ingest),
     ("extract_frames", JobStatus.EXTRACTING, extract_frames),
     ("analyze_frames", JobStatus.ANALYZING, analyze_frames),
     ("consolidate", JobStatus.CONSOLIDATING, consolidate),
     ("verify", JobStatus.VERIFYING, verify),
-    ("render", JobStatus.VERIFYING, render),
 )
 
 

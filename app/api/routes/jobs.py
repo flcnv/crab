@@ -3,9 +3,9 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
-from app.adapters.render.report import render_markdown
+from app.adapters.render.report import render_geojson, render_markdown
 from app.api.deps import DepsDep
 from app.api.schemas import JobCreated, JobOut
 from app.domain.errors import JobNotFoundError
@@ -15,6 +15,7 @@ from app.domain.services import Upload, submit_job
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 CHUNK_SIZE = 1024 * 1024
+GEOJSON = "application/geo+json"
 
 
 async def _read_chunks(file: UploadFile) -> AsyncIterator[bytes]:
@@ -51,14 +52,14 @@ async def _get_job(deps: DepsDep, job_id: UUID) -> Job:
     return job
 
 
-async def _get_report(deps: DepsDep, job_id: UUID) -> TrenchReport:
+async def _get_report(deps: DepsDep, job_id: UUID) -> tuple[Job, TrenchReport]:
     job = await _get_job(deps, job_id)
     report = await deps.jobs.get_report(job_id)
     if report is None:
         raise HTTPException(
             status.HTTP_409_CONFLICT, detail=f"report not ready, job status: {job.status}"
         )
-    return report
+    return job, report
 
 
 @router.get("/{job_id}")
@@ -68,9 +69,26 @@ async def get_job(job_id: UUID, deps: DepsDep) -> JobOut:
 
 @router.get("/{job_id}/report")
 async def get_report(job_id: UUID, deps: DepsDep) -> TrenchReport:
-    return await _get_report(deps, job_id)
+    """The report as JSON, the source of truth for the other formats."""
+    _, report = await _get_report(deps, job_id)
+    return report
 
 
 @router.get("/{job_id}/report.md", response_class=PlainTextResponse)
 async def get_report_markdown(job_id: UUID, deps: DepsDep) -> str:
-    return render_markdown(await _get_report(deps, job_id))
+    job, report = await _get_report(deps, job_id)
+    return render_markdown(report, job)
+
+
+@router.get(
+    "/{job_id}/report.geojson",
+    response_class=JSONResponse,
+    responses={200: {"content": {GEOJSON: {}}}, 404: {"description": "No GPS location"}},
+)
+async def get_report_geojson(job_id: UUID, deps: DepsDep) -> JSONResponse:
+    """FeatureCollection with one Point at the capture location; 404 when the upload had no GPS."""
+    _, report = await _get_report(deps, job_id)
+    geojson = render_geojson(report)
+    if geojson is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="report has no GPS location")
+    return JSONResponse(geojson, media_type=GEOJSON)

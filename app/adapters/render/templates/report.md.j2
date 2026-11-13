@@ -1,1 +1,44 @@
-# Trench report {{ report.job_id }}
+# Trench documentation report
+
+| | |
+|---|---|
+| Job | `{{ report.job_id }}` |
+| Source | {{ job.upload_keys | length }} {{ "video" if job.media_kind == "video" else "photo(s)" }} |
+{% if job.metadata and job.metadata.captured_at %}
+| Captured | {{ job.metadata.captured_at.strftime("%Y-%m-%d %H:%M") }} |
+{% endif %}
+{% if report.location %}
+| Location | {{ "%.6f"|format(report.location.lat) }}, {{ "%.6f"|format(report.location.lon) }}{% if report.location.accuracy_m %} (± {{ report.location.accuracy_m | round | int }} m){% endif %} |
+{% else %}
+| Location | not available (no GPS in the upload) |
+{% endif %}
+| Created | {{ job.created_at.strftime("%Y-%m-%d %H:%M UTC") }} |
+
+## Lines
+
+{% if report.lines %}
+| ID | Utility | Material | Outer Ø (mm) | Cover (m) | Confidence | Seen in frames | Notes |
+|----|---------|----------|-------------:|----------:|-----------:|----------------|-------|
+{% for line in report.lines %}
+| {{ line.id }} | {{ line.utility_type | utility }} | {{ line.material | material }} | {{ line.approx_outer_diameter_mm | cell }} | {{ line.approx_depth_of_cover_m | cell }} | {{ line.confidence | percent }} | {{ line.seen_in_frames | join(", ") }} | {{ line.notes | cell }} |
+{% endfor %}
+
+Confidence is the estimated probability that the utility type is correct.
+Sizes are only given where a scale reference was visible.
+{% else %}
+No utility lines were identified.
+{% endif %}
+{% if report.verification_flags %}
+
+## Verification flags
+
+{% for flag in report.verification_flags %}
+- {{ flag }}
+{% endfor %}
+{% endif %}
+
+## Limitations
+
+{% for limitation in report.limitations %}
+- {{ limitation }}
+{% endfor %}
