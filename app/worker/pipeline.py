@@ -6,15 +6,20 @@ Each stage is idempotent: it skips work whose output is already stored, so re-ru
 failed job resumes where it stopped.
 """
 
+import asyncio
 import logging
 import time
 from collections.abc import Awaitable, Callable
 from uuid import UUID
 
 from app.bootstrap import Deps
-from app.domain.errors import MediaProcessingError
-from app.domain.models import Frame, Job, JobStatus
-from app.domain.services import merge_image_metadata
+from app.domain.errors import FrameAnalysisError, MediaProcessingError
+from app.domain.models import Frame, Job, JobStatus, LLMUsage
+from app.domain.services import (
+    count_unscaled_measurements,
+    merge_image_metadata,
+    strip_unscaled_measurements,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +68,56 @@ async def extract_frames(deps: Deps, job: Job) -> None:
 
 
 async def analyze_frames(deps: Deps, job: Job) -> None:
-    """VisionModel.analyze per keyframe, concurrently under a semaphore."""
-    raise NotImplementedError
+    """VisionModel.analyze per keyframe, at most `llm_concurrency` calls at a time.
+
+    A frame that cannot be analyzed is marked failed and the job goes on; the stage fails
+    only if no frame at all has an analysis. Frames analyzed in an earlier run are skipped,
+    failed ones are tried again.
+    """
+    frames = await deps.jobs.get_frames(job.id)
+    done = {a.frame_id for a in await deps.jobs.get_analyses(job.id)}
+    todo = [f for f in frames if f.frame_id not in done]
+    semaphore = asyncio.Semaphore(deps.settings.llm_concurrency)
+    errors: dict[str, str] = {}
+
+    async def analyze(frame: Frame) -> None:
+        async with semaphore:
+            image = await deps.storage.get(frame.storage_key)
+            try:
+                analysis, usage = await deps.vision_model.analyze(image, frame.frame_id)
+            except FrameAnalysisError as e:
+                await _record_usage(deps, job, frame.frame_id, e.usage)
+                await deps.jobs.mark_frame_failed(job.id, frame.frame_id, str(e))
+                errors[frame.frame_id] = str(e)
+                logger.warning("job %s frame %s failed: %s", job.id, frame.frame_id, e)
+                return
+            await _record_usage(deps, job, frame.frame_id, usage)
+            if stripped := count_unscaled_measurements(analysis):
+                logger.info(
+                    "job %s frame %s: dropped %d measurements without scale reference",
+                    job.id, frame.frame_id, stripped,
+                )  # fmt: skip
+            await deps.jobs.save_analysis(job.id, strip_unscaled_measurements(analysis))
+
+    # TaskGroup: an unexpected error (DB, storage) cancels the other calls and fails the stage
+    # with that error (unwrapped, so the job's error message stays readable).
+    try:
+        async with asyncio.TaskGroup() as tg:
+            for frame in todo:
+                tg.create_task(analyze(frame))
+    except* Exception as group:
+        raise group.exceptions[0] from group
+
+    if errors and len(errors) == len(frames):
+        first = errors[min(errors)]
+        raise FrameAnalysisError(
+            f"no frame could be analyzed ({len(errors)} failed; first: {first})"
+        )
+
+
+async def _record_usage(deps: Deps, job: Job, frame_id: str, usage: list[LLMUsage]) -> None:
+    for u in usage:
+        await deps.jobs.record_llm_usage(job.id, "analyze_frames", u, frame_id=frame_id)
 
 
 async def consolidate(deps: Deps, job: Job) -> None:

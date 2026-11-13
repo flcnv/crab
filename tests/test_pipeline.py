@@ -1,3 +1,4 @@
+import asyncio
 import dataclasses
 import uuid
 from pathlib import Path
@@ -7,8 +8,20 @@ import pytest
 
 from app.adapters.storage.local import LocalStorage
 from app.bootstrap import Deps, build_deps
-from app.domain.errors import MediaProcessingError
-from app.domain.models import ExtractedFrame, GeoPoint, JobStatus, MediaKind, MediaMetadata
+from app.domain.errors import FrameAnalysisError, MediaProcessingError
+from app.domain.models import (
+    Evidence,
+    ExtractedFrame,
+    FrameAnalysis,
+    GeoPoint,
+    JobStatus,
+    LineObservation,
+    LLMUsage,
+    Material,
+    MediaKind,
+    MediaMetadata,
+    UtilityType,
+)
 from app.worker.pipeline import run_pipeline
 from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
@@ -40,6 +53,53 @@ class FakeFrameExtractor:
         return [ExtractedFrame(jpeg=p.read_bytes()) for p in images]
 
 
+class FakeVisionModel:
+    """Reports one water line with invented sizes (no scale reference) per frame."""
+
+    def __init__(self, *, fail: set[str] | None = None) -> None:
+        self.fail = fail or set()
+        self.calls: list[str] = []
+        self.active = self.max_active = 0
+
+    async def analyze(self, image: bytes, frame_id: str) -> tuple[FrameAnalysis, list[LLMUsage]]:
+        self.calls.append(frame_id)
+        self.active += 1
+        self.max_active = max(self.max_active, self.active)
+        await asyncio.sleep(0.01)
+        self.active -= 1
+        usage = [
+            LLMUsage(
+                model="fake",
+                prompt_version="v1",
+                input_tokens=10,
+                output_tokens=5,
+                cost_usd=0.001,
+                latency_s=0.01,
+            )
+        ]
+        if frame_id in self.fail:
+            raise FrameAnalysisError("model refused (category: None)", usage)
+        line = LineObservation(
+            utility_type=UtilityType.WATER,
+            material=Material.PE,
+            color="blue",
+            approx_outer_diameter_mm=110,
+            approx_depth_of_cover_m=1.2,
+            is_house_connection=None,
+            evidence=[Evidence(cue="color", detail="blue jacket")],
+            confidence=0.5,
+        )
+        analysis = FrameAnalysis(
+            frame_id=frame_id,
+            is_trench_visible=True,
+            scale_reference_visible=False,
+            warning_tapes=[],
+            lines=[line],
+            image_quality_issues=[],
+        )
+        return analysis, usage
+
+
 @pytest.fixture
 def deps(tmp_path: Path) -> Deps:
     return dataclasses.replace(
@@ -49,6 +109,7 @@ def deps(tmp_path: Path) -> Deps:
         storage=LocalStorage(tmp_path),
         metadata_reader=FakeMetadataReader(),
         frame_extractor=FakeFrameExtractor(),
+        vision_model=FakeVisionModel(),
     )
 
 
@@ -57,7 +118,7 @@ async def _new_job(deps: Deps, kind: MediaKind, *names: str) -> UUID:
     return (await deps.jobs.create(uuid.uuid4(), kind, keys)).id
 
 
-async def test_video_job_stores_frames_and_stops_at_analyze(deps: Deps) -> None:
+async def test_video_job_stores_frames_and_analyses(deps: Deps) -> None:
     job_id = await _new_job(deps, "video", "clip.mp4")
 
     await run_pipeline(deps, job_id)
@@ -65,10 +126,11 @@ async def test_video_job_stores_frames_and_stops_at_analyze(deps: Deps) -> None:
     job = await deps.jobs.get(job_id)
     assert job is not None
     assert job.status is JobStatus.FAILED
-    assert job.error == "analyze_frames: not implemented yet"
+    assert job.error == "consolidate: not implemented yet"
     assert job.metadata is not None
     assert job.metadata.location == GeoPoint(lat=1, lon=2)
-    assert set(job.stage_timings_s) == {"ingest", "extract_frames"}
+    assert set(job.stage_timings_s) == {"ingest", "extract_frames", "analyze_frames"}
+    assert job.cost_usd == pytest.approx(0.003)
 
     frames = await deps.jobs.get_frames(job_id)
     assert [f.frame_id for f in frames] == ["f001", "f002", "f003"]
@@ -113,3 +175,89 @@ async def test_media_error_fails_job_with_stage_name(deps: Deps) -> None:
 
 async def test_unknown_job_is_ignored(deps: Deps) -> None:
     await run_pipeline(deps, uuid.uuid4())  # no exception
+
+
+def _vision(deps: Deps) -> FakeVisionModel:
+    assert isinstance(deps.vision_model, FakeVisionModel)
+    return deps.vision_model
+
+
+async def test_analyses_are_saved_with_sizes_stripped(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(deps, job_id)
+
+    analyses = await deps.jobs.get_analyses(job_id)
+    assert [a.frame_id for a in analyses] == ["f001", "f002", "f003"]
+    line = analyses[0].lines[0]
+    assert (line.approx_outer_diameter_mm, line.approx_depth_of_cover_m) == (None, None)
+    assert line.utility_type is UtilityType.WATER
+
+
+async def test_concurrency_is_limited(deps: Deps) -> None:
+    settings = deps.settings.model_copy(update={"llm_concurrency": 2, "max_frames": 8})
+    deps = dataclasses.replace(deps, settings=settings, frame_extractor=FakeFrameExtractor(n=8))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    assert len(_vision(deps).calls) == 8
+    assert _vision(deps).max_active == 2
+
+
+async def test_failed_frame_is_not_fatal_and_its_cost_counts(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f002"}))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.error == "consolidate: not implemented yet"  # moved past analyze_frames
+    assert job.cost_usd == pytest.approx(0.003)  # the failed call was billed too
+    assert [a.frame_id for a in await deps.jobs.get_analyses(job_id)] == ["f001", "f003"]
+
+
+async def test_all_frames_failed_fails_the_stage(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f001", "f002", "f003"}))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.status is JobStatus.FAILED
+    assert job.error == (
+        "analyze_frames: no frame could be analyzed "
+        "(3 failed; first: model refused (category: None))"
+    )
+
+
+async def test_rerun_only_retries_failed_frames(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(
+        dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f002"})), job_id
+    )
+
+    healthy = FakeVisionModel()
+    await run_pipeline(dataclasses.replace(deps, vision_model=healthy), job_id)
+
+    assert healthy.calls == ["f002"]
+    assert len(await deps.jobs.get_analyses(job_id)) == 3
+
+
+async def test_unexpected_error_fails_with_readable_message(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(
+        dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f001", "f002", "f003"})),
+        job_id,
+    )
+    frame = (await deps.jobs.get_frames(job_id))[0]
+    deps.storage.local_path(frame.storage_key).unlink()  # storage lost the frame
+
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.error is not None
+    assert job.error.startswith("analyze_frames: [Errno 2]")
+    assert "TaskGroup" not in job.error
