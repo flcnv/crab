@@ -10,8 +10,11 @@ from app.bootstrap import build_deps
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    app.state.deps = build_deps()
-    yield
+    app.state.deps = deps = build_deps()
+    try:
+        yield
+    finally:
+        await deps.aclose()
 
 
 app = FastAPI(title="Trench Report Agent", lifespan=lifespan)

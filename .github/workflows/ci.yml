@@ -29,8 +29,25 @@ jobs:
       - run: uv run mypy app eval tests
 
   test:
-    name: Tests
+    name: Tests & migrations
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: crab
+          POSTGRES_PASSWORD: crab
+          POSTGRES_DB: crab
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U crab -d crab"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      POSTGRES_USER: crab
+      POSTGRES_PASSWORD: crab
+      POSTGRES_DB: crab
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
@@ -39,7 +56,12 @@ jobs:
           python-version: "3.15"
           enable-cache: true
       - run: uv sync --locked
-      - run: uv run pytest -q
+      - name: Migrations apply cleanly and match the models
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+          uv run alembic downgrade base
+      - run: uv run pytest -q -rs
 
   docker:
     name: Docker build
