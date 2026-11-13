@@ -2,7 +2,6 @@
 
 import base64
 import json
-from typing import Any
 
 import anthropic
 import httpx2
@@ -13,6 +12,7 @@ from app.adapters.llm.claude import FALLBACK_BETA, ClaudeVisionModel
 from app.adapters.llm.pricing import cost_usd
 from app.domain.errors import FrameAnalysisError
 from app.domain.models import Material, UtilityType
+from tests.anthropic_fakes import FakeClient, FakeMessages, message
 
 GAS_LINE = {
     "position": "bottom center",
@@ -37,52 +37,6 @@ FINDINGS = {
 }
 
 
-def message(
-    text: str | None,
-    *,
-    model: str = "claude-sonnet-5-5",
-    stop_reason: str = "end_turn",
-    stop_details: dict[str, Any] | None = None,
-) -> BetaMessage:
-    return BetaMessage.model_validate(
-        {
-            "id": "msg_test",
-            "type": "message",
-            "role": "assistant",
-            "model": model,
-            "content": [] if text is None else [{"type": "text", "text": text}],
-            "stop_reason": stop_reason,
-            "stop_details": stop_details,
-            "stop_sequence": None,
-            "usage": {
-                "input_tokens": 1000,
-                "output_tokens": 300,
-                "cache_read_input_tokens": 2000,
-                "cache_creation_input_tokens": 0,
-            },
-        }
-    )
-
-
-class FakeMessages:
-    def __init__(self, replies: list[BetaMessage | Exception]) -> None:
-        self.replies = replies
-        self.requests: list[dict[str, Any]] = []
-
-    async def create(self, **kwargs: Any) -> BetaMessage:
-        self.requests.append(kwargs)
-        reply = self.replies.pop(0)
-        if isinstance(reply, Exception):
-            raise reply
-        return reply
-
-
-class FakeClient:
-    def __init__(self, replies: list[BetaMessage | Exception]) -> None:
-        self.messages = FakeMessages(replies)
-        self.beta = self
-
-
 def vision(
     replies: list[BetaMessage | Exception], model: str = "claude-sonnet-5-5"
 ) -> tuple[ClaudeVisionModel, FakeMessages]:
@@ -91,7 +45,7 @@ def vision(
 
 
 async def test_valid_output_becomes_frame_analysis() -> None:
-    model, _ = vision([message(json.dumps(FINDINGS))])
+    model, _ = vision([message(text=json.dumps(FINDINGS))])
 
     analysis, usage = await model.analyze(b"\xff\xd8jpeg", "f003")
 
@@ -110,7 +64,7 @@ async def test_valid_output_becomes_frame_analysis() -> None:
 
 
 async def test_request_shape() -> None:
-    model, api = vision([message(json.dumps(FINDINGS))])
+    model, api = vision([message(text=json.dumps(FINDINGS))])
     await model.analyze(b"jpeg-bytes", "f001")
 
     [req] = api.requests
@@ -130,7 +84,7 @@ async def test_request_shape() -> None:
 
 async def test_haiku_gets_no_fallback() -> None:
     model, api = vision(
-        [message(json.dumps(FINDINGS), model="claude-haiku-5-5")], "claude-haiku-5-5"
+        [message(text=json.dumps(FINDINGS), model="claude-haiku-5-5")], "claude-haiku-5-5"
     )
     await model.analyze(b"jpeg", "f001")
     assert api.requests[0]["betas"] is anthropic.omit
@@ -139,7 +93,7 @@ async def test_haiku_gets_no_fallback() -> None:
 
 async def test_invalid_output_is_retried_once_with_errors() -> None:
     bad = {**FINDINGS, "lines": [{**GAS_LINE, "confidence": 1.7, "evidence": []}]}
-    model, api = vision([message(json.dumps(bad)), message(json.dumps(FINDINGS))])
+    model, api = vision([message(text=json.dumps(bad)), message(text=json.dumps(FINDINGS))])
 
     analysis, usage = await model.analyze(b"jpeg", "f001")
 
@@ -153,7 +107,7 @@ async def test_invalid_output_is_retried_once_with_errors() -> None:
 
 async def test_invalid_output_twice_fails_with_usage() -> None:
     bad = json.dumps({**FINDINGS, "lines": [{**GAS_LINE, "confidence": 2}]})
-    model, _ = vision([message(bad), message(bad)])
+    model, _ = vision([message(text=bad), message(text=bad)])
 
     with pytest.raises(FrameAnalysisError, match="invalid output after retry") as exc:
         await model.analyze(b"jpeg", "f001")
@@ -165,14 +119,13 @@ async def test_invalid_output_twice_fails_with_usage() -> None:
     [
         (
             message(
-                None,
                 stop_reason="refusal",
                 stop_details={"type": "refusal", "category": "cyber", "explanation": None},
             ),
             "refused \\(category: cyber\\)",
         ),
-        (message('{"is_trench', stop_reason="max_tokens"), "truncated"),
-        (message(None), "no text output"),
+        (message(text='{"is_trench', stop_reason="max_tokens"), "truncated"),
+        (message(), "no text output"),
     ],
 )
 async def test_unusable_responses_fail_the_frame(reply: BetaMessage, error: str) -> None:
@@ -194,7 +147,7 @@ async def test_api_errors_fail_the_frame_without_usage() -> None:
 
 
 async def test_fallback_model_is_billed_at_its_own_price() -> None:
-    model, _ = vision([message(json.dumps(FINDINGS), model="claude-sonnet-5")])
+    model, _ = vision([message(text=json.dumps(FINDINGS), model="claude-sonnet-5")])
     _, [u] = await model.analyze(b"jpeg", "f001")
     assert u.model == "claude-sonnet-5"
 

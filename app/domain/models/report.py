@@ -21,6 +21,14 @@ class ReportLine(BaseModel):
     notes: str | None
 
 
+class Consolidation(BaseModel):
+    """Output of the consolidation step, before it becomes a report."""
+
+    lines: list[ReportLine]
+    remarks: list[str] = Field(default_factory=list)  # e.g. "frames 4-6 blurry, count uncertain"
+    method: str  # "agent" or "rules"
+
+
 class TrenchReport(BaseModel):
     job_id: UUID
     lines: list[ReportLine]

@@ -13,11 +13,13 @@ from collections.abc import Awaitable, Callable
 from uuid import UUID
 
 from app.bootstrap import Deps
-from app.domain.errors import FrameAnalysisError, MediaProcessingError
-from app.domain.models import Frame, Job, JobStatus, LLMUsage
+from app.domain.errors import ConsolidationError, FrameAnalysisError, MediaProcessingError
+from app.domain.models import Consolidation, Frame, Job, JobStatus, LLMUsage
 from app.domain.services import (
+    build_report,
     count_unscaled_measurements,
     merge_image_metadata,
+    merge_lines,
     strip_unscaled_measurements,
 )
 
@@ -121,7 +123,34 @@ async def _record_usage(deps: Deps, job: Job, frame_id: str, usage: list[LLMUsag
 
 
 async def consolidate(deps: Deps, job: Job) -> None:
-    raise NotImplementedError
+    """Agent merges per-frame findings into distinct lines; rule-based merge if the agent fails."""
+    if await deps.jobs.get_report(job.id) is not None:
+        return
+    analyses = await deps.jobs.get_analyses(job.id)
+    frames = {f.frame_id: f for f in await deps.jobs.get_frames(job.id)}
+
+    async def load_image(frame_id: str) -> bytes:
+        return await deps.storage.get(frames[frame_id].storage_key)
+
+    extra_limitations: list[str] = []
+    try:
+        consolidation, usage = await deps.report_agent.consolidate(job.id, analyses, load_image)
+    except ConsolidationError as e:
+        logger.warning("job %s: consolidation agent failed (%s), using rule-based merge", job.id, e)
+        usage = e.usage
+        consolidation = Consolidation(lines=merge_lines(analyses), method="rules")
+        extra_limitations.append(
+            f"Automatic consolidation failed ({e}); lines were merged by simple rules "
+            "(same type, material, color), so separate identical lines may be merged."
+        )
+    for u in usage:
+        await deps.jobs.record_llm_usage(job.id, "consolidate", u)
+
+    failed = len(frames) - len(analyses)
+    if failed:
+        extra_limitations.append(f"{failed} of {len(frames)} frames could not be analyzed.")
+    report = build_report(job, consolidation, extra_limitations=extra_limitations)
+    await deps.jobs.save_report(job.id, report)
 
 
 async def verify(deps: Deps, job: Job) -> None:

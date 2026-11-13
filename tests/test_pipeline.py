@@ -8,8 +8,9 @@ import pytest
 
 from app.adapters.storage.local import LocalStorage
 from app.bootstrap import Deps, build_deps
-from app.domain.errors import FrameAnalysisError, MediaProcessingError
+from app.domain.errors import ConsolidationError, FrameAnalysisError, MediaProcessingError
 from app.domain.models import (
+    Consolidation,
     Evidence,
     ExtractedFrame,
     FrameAnalysis,
@@ -20,8 +21,10 @@ from app.domain.models import (
     Material,
     MediaKind,
     MediaMetadata,
+    ReportLine,
     UtilityType,
 )
+from app.domain.ports.llm import ImageLoader
 from app.worker.pipeline import run_pipeline
 from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
@@ -100,6 +103,43 @@ class FakeVisionModel:
         return analysis, usage
 
 
+class FakeReportAgent:
+    """One line per distinct utility type; looks at the first frame's image."""
+
+    def __init__(self, *, fail: bool = False) -> None:
+        self.fail, self.calls = fail, 0
+        self.images: list[bytes] = []
+
+    async def consolidate(
+        self, job_id: UUID, analyses: list[FrameAnalysis], load_image: ImageLoader
+    ) -> tuple[Consolidation, list[LLMUsage]]:
+        self.calls += 1
+        usage = [
+            LLMUsage(
+                model="fake",
+                prompt_version="v1",
+                input_tokens=100,
+                output_tokens=50,
+                cost_usd=0.01,
+                latency_s=1.0,
+            )
+        ]
+        if self.fail:
+            raise ConsolidationError("no valid report after 10 turns", usage)
+        self.images.append(await load_image(analyses[0].frame_id))
+        line = ReportLine(
+            id="L1",
+            utility_type=UtilityType.WATER,
+            material=Material.PE,
+            approx_outer_diameter_mm=None,
+            approx_depth_of_cover_m=None,
+            seen_in_frames=[a.frame_id for a in analyses],
+            confidence=0.6,
+            notes=None,
+        )
+        return Consolidation(lines=[line], remarks=["agent remark"], method="agent"), usage
+
+
 @pytest.fixture
 def deps(tmp_path: Path) -> Deps:
     return dataclasses.replace(
@@ -110,6 +150,7 @@ def deps(tmp_path: Path) -> Deps:
         metadata_reader=FakeMetadataReader(),
         frame_extractor=FakeFrameExtractor(),
         vision_model=FakeVisionModel(),
+        report_agent=FakeReportAgent(),
     )
 
 
@@ -126,11 +167,11 @@ async def test_video_job_stores_frames_and_analyses(deps: Deps) -> None:
     job = await deps.jobs.get(job_id)
     assert job is not None
     assert job.status is JobStatus.FAILED
-    assert job.error == "consolidate: not implemented yet"
+    assert job.error == "verify: not implemented yet"
     assert job.metadata is not None
     assert job.metadata.location == GeoPoint(lat=1, lon=2)
-    assert set(job.stage_timings_s) == {"ingest", "extract_frames", "analyze_frames"}
-    assert job.cost_usd == pytest.approx(0.003)
+    assert set(job.stage_timings_s) == {"ingest", "extract_frames", "analyze_frames", "consolidate"}
+    assert job.cost_usd == pytest.approx(0.013)  # 3 frames + 1 consolidation
 
     frames = await deps.jobs.get_frames(job_id)
     assert [f.frame_id for f in frames] == ["f001", "f002", "f003"]
@@ -212,8 +253,8 @@ async def test_failed_frame_is_not_fatal_and_its_cost_counts(deps: Deps) -> None
 
     job = await deps.jobs.get(job_id)
     assert job is not None
-    assert job.error == "consolidate: not implemented yet"  # moved past analyze_frames
-    assert job.cost_usd == pytest.approx(0.003)  # the failed call was billed too
+    assert job.error == "verify: not implemented yet"  # moved past analyze_frames
+    assert job.cost_usd == pytest.approx(0.013)  # the failed frame call was billed too
     assert [a.frame_id for a in await deps.jobs.get_analyses(job_id)] == ["f001", "f003"]
 
 
@@ -261,3 +302,46 @@ async def test_unexpected_error_fails_with_readable_message(deps: Deps) -> None:
     assert job.error is not None
     assert job.error.startswith("analyze_frames: [Errno 2]")
     assert "TaskGroup" not in job.error
+
+
+def _agent(deps: Deps) -> FakeReportAgent:
+    assert isinstance(deps.report_agent, FakeReportAgent)
+    return deps.report_agent
+
+
+async def test_report_is_saved_with_limitations(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f003"}))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    assert [ln.seen_in_frames for ln in report.lines] == [["f001", "f002"]]
+    assert report.location == GeoPoint(lat=1, lon=2)
+    assert "1 of 3 frames could not be analyzed." in report.limitations
+    assert report.limitations[-1] == "agent remark"
+    assert _agent(deps).images == [b"jpeg0"]  # agent can load frame images
+
+
+async def test_agent_failure_falls_back_to_rules(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, report_agent=FakeReportAgent(fail=True))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    [line] = report.lines  # same type/material/color in all frames -> one line
+    assert line.notes == "merged by rule (color: blue)"
+    assert any("Automatic consolidation failed" in lim for lim in report.limitations)
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.cost_usd == pytest.approx(0.013)  # the failed agent run is still billed
+
+
+async def test_rerun_keeps_existing_report(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(deps, job_id)
+    await run_pipeline(deps, job_id)
+    assert _agent(deps).calls == 1

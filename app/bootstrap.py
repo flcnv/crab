@@ -12,7 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.adapters.db.repositories import SqlJobRepository
 from app.adapters.db.session import create_engine, create_sessionmaker
-from app.adapters.llm.claude import ClaudeReportAgent, ClaudeVerifier, ClaudeVisionModel
+from app.adapters.llm.agent import ClaudeReportAgent
+from app.adapters.llm.claude import ClaudeVerifier, ClaudeVisionModel
 from app.adapters.media.frames import FfmpegFrameExtractor
 from app.adapters.media.metadata import MediaMetadataReader
 from app.adapters.queue.arq import ArqJobQueue
@@ -82,7 +83,13 @@ def build_deps(settings: Settings | None = None) -> Deps:
             refusal_fallback=settings.claude_refusal_fallback,
         ),
         report_agent=ClaudeReportAgent(
-            claude, settings.claude_model, prompt_version=settings.prompt_version
+            claude,
+            settings.claude_model,
+            prompt_version=settings.prompt_version,
+            effort=settings.agent_effort,
+            max_turns=settings.agent_max_turns,
+            max_image_views=settings.agent_max_image_views,
+            refusal_fallback=settings.claude_refusal_fallback,
         ),
         verifier=ClaudeVerifier(
             claude, settings.claude_model, prompt_version=settings.prompt_version

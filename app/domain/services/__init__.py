@@ -1,6 +1,11 @@
 """Pure domain logic: consolidation, measurement guards, verification rules."""
 
-from app.domain.services.consolidation import DEFAULT_LIMITATIONS, merge_lines
+from app.domain.services.consolidation import (
+    DEFAULT_LIMITATIONS,
+    build_report,
+    check_report_lines,
+    merge_lines,
+)
 from app.domain.services.keyframes import FrameCandidate, hamming, select_keyframes
 from app.domain.services.measurements import (
     count_unscaled_measurements,
@@ -15,6 +20,8 @@ __all__ = [
     "FrameCandidate",
     "Upload",
     "apply_verification_flags",
+    "build_report",
+    "check_report_lines",
     "classify_uploads",
     "count_unscaled_measurements",
     "hamming",
