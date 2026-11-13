@@ -5,9 +5,15 @@ from app.domain.models import FrameAnalysis, LLMUsage, TrenchReport
 
 
 class VisionModel(Protocol):
-    """One image -> structured findings."""
+    """One image -> structured findings.
 
-    async def analyze(self, image: bytes, frame_id: str) -> tuple[FrameAnalysis, LLMUsage]: ...
+    Returns the usage of every model call made (a retry adds one). Raises
+    `FrameAnalysisError` (which also carries the usage) when the frame cannot be analyzed.
+    """
+
+    async def analyze(
+        self, image: bytes, frame_id: str
+    ) -> tuple[FrameAnalysis, list[LLMUsage]]: ...
 
 
 class ReportAgent(Protocol):

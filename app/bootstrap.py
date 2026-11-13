@@ -6,6 +6,7 @@ Tests can build their own `Deps` with fakes instead.
 
 from dataclasses import dataclass
 
+import anthropic
 from arq.connections import RedisSettings
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -33,6 +34,7 @@ from app.settings import Settings, get_settings
 class Deps:
     settings: Settings
     engine: AsyncEngine
+    anthropic: anthropic.AsyncAnthropic
     jobs: JobRepository
     queue: JobQueue
     storage: Storage
@@ -44,15 +46,24 @@ class Deps:
 
     async def aclose(self) -> None:
         await self.queue.aclose()
+        await self.anthropic.close()
         await self.engine.dispose()
 
 
 def build_deps(settings: Settings | None = None) -> Deps:
     settings = settings or get_settings()
     engine = create_engine(settings.database_url)
+    key = settings.anthropic_api_key
+    claude = anthropic.AsyncAnthropic(
+        # None -> the SDK resolves credentials itself (env var, `ant auth login` profile)
+        api_key=key.get_secret_value() if key else None,
+        max_retries=settings.claude_max_retries,
+        timeout=settings.claude_timeout_s,
+    )
     return Deps(
         settings=settings,
         engine=engine,
+        anthropic=claude,
         jobs=SqlJobRepository(create_sessionmaker(engine)),
         queue=ArqJobQueue(RedisSettings.from_dsn(settings.redis_url)),
         storage=LocalStorage(settings.storage_dir),
@@ -63,7 +74,17 @@ def build_deps(settings: Settings | None = None) -> Deps:
             min_sharpness=settings.min_frame_sharpness,
             min_hash_distance=settings.min_frame_hash_distance,
         ),
-        vision_model=ClaudeVisionModel(settings.claude_model, settings.prompt_version),
-        report_agent=ClaudeReportAgent(settings.claude_model, settings.prompt_version),
-        verifier=ClaudeVerifier(settings.claude_model, settings.prompt_version),
+        vision_model=ClaudeVisionModel(
+            claude,
+            settings.claude_model,
+            prompt_version=settings.prompt_version,
+            effort=settings.claude_effort,
+            refusal_fallback=settings.claude_refusal_fallback,
+        ),
+        report_agent=ClaudeReportAgent(
+            claude, settings.claude_model, prompt_version=settings.prompt_version
+        ),
+        verifier=ClaudeVerifier(
+            claude, settings.claude_model, prompt_version=settings.prompt_version
+        ),
     )

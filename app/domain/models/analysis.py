@@ -23,6 +23,10 @@ class LineObservation(BaseModel):
     is_house_connection: bool | None
     evidence: list[Evidence] = Field(min_length=1)
     confidence: float = Field(ge=0, le=1)
+    # Observable attributes, compared against eval labels and used to match lines across frames
+    has_stripes: bool | None = None
+    is_paired: bool | None = None  # e.g. supply + return pipe of district heating
+    position: str | None = None  # where in the frame, e.g. "left wall, bottom"
 
 
 class FrameAnalysis(BaseModel):

@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,6 +35,10 @@ class Settings(BaseSettings):
     claude_model: str = "claude-sonnet-5-5"
     claude_model_cheap: str = "claude-haiku-5-5"
     prompt_version: str = "v1"
+    claude_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+    claude_max_retries: int = 3  # SDK retries on 429 / 5xx / connection errors
+    claude_timeout_s: float = 120.0
+    claude_refusal_fallback: bool = True  # server-side fallback model on a policy refusal
     llm_concurrency: int = 4
 
     # Frame extraction
