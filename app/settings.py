@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Storage
     storage_dir: Path = Path("storage")
 
+    # Uploads
+    max_upload_bytes: int = 500 * 1024 * 1024  # total per job
+    max_images_per_job: int = 50
+
     # Claude
     anthropic_api_key: SecretStr | None = None
     claude_model: str = "claude-sonnet-5-5"

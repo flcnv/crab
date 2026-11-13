@@ -4,7 +4,6 @@ Each method runs in its own short transaction. Domain models go in and out;
 ORM rows never leave this module.
 """
 
-import uuid
 from typing import Any
 from uuid import UUID
 
@@ -32,9 +31,9 @@ class SqlJobRepository:
 
     # --- jobs ---------------------------------------------------------------------------
 
-    async def create(self, media_kind: MediaKind, upload_keys: list[str]) -> Job:
+    async def create(self, job_id: UUID, media_kind: MediaKind, upload_keys: list[str]) -> Job:
         row = JobRow(
-            id=uuid.uuid7(),  # time-ordered UUID (Python 3.14+): index-friendly primary key
+            id=job_id,
             status=JobStatus.QUEUED,
             media_kind=media_kind,
             upload_keys=upload_keys,

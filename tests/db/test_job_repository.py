@@ -59,7 +59,7 @@ def _usage(cost: float) -> LLMUsage:
 
 
 async def _job_with_frames(repo: SqlJobRepository, *frame_ids: str) -> uuid.UUID:
-    job = await repo.create("video", ["uploads/a.mp4"])
+    job = await repo.create(uuid.uuid4(), "video", ["uploads/a.mp4"])
     await repo.save_frames(
         job.id, [Frame(frame_id=f, storage_key=f"frames/{f}.jpg") for f in frame_ids]
     )
@@ -67,7 +67,7 @@ async def _job_with_frames(repo: SqlJobRepository, *frame_ids: str) -> uuid.UUID
 
 
 async def test_create_and_get(repo: SqlJobRepository) -> None:
-    job = await repo.create("image", ["uploads/1.jpg", "uploads/2.jpg"])
+    job = await repo.create(uuid.uuid4(), "image", ["uploads/1.jpg", "uploads/2.jpg"])
 
     assert job.status is JobStatus.QUEUED
     assert job.cost_usd == 0.0
@@ -79,7 +79,7 @@ async def test_get_unknown_returns_none(repo: SqlJobRepository) -> None:
 
 
 async def test_status_metadata_and_timings(repo: SqlJobRepository) -> None:
-    job = await repo.create("video", ["uploads/a.mp4"])
+    job = await repo.create(uuid.uuid4(), "video", ["uploads/a.mp4"])
 
     await repo.set_status(job.id, JobStatus.FAILED, error="boom")
     await repo.save_metadata(job.id, MediaMetadata(kind="video", duration_s=12.5))
@@ -135,7 +135,7 @@ async def test_llm_usage_sums_into_job_cost(repo: SqlJobRepository) -> None:
 
 
 async def test_report_roundtrip_and_overwrite(repo: SqlJobRepository) -> None:
-    job = await repo.create("video", ["uploads/a.mp4"])
+    job = await repo.create(uuid.uuid4(), "video", ["uploads/a.mp4"])
     assert await repo.get_report(job.id) is None
 
     line = ReportLine(

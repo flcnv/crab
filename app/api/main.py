@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.errors import register_error_handlers
 from app.api.routes import jobs
 from app.bootstrap import build_deps
 
@@ -27,6 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
 )
 
+register_error_handlers(app)
 app.include_router(jobs.router)
 
 
