@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     sample_fps: float = 1.0
     max_frames: int = 12
     max_image_edge_px: int = 1500
+    min_frame_sharpness: float = 60.0  # variance of Laplacian on a 640 px wide copy
+    min_frame_hash_distance: int = 6  # dHash bits; closer frames count as duplicates
 
     @property
     def database_url(self) -> str:

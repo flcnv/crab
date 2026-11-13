@@ -1,23 +1,67 @@
-"""FrameExtractor: ffmpeg sampling -> blur filter (variance of Laplacian) -> dHash dedup -> top N.
+"""FrameExtractor: ffmpeg sampling -> sharpness + dHash per frame -> domain keyframe selection."""
 
-Heavy modules (numpy/cv2) are imported lazily (Python 3.15 `lazy import`)
-so the API starts fast.
-"""
-
+import asyncio
+import tempfile
 from pathlib import Path
 
-from app.domain.models import Frame
+from app.adapters.media import ffmpeg, images
+from app.domain.errors import MediaProcessingError
+from app.domain.models import ExtractedFrame
+from app.domain.services import FrameCandidate, select_keyframes
 
 
 class FfmpegFrameExtractor:
-    def __init__(self, sample_fps: float = 1.0, blur_threshold: float = 100.0) -> None:
+    def __init__(
+        self,
+        *,
+        sample_fps: float = 1.0,
+        max_edge_px: int = 1500,
+        min_sharpness: float = 60.0,
+        min_hash_distance: int = 6,
+    ) -> None:
         self.sample_fps = sample_fps
-        self.blur_threshold = blur_threshold
+        self.max_edge_px = max_edge_px
+        self.min_sharpness = min_sharpness
+        self.min_hash_distance = min_hash_distance
 
-    async def extract(self, video: Path, out_dir: Path, max_frames: int) -> list[Frame]:
-        raise NotImplementedError
+    async def from_video(self, video: Path, max_frames: int) -> list[ExtractedFrame]:
+        with tempfile.TemporaryDirectory(prefix="frames-") as tmp:
+            paths = await ffmpeg.sample_frames(
+                video, Path(tmp), fps=self.sample_fps, max_edge_px=self.max_edge_px
+            )
+            if not paths:
+                raise MediaProcessingError("video contains no decodable frames")
+            jpegs = await asyncio.to_thread(lambda: [p.read_bytes() for p in paths])
 
+        candidates = await asyncio.to_thread(self._measure, jpegs)
+        picked = select_keyframes(
+            candidates,
+            max_frames=max_frames,
+            min_sharpness=self.min_sharpness,
+            min_hash_distance=self.min_hash_distance,
+        )
+        return [
+            ExtractedFrame(
+                jpeg=jpegs[c.index],
+                timestamp_s=round(c.index / self.sample_fps, 3),
+                sharpness=round(c.sharpness, 2),
+            )
+            for c in picked
+        ]
 
-def prepare_image(data: bytes, max_edge_px: int = 1500) -> bytes:
-    """exif_transpose + downscale to max_edge_px on the long edge, re-encode as JPEG."""
-    raise NotImplementedError
+    async def from_images(self, image_paths: list[Path]) -> list[ExtractedFrame]:
+        return await asyncio.to_thread(self._prepare_images, image_paths)
+
+    @staticmethod
+    def _measure(jpegs: list[bytes]) -> list[FrameCandidate]:
+        return [
+            FrameCandidate(index=i, sharpness=images.sharpness(j), phash=images.dhash(j))
+            for i, j in enumerate(jpegs)
+        ]
+
+    def _prepare_images(self, image_paths: list[Path]) -> list[ExtractedFrame]:
+        frames = []
+        for path in image_paths:
+            jpeg = images.prepare_image(path.read_bytes(), self.max_edge_px)
+            frames.append(ExtractedFrame(jpeg=jpeg, sharpness=round(images.sharpness(jpeg), 2)))
+        return frames

@@ -13,7 +13,7 @@ from app.adapters.db.repositories import SqlJobRepository
 from app.adapters.db.session import create_engine, create_sessionmaker
 from app.adapters.llm.claude import ClaudeReportAgent, ClaudeVerifier, ClaudeVisionModel
 from app.adapters.media.frames import FfmpegFrameExtractor
-from app.adapters.media.metadata import FfprobeMetadataReader
+from app.adapters.media.metadata import MediaMetadataReader
 from app.adapters.queue.arq import ArqJobQueue
 from app.adapters.storage.local import LocalStorage
 from app.domain.ports import (
@@ -56,8 +56,13 @@ def build_deps(settings: Settings | None = None) -> Deps:
         jobs=SqlJobRepository(create_sessionmaker(engine)),
         queue=ArqJobQueue(RedisSettings.from_dsn(settings.redis_url)),
         storage=LocalStorage(settings.storage_dir),
-        metadata_reader=FfprobeMetadataReader(),
-        frame_extractor=FfmpegFrameExtractor(sample_fps=settings.sample_fps),
+        metadata_reader=MediaMetadataReader(),
+        frame_extractor=FfmpegFrameExtractor(
+            sample_fps=settings.sample_fps,
+            max_edge_px=settings.max_image_edge_px,
+            min_sharpness=settings.min_frame_sharpness,
+            min_hash_distance=settings.min_frame_hash_distance,
+        ),
         vision_model=ClaudeVisionModel(settings.claude_model, settings.prompt_version),
         report_agent=ClaudeReportAgent(settings.claude_model, settings.prompt_version),
         verifier=ClaudeVerifier(settings.claude_model, settings.prompt_version),

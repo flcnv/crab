@@ -4,12 +4,13 @@ from app.domain.models.analysis import Evidence, FrameAnalysis, LineObservation
 from app.domain.models.enums import JobStatus, Material, UtilityType
 from app.domain.models.geo import GeoPoint
 from app.domain.models.job import Job
-from app.domain.models.media import Frame, MediaKind, MediaMetadata
+from app.domain.models.media import ExtractedFrame, Frame, MediaKind, MediaMetadata
 from app.domain.models.report import ReportLine, TrenchReport
 from app.domain.models.usage import LLMUsage
 
 __all__ = [
     "Evidence",
+    "ExtractedFrame",
     "Frame",
     "FrameAnalysis",
     "GeoPoint",

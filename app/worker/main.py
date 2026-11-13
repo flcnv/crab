@@ -26,4 +26,6 @@ class WorkerSettings:
     functions: ClassVar = [process_job]
     on_startup = startup
     on_shutdown = shutdown
+    job_timeout = 30 * 60  # video decoding + many model calls can take a while
+    max_tries = 1  # failed jobs are resumed explicitly, not retried blindly
     redis_settings: ClassVar = RedisSettings.from_dsn(get_settings().redis_url)
