@@ -89,10 +89,59 @@ curl localhost:8000/jobs/<job_id>/report.md
 
 ## Data
 
-Postgres tables: `jobs` (status, metadata, timings), `frames`, `frame_analyses` (JSONB of the
-domain model, `ok`/`failed` per frame), `reports` (JSONB), `llm_calls` (tokens, cost, latency,
-model and prompt version of every model call; a job's cost is their sum). Files live in
-`storage/`: `uploads/<job_id>/...` and `frames/<job_id>/fNNN.jpg`.
+```mermaid
+erDiagram
+    jobs ||--o{ frames : "1-n"
+    frames ||--o| frame_analyses : "1-0..1"
+    jobs ||--o| reports : "1-0..1"
+    jobs ||--o{ llm_calls : "1-n"
+
+    jobs {
+        uuid id PK "uuid7"
+        string status "queued..done|failed"
+        string media_kind "video|images"
+        jsonb upload_keys
+        jsonb metadata "MediaMetadata"
+        text error "stage: reason"
+        jsonb stage_timings_s
+    }
+    frames {
+        uuid job_id PK,FK
+        string frame_id PK
+        string storage_key
+        float timestamp_s
+        float sharpness
+    }
+    frame_analyses {
+        uuid job_id PK,FK
+        string frame_id PK,FK
+        string status "ok|failed"
+        jsonb analysis "FrameAnalysis"
+        text error
+    }
+    reports {
+        uuid job_id PK,FK
+        jsonb report "TrenchReport"
+    }
+    llm_calls {
+        int id PK
+        uuid job_id FK
+        string stage
+        string frame_id
+        string model "actual model"
+        string prompt_version
+        int input_tokens
+        int output_tokens
+        float cost_usd
+        float latency_s
+    }
+```
+
+- Pipeline outputs are stored as JSONB of the domain models, validated by Pydantic on read.
+- Every model call lands in `llm_calls`, failed ones included; a job's cost is their sum.
+- All foreign keys cascade on delete; saving new frames for a job drops its old analyses.
+
+Files live in `storage/`: `uploads/<job_id>/...` and `frames/<job_id>/fNNN.jpg`.
 
 ## Run it
 
