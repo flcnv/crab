@@ -57,8 +57,9 @@ TOOLS: list[BetaToolParam] = [
     ),
     _tool(
         "submit_report",
-        "Submit the consolidated lines. Rejected with a list of problems if inconsistent "
-        "with the frames; fix them and submit again.",
+        "Submit the consolidated lines, each citing the frame observations it merges. "
+        "Rejected with a list of problems if inconsistent with the frames; fix them and "
+        "submit again.",
         SubmitReportInput,
     ),
 ]
@@ -71,8 +72,8 @@ def overview(analyses: list[FrameAnalysis]) -> str:
     rows = []
     for a in analyses:
         lines = "; ".join(
-            f"{ln.utility_type}/{ln.material} {ln.color or '?'} @ {ln.position or '?'}"
-            for ln in a.lines
+            f"[{i}] {ln.utility_type}/{ln.material} {ln.color or '?'} @ {ln.position or '?'}"
+            for i, ln in enumerate(a.lines)
         )
         rows.append(
             f"- {a.frame_id}: trench {'yes' if a.is_trench_visible else 'no'}, "
@@ -171,10 +172,7 @@ class _Session:
         ids = args.frame_ids or list(self.analyses)
         if unknown := [i for i in ids if i not in self.analyses]:
             raise _ToolError(f"unknown frame ids {unknown}; known: {list(self.analyses)}")
-        return json.dumps(
-            [self.analyses[i].model_dump(mode="json", exclude_none=True) for i in ids],
-            ensure_ascii=False,
-        )
+        return json.dumps([_with_line_indices(self.analyses[i]) for i in ids], ensure_ascii=False)
 
     async def _image(self, args: GetFrameImageInput) -> list[dict[str, Any]]:
         if args.frame_id not in self.analyses:
@@ -204,6 +202,13 @@ class _Session:
             raise _ToolError("report rejected:\n" + "\n".join(f"- {p}" for p in problems))
         self.result = Consolidation(lines=lines, remarks=args.remarks, method="agent")
         return "accepted"
+
+
+def _with_line_indices(analysis: FrameAnalysis) -> dict[str, Any]:
+    """Findings as JSON, each line prefixed with the `line_index` the agent cites it by."""
+    data = analysis.model_dump(mode="json", exclude_none=True)
+    data["lines"] = [{"line_index": i, **line} for i, line in enumerate(data["lines"])]
+    return data
 
 
 class _ToolError(Exception):

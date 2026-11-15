@@ -39,7 +39,10 @@ GAS_LINE = {
     "material": "pe",
     "approx_outer_diameter_mm": None,
     "approx_depth_of_cover_m": None,
-    "seen_in_frames": ["f001", "f002"],
+    "observations": [
+        {"frame_id": "f001", "line_index": 0},
+        {"frame_id": "f002", "line_index": 0},
+    ],
     "confidence": 0.9,
     "notes": "tape text in both frames",
 }
@@ -84,19 +87,25 @@ async def test_findings_then_submit() -> None:
 
     first, second = api.requests
     assert "f001: trench yes" in first["messages"][0]["content"]
+    assert "[0] gas/pe yellow @ bottom" in first["messages"][0]["content"]
     assert first["tools"] == TOOLS
     assert all(t["strict"] for t in TOOLS)
     assert first["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert first["output_config"] == {"effort": "high"}
     [result] = results_of(second)
     assert result["tool_use_id"] == "toolu_1"
-    assert [f["frame_id"] for f in json.loads(result["content"])] == ["f001", "f002"]
+    findings = json.loads(result["content"])
+    assert [f["frame_id"] for f in findings] == ["f001", "f002"]
+    assert findings[0]["lines"][0]["line_index"] == 0
     # append-only: the assistant turn goes back unchanged
     assert second["messages"][1]["role"] == "assistant"
 
 
 async def test_rejected_report_is_fixed_and_resubmitted() -> None:
-    bad = {"lines": [{**GAS_LINE, "seen_in_frames": ["f009"]}], "remarks": []}
+    bad = {
+        "lines": [{**GAS_LINE, "observations": [{"frame_id": "f009", "line_index": 0}]}],
+        "remarks": [],
+    }
     sized = {"lines": [{**GAS_LINE, "approx_outer_diameter_mm": 110}], "remarks": []}
     a, api = agent(
         [
@@ -182,3 +191,34 @@ async def test_refusal() -> None:
     a, _ = agent([refusal])
     with pytest.raises(ConsolidationError, match="refused"):
         await a.consolidate(uuid.uuid4(), ANALYSES, load_image)
+
+
+async def test_observation_claimed_twice_is_rejected() -> None:
+    twice = {"lines": [GAS_LINE, {**GAS_LINE, "notes": "same pipe again"}], "remarks": []}
+    missing = {
+        "lines": [{**GAS_LINE, "observations": [{"frame_id": "f001", "line_index": 5}]}],
+        "remarks": [],
+    }
+    a, api = agent(
+        [
+            message(tool_use("submit_report", twice)),
+            message(tool_use("submit_report", missing, id="toolu_2")),
+            message(tool_use("submit_report", SUBMIT_OK, id="toolu_3")),
+        ]
+    )
+
+    consolidation, _ = await a.consolidate(uuid.uuid4(), ANALYSES, load_image)
+
+    [line] = consolidation.lines
+    assert [str(r) for r in line.observations] == ["f001#0", "f002#0"]
+    [r1] = results_of(api.requests[1])
+    assert "L2: observation f001#0 is already used by L1" in r1["content"]
+    [r2] = results_of(api.requests[2])
+    assert "f001#5 does not exist" in r2["content"]
+
+
+def test_submit_tool_requires_observations() -> None:
+    [submit] = [t for t in TOOLS if t["name"] == "submit_report"]
+    line_schema = json.dumps(submit["input_schema"])
+    assert "observations" in line_schema
+    assert "seen_in_frames" not in line_schema

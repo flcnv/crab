@@ -5,7 +5,7 @@ from app.domain.models.enums import JobStatus, Material, UtilityType
 from app.domain.models.geo import GeoPoint
 from app.domain.models.job import Job
 from app.domain.models.media import ExtractedFrame, Frame, MediaKind, MediaMetadata
-from app.domain.models.report import Consolidation, ReportLine, TrenchReport
+from app.domain.models.report import Consolidation, ObservationRef, ReportLine, TrenchReport
 from app.domain.models.usage import LLMUsage
 
 __all__ = [
@@ -22,6 +22,7 @@ __all__ = [
     "Material",
     "MediaKind",
     "MediaMetadata",
+    "ObservationRef",
     "ReportLine",
     "TrenchReport",
     "UtilityType",

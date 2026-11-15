@@ -8,7 +8,14 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from app.domain.models import Evidence, FrameAnalysis, LineObservation, Material, UtilityType
+from app.domain.models import (
+    Evidence,
+    FrameAnalysis,
+    LineObservation,
+    Material,
+    ObservationRef,
+    UtilityType,
+)
 
 
 class LineFinding(BaseModel):
@@ -84,7 +91,12 @@ class ReportLineDraft(BaseModel):
     approx_depth_of_cover_m: float | None = Field(
         description="Only if at least one of its frames has a scale reference; otherwise null."
     )
-    seen_in_frames: list[str] = Field(min_length=1, description="Frame ids showing this line.")
+    observations: list[ObservationRef] = Field(
+        min_length=1,
+        description="The per-frame observations merged into this line, as frame_id + "
+        "line_index (the [index] shown for each line in the overview and findings). "
+        "Each observation belongs to at most one line.",
+    )
     confidence: float = Field(ge=0, le=1, description="Probability that utility_type is correct.")
     notes: str | None = Field(
         description="Key evidence, and any merge or conflict worth knowing about."

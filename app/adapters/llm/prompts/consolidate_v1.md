@@ -18,6 +18,8 @@ which observations are the same physical line and to report each line once.
 - Frame ids are in time order. A line that runs along the trench shows up in consecutive frames.
 - Same line: consistent utility type or color, similar position in the trench, same pairing.
   Two pipes of a supply/return pair are two lines, even though they always appear together.
+- Cite every observation you merge into a line as `{frame_id, line_index}` (the `[index]` in the
+  overview); each observation belongs to at most one line.
 - Count: a kind of line appears at least as many times as the most copies seen in one frame.
   Do not add a line that no single frame supports.
 - If frames disagree on the type, prefer the frame with the strongest evidence (readable tape

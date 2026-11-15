@@ -1,6 +1,6 @@
 """Consolidation rules: checking an agent's report and a deterministic fallback merge."""
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 from collections.abc import Sequence
 from statistics import median
 
@@ -10,6 +10,7 @@ from app.domain.models import (
     Job,
     LineObservation,
     Material,
+    ObservationRef,
     ReportLine,
     TrenchReport,
     UtilityType,
@@ -23,17 +24,39 @@ DEFAULT_LIMITATIONS: tuple[str, ...] = (
 
 
 def check_report_lines(lines: Sequence[ReportLine], analyses: Sequence[FrameAnalysis]) -> list[str]:
-    """Problems with a proposed set of lines; empty list means it is consistent with the frames."""
+    """Problems with a proposed set of lines; empty list means it is consistent with the frames.
+
+    Every line must reference at least one observation; each reference must point to an
+    existing frame and line index; no observation may be claimed by two lines; sizes need a
+    scale reference in at least one of the line's frames.
+    """
     by_id = {a.frame_id: a for a in analyses}
+    claimed_by: dict[ObservationRef, str] = {}
     problems: list[str] = []
     for line in lines:
-        if not line.seen_in_frames:
-            problems.append(f"{line.id}: seen_in_frames is empty")
+        if not line.observations:
+            problems.append(f"{line.id}: no observations referenced")
             continue
-        unknown = [f for f in line.seen_in_frames if f not in by_id]
+        unknown = sorted({r.frame_id for r in line.observations if r.frame_id not in by_id})
         if unknown:
             problems.append(f"{line.id}: unknown frame ids {unknown}")
             continue
+        out_of_range = [
+            r for r in line.observations if r.line_index >= len(by_id[r.frame_id].lines)
+        ]
+        if out_of_range:
+            problems.extend(
+                f"{line.id}: {r} does not exist "
+                f"(frame {r.frame_id} has {len(by_id[r.frame_id].lines)} lines)"
+                for r in out_of_range
+            )
+            continue
+        # setdefault records the first claim; a later line claiming the same ref is a problem
+        problems.extend(
+            f"{line.id}: observation {ref} is already used by {claimed_by[ref]}"
+            for ref in line.observations
+            if claimed_by.setdefault(ref, line.id) != line.id
+        )
         has_scale = any(by_id[f].scale_reference_visible for f in line.seen_in_frames)
         sized = (
             line.approx_outer_diameter_mm is not None or line.approx_depth_of_cover_m is not None
@@ -59,25 +82,37 @@ def merge_lines(analyses: Sequence[FrameAnalysis]) -> list[ReportLine]:
     """Merge without an LLM: observations with the same type, material, color and pairing are
     the same kind of line. The number of physical lines of a kind is the most seen in one frame.
 
+    References are assigned deterministically: the k-th line of a kind takes the k-th matching
+    observation (in frame order) of every frame that has one. Sizes and confidence of a line
+    come from its own observations only.
+
     Crude by design: it cannot tell two identical pipes in different places apart. Used when
     the agent fails, and as a baseline in the eval.
     """
-    per_frame: dict[_Key, Counter[str]] = defaultdict(Counter)
-    observations: dict[_Key, list[LineObservation]] = defaultdict(list)
+    # kind -> frame_id -> indices of matching observations in that frame, in frame order
+    refs: dict[_Key, dict[str, list[int]]] = defaultdict(dict)
+    found: dict[tuple[str, int], LineObservation] = {}
     for analysis in analyses:
-        for obs in analysis.lines:
-            per_frame[_key(obs)][analysis.frame_id] += 1
-            observations[_key(obs)].append(obs)
+        for index, obs in enumerate(analysis.lines):
+            refs[_key(obs)].setdefault(analysis.frame_id, []).append(index)
+            found[analysis.frame_id, index] = obs
+
+    def total(key: _Key) -> int:
+        return sum(len(indices) for indices in refs[key].values())
 
     lines: list[ReportLine] = []
-    for key in sorted(per_frame, key=lambda k: (-per_frame[k].total(), str(k))):
-        frames = sorted(per_frame[key])
-        group = observations[key]
-        diameters = [o.approx_outer_diameter_mm for o in group if o.approx_outer_diameter_mm]
-        depths = [o.approx_depth_of_cover_m for o in group if o.approx_depth_of_cover_m]
-        confidence = round(sum(o.confidence for o in group) / len(group), 2)
+    for key in sorted(refs, key=lambda k: (-total(k), str(k))):
+        per_frame = refs[key]
         utility, material, color, _ = key
-        for _ in range(max(per_frame[key].values())):
+        for k in range(max(len(indices) for indices in per_frame.values())):
+            own = [
+                ObservationRef(frame_id=frame_id, line_index=indices[k])
+                for frame_id, indices in sorted(per_frame.items())
+                if k < len(indices)
+            ]
+            group = [found[r.frame_id, r.line_index] for r in own]
+            diameters = [o.approx_outer_diameter_mm for o in group if o.approx_outer_diameter_mm]
+            depths = [o.approx_depth_of_cover_m for o in group if o.approx_depth_of_cover_m]
             lines.append(
                 ReportLine(
                     id=f"L{len(lines) + 1}",
@@ -85,8 +120,8 @@ def merge_lines(analyses: Sequence[FrameAnalysis]) -> list[ReportLine]:
                     material=material,
                     approx_outer_diameter_mm=round(median(diameters)) if diameters else None,
                     approx_depth_of_cover_m=round(median(depths), 2) if depths else None,
-                    seen_in_frames=frames,
-                    confidence=confidence,
+                    observations=own,
+                    confidence=round(sum(o.confidence for o in group) / len(group), 2),
                     notes=f"merged by rule (color: {color or 'unknown'})",
                 )
             )

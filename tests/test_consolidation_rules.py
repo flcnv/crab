@@ -1,6 +1,9 @@
 import uuid
 from datetime import UTC, datetime
 
+import pytest
+from pydantic import ValidationError
+
 from app.domain.models import (
     Consolidation,
     Evidence,
@@ -11,6 +14,7 @@ from app.domain.models import (
     LineObservation,
     Material,
     MediaMetadata,
+    ObservationRef,
     ReportLine,
     UtilityType,
 )
@@ -48,6 +52,15 @@ GAS = (UtilityType.GAS, Material.PE, "yellow")
 HEAT = (UtilityType.DISTRICT_HEATING, Material.PRE_INSULATED, "black")
 
 
+def refs(*labels: str) -> list[ObservationRef]:
+    """refs("f001#0", "f002#1") -> ObservationRefs."""
+    out = []
+    for label in labels:
+        frame_id, index = label.split("#")
+        out.append(ObservationRef(frame_id=frame_id, line_index=int(index)))
+    return out
+
+
 def test_merge_lines_counts_by_max_per_frame() -> None:
     analyses = [
         frame("f001", obs(*GAS, conf=0.4), obs(*HEAT, paired=True), obs(*HEAT, paired=True)),
@@ -67,6 +80,36 @@ def test_merge_lines_counts_by_max_per_frame() -> None:
     assert [ln.id for ln in lines] == ["L1", "L2", "L3"]
 
 
+def test_merge_lines_assigns_kth_observation_to_kth_line() -> None:
+    analyses = [
+        frame("f001", obs(*GAS, conf=0.4), obs(*HEAT, paired=True), obs(*HEAT, paired=True)),
+        frame("f002", obs(*GAS, conf=0.8)),
+        frame("f003", obs(*HEAT, paired=True), obs(*HEAT, paired=True)),
+    ]
+
+    l1, l2, l3 = merge_lines(analyses)
+
+    assert l1.observations == refs("f001#1", "f003#0")
+    assert l2.observations == refs("f001#2", "f003#1")
+    assert l3.observations == refs("f001#0", "f002#0")
+    assert check_report_lines([l1, l2, l3], analyses) == []  # every ref valid, none shared
+
+
+def test_merge_lines_extra_copy_only_has_its_own_observations() -> None:
+    analyses = [
+        frame("f001", obs(*GAS, conf=0.4), obs(*GAS, conf=0.9)),
+        frame("f002", obs(*GAS, conf=0.6)),
+    ]
+
+    first, second = merge_lines(analyses)
+
+    assert first.observations == refs("f001#0", "f002#0")
+    assert first.confidence == 0.5
+    assert second.observations == refs("f001#1")
+    assert second.seen_in_frames == ["f001"]
+    assert second.confidence == 0.9
+
+
 def test_merge_lines_color_is_case_insensitive() -> None:
     lines = merge_lines(
         [frame("f001", obs(UtilityType.GAS, Material.PE, "Yellow")), frame("f002", obs(*GAS))]
@@ -74,26 +117,68 @@ def test_merge_lines_color_is_case_insensitive() -> None:
     assert len(lines) == 1
 
 
-def _line(seen: list[str], diameter: int | None = None) -> ReportLine:
+def _line(
+    observations: list[ObservationRef], diameter: int | None = None, line_id: str = "L1"
+) -> ReportLine:
     return ReportLine(
-        id="L1",
+        id=line_id,
         utility_type=UtilityType.GAS,
         material=Material.PE,
         approx_outer_diameter_mm=diameter,
         approx_depth_of_cover_m=None,
-        seen_in_frames=seen,
+        observations=observations,
         confidence=0.7,
         notes=None,
     )
 
 
-def test_check_report_lines() -> None:
-    analyses = [frame("f001"), frame("f002", scale=True)]
-    assert check_report_lines([_line(["f001"])], analyses) == []
-    assert check_report_lines([_line(["f002"], diameter=110)], analyses) == []
-    assert "unknown frame ids ['f009']" in check_report_lines([_line(["f009"])], analyses)[0]
-    assert "seen_in_frames is empty" in check_report_lines([_line([])], analyses)[0]
-    assert "scale reference" in check_report_lines([_line(["f001"], diameter=110)], analyses)[0]
+def test_seen_in_frames_is_derived_from_observations() -> None:
+    line = _line(refs("f002#0", "f001#1", "f002#1"))
+    assert line.seen_in_frames == ["f001", "f002"]
+
+
+def test_seen_in_frames_contradicting_observations_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="does not match observations"):
+        ReportLine.model_validate(
+            {**_line(refs("f001#0")).model_dump(), "seen_in_frames": ["f009"]}
+        )
+
+
+def test_report_line_stored_before_refs_still_loads() -> None:
+    old = {
+        "id": "L1",
+        "utility_type": "gas",
+        "material": "pe",
+        "approx_outer_diameter_mm": None,
+        "approx_depth_of_cover_m": None,
+        "seen_in_frames": ["f001", "f002"],
+        "confidence": 0.7,
+        "notes": None,
+    }
+    line = ReportLine.model_validate(old)
+    assert line.observations == []
+    assert line.seen_in_frames == ["f001", "f002"]
+
+
+def test_check_report_lines_accepts_consistent_lines() -> None:
+    analyses = [frame("f001", obs(*GAS)), frame("f002", obs(*GAS), scale=True)]
+    assert check_report_lines([_line(refs("f001#0", "f002#0"))], analyses) == []
+    assert check_report_lines([_line(refs("f002#0"), diameter=110)], analyses) == []
+
+
+def test_check_report_lines_rejects_bad_refs() -> None:
+    analyses = [frame("f001", obs(*GAS)), frame("f002", obs(*GAS), scale=True)]
+
+    def problems(*lines: ReportLine) -> list[str]:
+        return check_report_lines(lines, analyses)
+
+    assert problems(_line([])) == ["L1: no observations referenced"]
+    assert problems(_line(refs("f001#0", "f009#0"))) == ["L1: unknown frame ids ['f009']"]
+    assert problems(_line(refs("f001#1"))) == ["L1: f001#1 does not exist (frame f001 has 1 lines)"]
+    assert problems(_line(refs("f001#0")), _line(refs("f001#0", "f002#0"), line_id="L2")) == [
+        "L2: observation f001#0 is already used by L1"
+    ]
+    assert "scale reference" in problems(_line(refs("f001#0"), diameter=110))[0]
 
 
 def test_build_report() -> None:
@@ -108,7 +193,7 @@ def test_build_report() -> None:
         updated_at=now,
     )
     consolidation = Consolidation(
-        lines=[_line(["f001"])], remarks=["east end not filmed"], method="agent"
+        lines=[_line(refs("f001#0"))], remarks=["east end not filmed"], method="agent"
     )
 
     report = build_report(job, consolidation, extra_limitations=["1 of 3 frames failed"])
