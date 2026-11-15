@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-15",
+  "commit": "b62fd75",
+  "config": {
+    "min_confidence": 0.6,
+    "size_tolerance": 0.15
+  },
+  "clean_false_alarms": 0,
+  "results": [
+    {
+      "name": "wrong_type_vs_colour",
+      "description": "type changed so that it contradicts the observed colour (yellow pipe called water)",
+      "expected": "color_contradicts_type",
+      "fired": [
+        "color_contradicts_type"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "one_frame_disagrees",
+      "description": "one of three frames names a different type for the same line",
+      "expected": "conflicting_types",
+      "fired": [
+        "conflicting_types"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "overconfident_guess",
+      "description": "confidence lowered to 0.55 (a colour-only guess)",
+      "expected": "low_confidence",
+      "fired": [
+        "low_confidence"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "unknown_type",
+      "description": "type left unknown",
+      "expected": "unknown_type",
+      "fired": [
+        "unknown_type"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "unknown_material",
+      "description": "material left unknown",
+      "expected": "unknown_material",
+      "fired": [
+        "unknown_material"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "invented_size",
+      "description": "diameter reported although no frame has a scale reference",
+      "expected": "size_without_scale",
+      "fired": [
+        "size_without_scale"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "sizes_disagree",
+      "description": "scaled frames give 110 / 110 / 160 mm for the same pipe",
+      "expected": "size_inconsistent",
+      "fired": [
+        "size_inconsistent"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "phantom_line",
+      "description": "a line backed by a single frame of a video",
+      "expected": "single_frame_only",
+      "fired": [
+        "single_frame_only"
+      ],
+      "caught": true,
+      "caught_as_expected": true,
+      "false_alarms": 0
+    },
+    {
+      "name": "wrong_type_ambiguous_colour",
+      "description": "black pre-insulated heating pipe called power, confidently (black means nothing)",
+      "expected": null,
+      "fired": [],
+      "caught": false,
+      "caught_as_expected": false,
+      "false_alarms": 0
+    },
+    {
+      "name": "wrong_type_everywhere",
+      "description": "every frame consistently sees blue and says water, but the pipe is gas",
+      "expected": null,
+      "fired": [],
+      "caught": false,
+      "caught_as_expected": false,
+      "false_alarms": 0
+    }
+  ]
+}

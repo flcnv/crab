@@ -215,3 +215,5 @@ CLAUDE.md
 
 # Project
 /storage/
+# OpenTrench3D renders (CC BY-NC, regenerable: python -m eval.opentrench render)
+/eval/data/opentrench3d/
