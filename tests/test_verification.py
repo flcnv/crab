@@ -333,3 +333,19 @@ def test_unresolvable_refs_are_skipped_not_fatal() -> None:
     dangling = line("f009#0", "f001#7", confidence=0.9)
     result = verify_report(report(dangling), ANALYSES, CONFIG, media_kind="video")
     assert result.lines[0].review == []  # nothing resolvable to judge, and no crash
+
+
+def test_rules_read_frames_from_observation_refs_not_a_stale_frame_list() -> None:
+    # Regression (found by eval/corruption.py): a line copied with new refs via model_copy
+    # (no validators) kept the old seen_in_frames, so single_frame_only and the scale check
+    # judged frames the line no longer cites. The refs are the source of truth.
+    stale = line("f001#0", "f002#0", "f003#0").model_copy(update={"observations": refs("f002#0")})
+    assert stale.seen_in_frames == ["f001", "f002", "f003"]  # stale on purpose
+
+    finding = single_frame_only(stale, "video")
+    assert finding is not None
+    assert finding.detail == "seen in one keyframe only (f002)"
+
+    fs = frames(frame("f001", obs(), scale=True), frame("f002", obs()), frame("f003", obs()))
+    sized = stale.model_copy(update={"approx_outer_diameter_mm": 110})
+    assert size_without_scale(line_evidence(sized, fs)) is not None  # f001's scale not cited

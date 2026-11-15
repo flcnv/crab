@@ -35,6 +35,14 @@ class LineEvidence:
     scaled_frames: frozenset[str]  # ids of the line's frames that show a scale reference
 
 
+def frames_of(line: ReportLine) -> list[str]:
+    """Frames the line cites. The observation refs are the source of truth; `seen_in_frames`
+    is only used for reports stored before refs existed (empty `observations`)."""
+    if line.observations:
+        return sorted({ref.frame_id for ref in line.observations})
+    return list(line.seen_in_frames)
+
+
 def line_evidence(line: ReportLine, frames: Mapping[str, FrameAnalysis]) -> LineEvidence:
     """Resolve the line's observation refs. Refs that do not resolve are skipped: they are
     rejected at submission (`check_report_lines`), so this only matters for stored data."""
@@ -44,7 +52,7 @@ def line_evidence(line: ReportLine, frames: Mapping[str, FrameAnalysis]) -> Line
         if ref.frame_id in frames and ref.line_index < len(frames[ref.frame_id].lines)
     )
     scaled = frozenset(
-        f for f in line.seen_in_frames if f in frames and frames[f].scale_reference_visible
+        f for f in frames_of(line) if f in frames and frames[f].scale_reference_visible
     )
     return LineEvidence(line=line, observations=resolved, scaled_frames=scaled)
 
@@ -153,11 +161,12 @@ def color_contradicts_type(evidence: LineEvidence) -> ReviewFinding | None:
 def single_frame_only(line: ReportLine, media_kind: MediaKind) -> ReviewFinding | None:
     """In a video a real line usually stays in view for several keyframes. Photos are
     independent shots, so one frame is normal there."""
-    if media_kind != "video" or len(line.seen_in_frames) != 1:
+    cited = frames_of(line)
+    if media_kind != "video" or len(cited) != 1:
         return None
     return ReviewFinding(
         reason=ReviewReason.SINGLE_FRAME_ONLY,
-        detail=f"seen in one keyframe only ({line.seen_in_frames[0]})",
+        detail=f"seen in one keyframe only ({cited[0]})",
     )
 
 
