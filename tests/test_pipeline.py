@@ -61,8 +61,6 @@ class FakeFrameExtractor:
 
 
 class FakeVisionModel:
-    """Reports one water line with invented sizes (no scale reference) per frame."""
-
     def __init__(self, *, fail: set[str] | None = None) -> None:
         self.fail = fail or set()
         self.calls: list[str] = []
@@ -108,8 +106,6 @@ class FakeVisionModel:
 
 
 class FakeReportAgent:
-    """One line per distinct utility type; looks at the first frame's image."""
-
     def __init__(self, *, fail: bool = False) -> None:
         self.fail, self.calls = fail, 0
         self.images: list[bytes] = []
@@ -138,7 +134,7 @@ class FakeReportAgent:
             approx_outer_diameter_mm=None,
             approx_depth_of_cover_m=None,
             observations=[ObservationRef(frame_id=a.frame_id, line_index=0) for a in analyses],
-            confidence=0.6,  # at the inclusive threshold -> flagged low_confidence
+            confidence=0.6,
             notes=None,
         )
         return Consolidation(lines=[line], remarks=["agent remark"], method="agent"), usage
@@ -181,7 +177,7 @@ async def test_video_job_stores_frames_and_analyses(deps: Deps) -> None:
         "consolidate",
         "verify",
     }
-    assert job.cost_usd == pytest.approx(0.013)  # 3 frames + 1 consolidation
+    assert job.cost_usd == pytest.approx(0.013)
 
     frames = await deps.jobs.get_frames(job_id)
     assert [f.frame_id for f in frames] == ["f001", "f002", "f003"]
@@ -201,7 +197,6 @@ async def test_photo_job_uses_every_photo(deps: Deps) -> None:
 
 
 async def _fail_after_the_fact(deps: Deps, job_id: UUID) -> None:
-    """Simulate a job that failed late (e.g. worker killed in verify), so a rerun resumes it."""
     await deps.jobs.set_status(job_id, JobStatus.FAILED, "verify: worker killed")
 
 
@@ -211,7 +206,7 @@ async def test_done_job_is_not_run_again(deps: Deps) -> None:
     await run_pipeline(deps, job_id)
 
     assert _agent(deps).calls == 1
-    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]  # each frame once
+    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]
 
 
 async def test_rerun_skips_finished_stages(deps: Deps) -> None:
@@ -240,7 +235,7 @@ async def test_media_error_fails_job_with_stage_name(deps: Deps) -> None:
 
 
 async def test_unknown_job_is_ignored(deps: Deps) -> None:
-    await run_pipeline(deps, uuid.uuid4())  # no exception
+    await run_pipeline(deps, uuid.uuid4())
 
 
 def _vision(deps: Deps) -> FakeVisionModel:
@@ -278,8 +273,8 @@ async def test_failed_frame_is_not_fatal_and_its_cost_counts(deps: Deps) -> None
 
     job = await deps.jobs.get(job_id)
     assert job is not None
-    assert job.status is JobStatus.DONE  # one failed frame does not fail the job
-    assert job.cost_usd == pytest.approx(0.013)  # the failed frame call was billed too
+    assert job.status is JobStatus.DONE
+    assert job.cost_usd == pytest.approx(0.013)
     assert [a.frame_id for a in await deps.jobs.get_analyses(job_id)] == ["f001", "f003"]
 
 
@@ -304,7 +299,7 @@ async def test_rerun_only_retries_failed_frames(deps: Deps) -> None:
         dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f002"})), job_id
     )
 
-    await _fail_after_the_fact(deps, job_id)  # a done job is not rerun; resume explicitly
+    await _fail_after_the_fact(deps, job_id)
     healthy = FakeVisionModel()
     await run_pipeline(dataclasses.replace(deps, vision_model=healthy), job_id)
 
@@ -319,7 +314,7 @@ async def test_unexpected_error_fails_with_readable_message(deps: Deps) -> None:
         job_id,
     )
     frame = (await deps.jobs.get_frames(job_id))[0]
-    deps.storage.local_path(frame.storage_key).unlink()  # storage lost the frame
+    deps.storage.local_path(frame.storage_key).unlink()
 
     await run_pipeline(deps, job_id)
 
@@ -348,7 +343,7 @@ async def test_report_is_saved_with_limitations(deps: Deps) -> None:
     assert "1 of 3 frames could not be analyzed." in report.limitations
     assert report.limitations[-1] == "agent remark"
     assert report.consolidation_method == "agent"
-    assert _agent(deps).images == [b"jpeg0"]  # agent can load frame images
+    assert _agent(deps).images == [b"jpeg0"]
 
 
 async def test_agent_failure_falls_back_to_rules(deps: Deps) -> None:
@@ -359,13 +354,13 @@ async def test_agent_failure_falls_back_to_rules(deps: Deps) -> None:
 
     report = await deps.jobs.get_report(job_id)
     assert report is not None
-    [line] = report.lines  # same type/material/color in all frames -> one line
+    [line] = report.lines
     assert line.notes == "merged by rule (color: blue)"
     assert report.consolidation_method == "rules"
     assert any("Automatic consolidation failed" in lim for lim in report.limitations)
     job = await deps.jobs.get(job_id)
     assert job is not None
-    assert job.cost_usd == pytest.approx(0.013)  # the failed agent run is still billed
+    assert job.cost_usd == pytest.approx(0.013)
 
 
 async def test_rerun_keeps_existing_report(deps: Deps) -> None:
@@ -388,7 +383,7 @@ async def test_job_reaches_done_with_reviews(deps: Deps) -> None:
     assert [f.reason for f in line.review] == [ReviewReason.LOW_CONFIDENCE]
     assert line.review[0].detail == "confidence 0.60 <= 0.60"
     assert report.verification_flags == ["1 of 1 lines need review"]
-    assert line.confidence == 0.6  # verification flags, it never changes the line
+    assert line.confidence == 0.6
 
 
 async def test_rerun_recomputes_reviews_from_scratch(deps: Deps) -> None:
@@ -397,7 +392,6 @@ async def test_rerun_recomputes_reviews_from_scratch(deps: Deps) -> None:
     first = await deps.jobs.get_report(job_id)
     assert first is not None
 
-    # Stale review data in storage must not survive a rerun of verify.
     stale = first.model_copy(
         update={
             "lines": [
@@ -454,5 +448,5 @@ async def test_retried_job_resumes_and_reaches_done(deps: Deps) -> None:
     assert job is not None
     assert (job.status, job.error) == (JobStatus.DONE, None)
     assert isinstance(deps.frame_extractor, FakeFrameExtractor)
-    assert deps.frame_extractor.calls == 1  # finished stages were skipped
-    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]  # failed frames retried
+    assert deps.frame_extractor.calls == 1
+    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]

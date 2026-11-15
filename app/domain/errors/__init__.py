@@ -1,5 +1,3 @@
-"""Domain errors. Adapters raise these; entrypoints map them (e.g. to HTTP 404)."""
-
 from app.domain.errors.analysis import ConsolidationError, FrameAnalysisError, ModelCallError
 from app.domain.errors.job import JobNotFoundError, JobNotRetryableError
 from app.domain.errors.media import MediaProcessingError

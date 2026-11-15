@@ -33,8 +33,6 @@ class JobStatus(StrEnum):
 
 
 class ReviewReason(StrEnum):
-    """Why a report line needs a human look. Member order is the order findings are listed in."""
-
     LOW_CONFIDENCE = "low_confidence"
     UNKNOWN_TYPE = "unknown_type"
     UNKNOWN_MATERIAL = "unknown_material"

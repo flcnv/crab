@@ -1,11 +1,3 @@
-"""Pipeline: runs the stages of one job in order.
-
-queued -> extracting -> analyzing -> consolidating -> verifying -> done | failed
-
-Each stage is idempotent: it skips work whose output is already stored, so re-running a
-failed job resumes where it stopped.
-"""
-
 import asyncio
 import logging
 import time
@@ -30,7 +22,6 @@ type Stage = Callable[[Deps, Job], Awaitable[None]]
 
 
 async def ingest(deps: Deps, job: Job) -> None:
-    """Read duration, resolution, capture time and GPS of the upload."""
     if job.metadata is not None:
         return
     paths = [deps.storage.local_path(k) for k in job.upload_keys]
@@ -44,7 +35,6 @@ async def ingest(deps: Deps, job: Job) -> None:
 
 
 async def extract_frames(deps: Deps, job: Job) -> None:
-    """Video -> selected keyframes; photos -> normalized frames. Stored as frames/<job>/fNNN.jpg."""
     if await deps.jobs.get_frames(job.id):
         return
     paths = [deps.storage.local_path(k) for k in job.upload_keys]
@@ -71,12 +61,6 @@ async def extract_frames(deps: Deps, job: Job) -> None:
 
 
 async def analyze_frames(deps: Deps, job: Job) -> None:
-    """VisionModel.analyze per keyframe, at most `llm_concurrency` calls at a time.
-
-    A frame that cannot be analyzed is marked failed and the job goes on; the stage fails
-    only if no frame at all has an analysis. Frames analyzed in an earlier run are skipped,
-    failed ones are tried again.
-    """
     frames = await deps.jobs.get_frames(job.id)
     done = {a.frame_id for a in await deps.jobs.get_analyses(job.id)}
     todo = [f for f in frames if f.frame_id not in done]
@@ -102,8 +86,6 @@ async def analyze_frames(deps: Deps, job: Job) -> None:
                 )  # fmt: skip
             await deps.jobs.save_analysis(job.id, strip_unscaled_measurements(analysis))
 
-    # TaskGroup: an unexpected error (DB, storage) cancels the other calls and fails the stage
-    # with that error (unwrapped, so the job's error message stays readable).
     try:
         async with asyncio.TaskGroup() as tg:
             for frame in todo:
@@ -124,7 +106,6 @@ async def _record_usage(deps: Deps, job: Job, frame_id: str, usage: list[LLMUsag
 
 
 async def consolidate(deps: Deps, job: Job) -> None:
-    """Agent merges per-frame findings into distinct lines; rule-based merge if the agent fails."""
     if await deps.jobs.get_report(job.id) is not None:
         return
     analyses = await deps.jobs.get_analyses(job.id)
@@ -155,13 +136,8 @@ async def consolidate(deps: Deps, job: Job) -> None:
 
 
 async def verify(deps: Deps, job: Job) -> None:
-    """Deterministic review of every report line (`verify_report`).
-
-    Never skipped: the review fields are recomputed from the stored consolidation result and
-    frame analyses on every run, so a rerun gives the same report (and picks up rule changes).
-    """
     report = await deps.jobs.get_report(job.id)
-    if report is None:  # consolidate always saves one; only reachable if the data was removed
+    if report is None:
         raise LookupError("no report to verify")
     analyses = await deps.jobs.get_analyses(job.id)
     verified = verify_report(report, analyses, deps.verification, media_kind=job.media_kind)
@@ -180,7 +156,6 @@ STAGES: tuple[tuple[str, JobStatus, Stage], ...] = (
 
 
 async def run_pipeline(deps: Deps, job_id: UUID) -> None:
-    """Run all stages. A failing stage marks the job `failed` with "<stage>: <reason>"."""
     job = await deps.jobs.get(job_id)
     if job is None:
         logger.warning("job %s not found, skipping", job_id)
@@ -198,6 +173,6 @@ async def run_pipeline(deps: Deps, job_id: UUID) -> None:
             await deps.jobs.set_status(job_id, JobStatus.FAILED, f"{name}: {e}")
             return
         await deps.jobs.record_stage_timing(job_id, name, round(time.perf_counter() - started, 3))
-        job = await deps.jobs.get(job_id) or job  # later stages see what earlier ones stored
+        job = await deps.jobs.get(job_id) or job
 
     await deps.jobs.set_status(job_id, JobStatus.DONE)

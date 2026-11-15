@@ -1,5 +1,3 @@
-"""A scripted stand-in for `anthropic.AsyncAnthropic`: no network, no cost."""
-
 from typing import Any
 
 from anthropic.types.beta import BetaMessage
@@ -45,7 +43,6 @@ class FakeMessages:
         self.requests: list[dict[str, Any]] = []
 
     async def create(self, **kwargs: Any) -> BetaMessage:
-        # Snapshot: the caller keeps appending to the same messages list.
         self.requests.append({**kwargs, "messages": list(kwargs["messages"])})
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):

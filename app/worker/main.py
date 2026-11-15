@@ -1,5 +1,3 @@
-"""arq worker settings. Run: `uv run arq app.worker.main.WorkerSettings`."""
-
 from typing import Any, ClassVar
 from uuid import UUID
 
@@ -26,9 +24,7 @@ class WorkerSettings:
     functions: ClassVar = [process_job]
     on_startup = startup
     on_shutdown = shutdown
-    job_timeout = 30 * 60  # video decoding + many model calls can take a while
-    max_tries = 1  # failed jobs are resumed explicitly (POST /jobs/{id}/retry), not blindly
-    # Keep no arq results: job state lives in Postgres. A kept result blocks enqueueing the
-    # same job id again (arq silently drops it), which would make a retry a no-op for an hour.
+    job_timeout = 30 * 60
+    max_tries = 1
     keep_result = 0
     redis_settings: ClassVar = RedisSettings.from_dsn(get_settings().redis_url)

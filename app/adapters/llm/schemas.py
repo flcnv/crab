@@ -1,9 +1,3 @@
-"""Wire schemas: what the model is asked to return. Converted to domain models after validation.
-
-Field order is deliberate: observations (color, stripes, evidence) come before conclusions
-(utility type, material, confidence), so the model commits to what it sees before it infers.
-"""
-
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -67,9 +61,6 @@ class FrameFindings(BaseModel):
             image_quality_issues=list(self.image_quality_issues),
             lines=[LineObservation(**line.model_dump()) for line in self.lines],
         )
-
-
-# --- consolidation agent tools -----------------------------------------------------------
 
 
 class GetFrameFindingsInput(BaseModel):

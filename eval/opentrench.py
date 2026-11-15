@@ -1,21 +1,3 @@
-"""OpenTrench3D eval set: ground truth from the data itself, no manual labels (CLAUDE.md D16).
-
-OpenTrench3D (Hansen et al., CVPR 2024 Workshops; Kaggle `hestogpony/opentrench3d`;
-CC BY-NC 4.0) has photogrammetric point clouds of Danish open trenches with a class per point:
-0 main utility, 1 other utility, 2 trench, 3 inactive utility, 4 misc. The main utility type
-is known per area: Water_Area_* -> water, Heating_Area_* -> district heating.
-
-    uv run python -m eval.opentrench list                 # file list -> ~/datasets/opentrench3d/files.json
-    uv run python -m eval.opentrench download --dry-run   # seeded subset: count and size
-    uv run python -m eval.opentrench download             # -> ~/datasets/opentrench3d/<area>/
-    uv run python -m eval.opentrench render               # -> eval/data/opentrench3d/*.jpg + cases
-
-Each point cloud becomes one case with a few rendered views (top + two obliques). The truth of
-a view comes from the classes of the pixels that are actually visible in it (same z-buffer as
-the colour image), so a utility hidden in a view is not expected there. Renders are not
-committed (licence NC, regenerable); `eval/opentrench_cases.jsonl` is.
-"""
-
 import argparse
 import json
 import os
@@ -45,7 +27,6 @@ CASES_PATH = Path("eval/opentrench_cases.jsonl")
 LICENCE = "CC BY-NC 4.0 (OpenTrench3D, Hansen et al. 2024)"
 
 MAIN, OTHER, TRENCH, INACTIVE, MISC = 0, 1, 2, 3, 4
-# A class counts as visible in a view if it covers at least this share of the image.
 VISIBLE_MIN_FRACTION = 0.002
 RENDER_WIDTH_PX = 1400
 SELECTION_SEED = 0
@@ -61,26 +42,20 @@ AREA_TYPES: frozendict[str, UtilityType] = frozendict(
         "Heating_Area_2": UtilityType.DISTRICT_HEATING,
     }
 )
-# Heating_Area_1 is published several times (fine-tuning subsets of the same sites); use only
-# the complete folder so a site cannot appear twice.
 _AREA_DIR = re.compile(r"/(Water_Area_\d|Heating_Area_2|Heating_Area_1_Finetuning_All)/")
-
-
-# --- point clouds -------------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
 class PointCloud:
-    xyz: NDArray[np.float64]  # (n, 3) metres
-    rgb: NDArray[np.uint8]  # (n, 3)
-    cls: NDArray[np.uint8]  # (n,)
+    xyz: NDArray[np.float64]
+    rgb: NDArray[np.uint8]
+    cls: NDArray[np.uint8]
 
 
 _EXPECTED_PROPERTIES = ["x", "y", "z", "red", "green", "blue", "class"]
 
 
 def read_ply(path: Path) -> PointCloud:
-    """ASCII PLY with x y z red green blue class, as published by OpenTrench3D."""
     with path.open("rb") as f:
         if f.readline().strip() != b"ply":
             raise ValueError(f"{path} is not a PLY file")
@@ -103,13 +78,10 @@ def read_ply(path: Path) -> PointCloud:
     )
 
 
-# --- rendering ----------------------------------------------------------------------------
-
-
 @dataclass(frozen=True, slots=True)
 class View:
     name: str
-    elevation_deg: float  # 90 = straight down
+    elevation_deg: float
     from_other_side: bool = False
 
 
@@ -119,8 +91,6 @@ VIEWS: tuple[View, ...] = (View("top", 90), View("left", 50), View("right", 50, 
 def _project(
     cloud: PointCloud, view: View, width: int
 ) -> tuple[NDArray[np.int64], NDArray[np.int64], NDArray[np.float64], int]:
-    """Orthographic camera looking down at `elevation_deg`, image x along the trench's long
-    horizontal axis (PCA). Returns pixel x, pixel y, depth (larger = farther) and height."""
     c = cloud.xyz - cloud.xyz.mean(axis=0)
     horizontal = c[:, :2]
     _, _, vt = np.linalg.svd(horizontal - horizontal.mean(axis=0), full_matrices=False)
@@ -141,11 +111,6 @@ def _project(
 def render(
     cloud: PointCloud, view: View, width: int = RENDER_WIDTH_PX
 ) -> tuple[NDArray[np.uint8], NDArray[np.int16]]:
-    """Colour image (BGR) and the class of the visible point per pixel (-1 = empty).
-
-    Painter's algorithm: far points first, near points overwrite them. Small gaps between
-    points are filled in the colour image only (inpaint), never in the class map.
-    """
     px, py, depth, height = _project(cloud, view, width)
     order = np.argsort(-depth, kind="stable")
     image = np.zeros((height, width, 3), np.uint8)
@@ -163,26 +128,21 @@ def visible_fractions(classes: NDArray[np.int16]) -> dict[int, float]:
     return {c: round(float(counts[c]) / classes.size, 5) for c in range(5)}
 
 
-# --- truth --------------------------------------------------------------------------------
-
-
 class ViewTruth(BaseModel):
-    file: str  # in RENDER_DIR
+    file: str
     view: str
     main_visible: bool
     other_visible: bool
     inactive_visible: bool
-    fractions: dict[int, float]  # class -> share of image pixels
+    fractions: dict[int, float]
 
 
 class OpenTrenchCase(BaseModel):
-    """Ground truth of one point cloud, derived from the dataset (no human labelling here)."""
-
     case_id: str
-    source: str  # path inside the Kaggle dataset
+    source: str
     area: str
-    main_type: UtilityType  # water or district_heating, from the area
-    split: str  # dev | test, by area (no site leaks between splits)
+    main_type: UtilityType
+    split: str
     views: list[ViewTruth]
 
     @property
@@ -191,14 +151,12 @@ class OpenTrenchCase(BaseModel):
 
 
 def area_of(source: str) -> str:
-    """'…/Heating_Area_1_Finetuning_All/Area_1_Site_3.ply' -> 'Heating_Area_1'."""
     match = _AREA_DIR.search(f"/{source}")
     if match is None:
         raise ValueError(f"not an OpenTrench3D area path: {source}")
     return match[1].removesuffix("_Finetuning_All")
 
 
-# Whole areas go to dev, so prompts/thresholds tuned on dev never saw a test site.
 DEV_AREAS = frozenset({"Water_Area_2", "Heating_Area_2"})
 
 
@@ -225,9 +183,6 @@ def view_truth(file: str, view: View, classes: NDArray[np.int16]) -> ViewTruth:
     )
 
 
-# --- selection & download -----------------------------------------------------------------
-
-
 @dataclass(frozen=True, slots=True)
 class RemoteFile:
     name: str
@@ -235,7 +190,6 @@ class RemoteFile:
 
 
 def list_remote_files() -> list[RemoteFile]:
-    """All files of the dataset (anonymous Kaggle API, paginated)."""
     files: list[RemoteFile] = []
     token: str | None = None
     while True:
@@ -258,7 +212,6 @@ def list_remote_files() -> list[RemoteFile]:
 def select_files(
     files: Iterable[RemoteFile], *, per_area: int, max_bytes: int, seed: int = SELECTION_SEED
 ) -> list[RemoteFile]:
-    """Seeded random subset: `per_area` point clouds of at most `max_bytes` from every area."""
     by_area: dict[str, list[RemoteFile]] = defaultdict(list)
     for f in files:
         if f.name.endswith(".ply") and _AREA_DIR.search(f"/{f.name}") and f.size <= max_bytes:
@@ -273,9 +226,6 @@ def select_files(
 
 def local_path(source: str) -> Path:
     return DATA_ROOT / area_of(source) / Path(source).name
-
-
-# --- CLI ----------------------------------------------------------------------------------
 
 
 def cmd_list(_: argparse.Namespace) -> int:
@@ -310,7 +260,7 @@ def cmd_download(args: argparse.Namespace) -> int:
         cached = Path(kagglehub.dataset_download(HANDLE, path=f.name))
         target = local_path(f.name)
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(cached, target)  # do not keep a second copy in the kagglehub cache
+        shutil.move(cached, target)
         print(f"  {target}")
     return 0
 

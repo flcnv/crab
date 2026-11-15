@@ -9,50 +9,43 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", env_ignore_empty=True)
 
-    # Postgres
     postgres_user: str = "crab"
     postgres_password: SecretStr = SecretStr("crab")
     postgres_db: str = "crab"
     postgres_host: str = "localhost"
     postgres_port: int = 5432
 
-    # Redis / arq
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_db: int = 0
-    redis_user: str | None = None  # None -> Redis "default" user
+    redis_user: str | None = None
     redis_password: SecretStr | None = None
 
-    # Storage
     storage_dir: Path = Path("storage")
 
-    # Uploads
-    max_upload_bytes: int = 500 * 1024 * 1024  # total per job
+    max_upload_bytes: int = 500 * 1024 * 1024
     max_images_per_job: int = 50
 
-    # Claude
     anthropic_api_key: SecretStr | None = None
     claude_model: str = "claude-sonnet-5-5"
     prompt_version: str = "v1"
-    claude_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"  # per frame
-    agent_effort: Literal["low", "medium", "high", "xhigh", "max"] = "high"  # consolidation
+    claude_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+    agent_effort: Literal["low", "medium", "high", "xhigh", "max"] = "high"
     agent_max_turns: int = 10
     agent_max_image_views: int = 6
-    claude_max_retries: int = 3  # SDK retries on 429 / 5xx / connection errors
+    claude_max_retries: int = 3
     claude_timeout_s: float = 120.0
-    claude_refusal_fallback: bool = True  # server-side fallback model on a policy refusal
+    claude_refusal_fallback: bool = True
     llm_concurrency: int = 4
 
-    # Verification rules (see VerificationConfig); tune on the eval dev split only
-    verify_min_confidence: float = 0.6  # inclusive: confidence <= this is flagged
-    verify_size_tolerance: float = 0.15  # (max - min) / median across scaled frames
+    verify_min_confidence: float = 0.6
+    verify_size_tolerance: float = 0.15
 
-    # Frame extraction
     sample_fps: float = 1.0
     max_frames: int = 12
     max_image_edge_px: int = 1500
-    min_frame_sharpness: float = 60.0  # variance of Laplacian on a 640 px wide copy
-    min_frame_hash_distance: int = 6  # dHash bits; closer frames count as duplicates
+    min_frame_sharpness: float = 60.0
+    min_frame_hash_distance: int = 6
 
     @property
     def database_url(self) -> str:

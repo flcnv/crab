@@ -1,5 +1,3 @@
-"""Integration with the real ffmpeg/ffprobe binaries. Skipped when ffmpeg is not installed."""
-
 import io
 import shutil
 import subprocess
@@ -17,7 +15,6 @@ pytestmark = pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg n
 
 @pytest.fixture(scope="module")
 def video(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """6 s: 3 s of a moving test pattern, then 3 s of a static color (near-duplicate frames)."""
     path = tmp_path_factory.mktemp("video") / "clip.mp4"
     subprocess.run(
         [
@@ -46,7 +43,6 @@ async def test_from_video_selects_sharp_distinct_frames(video: Path) -> None:
 
     frames = await extractor.from_video(video, max_frames=12)
 
-    # 12 sampled frames; the flat gray ones are blurry/duplicates and must not dominate
     assert 1 <= len(frames) < 12
     timestamps = [f.timestamp_s or 0.0 for f in frames]
     assert timestamps == sorted(timestamps)
@@ -55,7 +51,6 @@ async def test_from_video_selects_sharp_distinct_frames(video: Path) -> None:
 
 
 async def test_from_video_respects_max_frames(video: Path) -> None:
-    # dedup off: testsrc2 frames look alike, so only the cap limits the count here
     extractor = FfmpegFrameExtractor(sample_fps=4, min_hash_distance=0)
     frames = await extractor.from_video(video, max_frames=2)
     assert len(frames) == 2

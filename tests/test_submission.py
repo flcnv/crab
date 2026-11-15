@@ -131,7 +131,7 @@ async def test_retry_rejects_jobs_that_did_not_fail(status: JobStatus) -> None:
     assert queue.enqueued == []
     job = await jobs.get(job_id)
     assert job is not None
-    assert job.status is status  # unchanged
+    assert job.status is status
 
 
 async def test_retry_of_unknown_job() -> None:

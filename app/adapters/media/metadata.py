@@ -1,5 +1,3 @@
-"""MetadataReader: ffprobe for videos, EXIF (Pillow) for photos."""
-
 import asyncio
 import re
 from datetime import datetime
@@ -12,10 +10,8 @@ from app.adapters.media import ffmpeg
 from app.domain.errors import MediaProcessingError
 from app.domain.models import GeoPoint, MediaKind, MediaMetadata
 
-# ISO 6709 as written by phones into MP4/MOV, e.g. "+47.3769+008.5417+408.000/"
 _ISO6709 = re.compile(r"([+-]\d+(?:\.\d+)?)([+-]\d+(?:\.\d+)?)")
 
-# EXIF tag ids (stable across Pillow versions)
 _GPS_LAT_REF, _GPS_LAT, _GPS_LON_REF, _GPS_LON, _GPS_ACCURACY = 1, 2, 3, 4, 31
 _DATETIME, _DATETIME_ORIGINAL, _OFFSET_TIME_ORIGINAL = 306, 36867, 36881
 
@@ -25,9 +21,6 @@ class MediaMetadataReader:
         if kind == "video":
             return _video_metadata(await ffmpeg.probe(path))
         return await asyncio.to_thread(_image_metadata, path)
-
-
-# --- video --------------------------------------------------------------------------------
 
 
 def _video_metadata(probe: dict[str, Any]) -> MediaMetadata:
@@ -81,18 +74,15 @@ def _parse_iso_datetime(value: str | None) -> datetime | None:
         return None
 
 
-# --- photos -------------------------------------------------------------------------------
-
-
 def _image_metadata(path: Path) -> MediaMetadata:
     try:
         with Image.open(path) as img:
             exif = img.getexif()
             width, height = img.size
-    except Exception as e:  # Pillow raises many different types for broken input
+    except Exception as e:
         raise MediaProcessingError(f"cannot read image {path.name}: {e}") from e
 
-    if exif.get(0x0112) in (5, 6, 7, 8):  # EXIF orientation with a 90-degree turn
+    if exif.get(0x0112) in (5, 6, 7, 8):
         width, height = height, width
 
     exif_ifd = exif.get_ifd(ExifTags.IFD.Exif)
@@ -131,7 +121,6 @@ def _dms_to_degrees(dms: Any, ref: str, negative_ref: str) -> float:
 
 
 def parse_exif_datetime(value: str | None, offset: str | None = None) -> datetime | None:
-    """EXIF writes "YYYY:MM:DD HH:MM:SS"; the UTC offset lives in a separate tag (may be absent)."""
     if not value or len(value) < 19:
         return None
     iso = f"{value[:10].replace(':', '-')}T{value[11:19]}{offset or ''}"

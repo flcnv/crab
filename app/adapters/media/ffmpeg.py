@@ -1,5 +1,3 @@
-"""Thin async wrappers around the ffmpeg / ffprobe CLIs."""
-
 import asyncio
 import json
 from pathlib import Path
@@ -41,10 +39,6 @@ async def probe(path: Path) -> dict[str, Any]:
 
 
 async def sample_frames(video: Path, out_dir: Path, *, fps: float, max_edge_px: int) -> list[Path]:
-    """Decode `fps` frames per second as JPEGs, long edge <= max_edge_px.
-
-    ffmpeg applies the rotation from the video's display matrix automatically.
-    """
     m = max_edge_px
     scale = f"scale='if(gte(iw,ih),min(iw,{m}),-2)':'if(gte(iw,ih),-2,min(ih,{m}))'"
     await _run(

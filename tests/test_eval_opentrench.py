@@ -1,5 +1,3 @@
-"""OpenTrench3D tooling on tiny synthetic point clouds (no download, no network)."""
-
 from pathlib import Path
 
 import numpy as np
@@ -40,8 +38,6 @@ def write_ply(path: Path, rows: list[tuple[float, float, float, int, int, int, i
 
 
 def trench(main_on_top: bool = True) -> PointCloud:
-    """A 4 m x 1 m trench floor at z=0 with a pipe (class 0) along it, either lying on the
-    floor (visible from above) or buried under a floor layer (hidden from above)."""
     xs, ys = np.meshgrid(np.linspace(0, 4, 200), np.linspace(0, 1, 50))
     floor = np.column_stack([xs.ravel(), ys.ravel(), np.zeros(xs.size)])
     px = np.linspace(0, 4, 400)
@@ -78,14 +74,14 @@ def test_render_shows_the_pipe_from_above_and_hides_a_buried_one() -> None:
 
     _, hidden = render(trench(main_on_top=False), top, width=200)
     truth = view_truth("y.jpg", top, hidden)
-    assert not truth.main_visible  # occluded by the floor: not expected in this view
+    assert not truth.main_visible
     assert truth.fractions[TRENCH] > 0.5
 
 
 def test_view_truth_thresholds() -> None:
     classes = np.full((100, 100), TRENCH, np.int16)
-    classes[0, :30] = OTHER  # 0.3 % of the image
-    classes[1, :10] = INACTIVE  # 0.1 %: below the threshold
+    classes[0, :30] = OTHER
+    classes[1, :10] = INACTIVE
     truth = view_truth("f.jpg", View("top", 90), classes)
     assert (truth.main_visible, truth.other_visible, truth.inactive_visible) == (False, True, False)
 

@@ -1,18 +1,3 @@
-"""Safety-net eval without labels: inject known errors, measure what verification catches.
-
-A clean report (consistent frames, confident types that match the colours, sizes only with a
-scale reference) is corrupted in one specific way at a time — the kind of mistake the vision
-model or the consolidation agent can make — and `verify_report` runs on the result. Because
-the injected error is known, no human labels are needed.
-
-Some corruptions are expected to slip through (e.g. a wrong type whose colour is ambiguous):
-they are listed as blind spots on purpose; the report must show them, not hide them.
-
-    uv run python -m eval.corruption        # -> eval/results/<date>_safety_net.{json,md}
-
-Pure code: no model calls, no cost, deterministic.
-"""
-
 import argparse
 import json
 import subprocess
@@ -43,7 +28,6 @@ from app.domain.services import verify_report
 RESULTS_DIR = Path("eval/results")
 JOB_ID = UUID(int=0)
 
-# One clean line per utility kind: (type, material, colour seen by the model).
 _KINDS: tuple[tuple[UtilityType, Material, str], ...] = (
     (UtilityType.GAS, Material.PE, "yellow"),
     (UtilityType.WATER, Material.PE, "blue"),
@@ -57,8 +41,6 @@ FRAMES = ("f001", "f002", "f003")
 
 @dataclass(frozen=True, slots=True)
 class Scenario:
-    """A report with its frame analyses, as the pipeline would hand them to verify."""
-
     report: TrenchReport
     analyses: list[FrameAnalysis]
     media_kind: MediaKind = "video"
@@ -85,9 +67,6 @@ def _observation(
 
 
 def clean_scenario() -> Scenario:
-    """Every kind of line seen in all three video frames, line i at index i of each frame.
-
-    Clean means: verification must flag nothing here (checked by `run`)."""
     analyses = [
         FrameAnalysis(
             frame_id=frame_id,
@@ -123,10 +102,6 @@ def clean_scenario() -> Scenario:
     return Scenario(report=report, analyses=analyses)
 
 
-# --- corruptions --------------------------------------------------------------------------
-# Each takes a clean scenario and returns (corrupted scenario, id of the corrupted line).
-
-
 def _replace_line(s: Scenario, index: int, **changes: object) -> Scenario:
     lines = list(s.report.lines)
     lines[index] = lines[index].model_copy(update=changes)
@@ -144,20 +119,19 @@ def _replace_observation(s: Scenario, frame: int, index: int, **changes: object)
 class Corruption:
     name: str
     description: str
-    expected: ReviewReason | None  # None = a known blind spot: nothing is expected to fire
+    expected: ReviewReason | None
     apply: Callable[[Scenario], tuple[Scenario, str]]
 
 
 def _wrong_type_vs_colour(s: Scenario) -> tuple[Scenario, str]:
-    return _replace_line(s, 0, utility_type=UtilityType.WATER), "L1"  # yellow line -> water
+    return _replace_line(s, 0, utility_type=UtilityType.WATER), "L1"
 
 
 def _wrong_type_ambiguous_colour(s: Scenario) -> tuple[Scenario, str]:
-    return _replace_line(s, 3, utility_type=UtilityType.POWER), "L4"  # black heating -> power
+    return _replace_line(s, 3, utility_type=UtilityType.POWER), "L4"
 
 
 def _wrong_type_everywhere(s: Scenario) -> tuple[Scenario, str]:
-    """The model saw blue and called it water in every frame, but the pipe is gas."""
     for frame in range(len(FRAMES)):
         s = _replace_observation(s, frame, 0, utility_type=UtilityType.WATER, color="blue")
     return _replace_line(s, 0, utility_type=UtilityType.WATER), "L1"
@@ -194,7 +168,6 @@ def _sizes_disagree(s: Scenario) -> tuple[Scenario, str]:
 
 
 def _phantom_line(s: Scenario) -> tuple[Scenario, str]:
-    """A line the agent invented from a single frame of a video."""
     return _replace_line(s, 4, observations=[ObservationRef(frame_id="f002", line_index=4)]), "L5"
 
 
@@ -257,17 +230,14 @@ CORRUPTIONS: tuple[Corruption, ...] = (
 )
 
 
-# --- run ----------------------------------------------------------------------------------
-
-
 class CorruptionResult(BaseModel):
     name: str
     description: str
     expected: ReviewReason | None
-    fired: list[ReviewReason]  # reasons on the corrupted line
-    caught: bool  # any reason fired on the corrupted line
+    fired: list[ReviewReason]
+    caught: bool
     caught_as_expected: bool
-    false_alarms: int  # findings on the untouched lines
+    false_alarms: int
 
 
 class SafetyNetReport(BaseModel):

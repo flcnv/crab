@@ -8,8 +8,6 @@ class JobNotFoundError(LookupError):
 
 
 class JobNotRetryableError(ValueError):
-    """Only `failed` jobs can be retried."""
-
     def __init__(self, job_id: UUID, status: str) -> None:
         super().__init__(f"job is {status}, only failed jobs can be retried")
         self.job_id = job_id

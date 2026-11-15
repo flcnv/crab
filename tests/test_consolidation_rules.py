@@ -53,7 +53,6 @@ HEAT = (UtilityType.DISTRICT_HEATING, Material.PRE_INSULATED, "black")
 
 
 def refs(*labels: str) -> list[ObservationRef]:
-    """refs("f001#0", "f002#1") -> ObservationRefs."""
     out = []
     for label in labels:
         frame_id, index = label.split("#")
@@ -72,7 +71,7 @@ def test_merge_lines_counts_by_max_per_frame() -> None:
 
     heat = [ln for ln in lines if ln.utility_type is UtilityType.DISTRICT_HEATING]
     gas = [ln for ln in lines if ln.utility_type is UtilityType.GAS]
-    assert len(heat) == 2  # a pair, not four pipes
+    assert len(heat) == 2
     assert heat[0].seen_in_frames == ["f001", "f003"]
     assert len(gas) == 1
     assert gas[0].seen_in_frames == ["f001", "f002"]
@@ -92,7 +91,7 @@ def test_merge_lines_assigns_kth_observation_to_kth_line() -> None:
     assert l1.observations == refs("f001#1", "f003#0")
     assert l2.observations == refs("f001#2", "f003#1")
     assert l3.observations == refs("f001#0", "f002#0")
-    assert check_report_lines([l1, l2, l3], analyses) == []  # every ref valid, none shared
+    assert check_report_lines([l1, l2, l3], analyses) == []
 
 
 def test_merge_lines_extra_copy_only_has_its_own_observations() -> None:

@@ -1,5 +1,3 @@
-"""Map domain errors to HTTP responses, so routes stay free of try/except."""
-
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 

@@ -1,9 +1,3 @@
-"""Consolidation agent: a hand-written tool-use loop over the per-frame findings.
-
-Tools: get_frame_findings, get_frame_image, submit_report. The loop is append-only (assistant
-turns are sent back unchanged), and it ends when submit_report passes the domain checks.
-"""
-
 import base64
 import json
 import logging
@@ -68,7 +62,6 @@ NUDGE = "Finish by calling submit_report with the consolidated lines."
 
 
 def overview(analyses: list[FrameAnalysis]) -> str:
-    """Compact first message: enough to plan, details come from get_frame_findings."""
     rows = []
     for a in analyses:
         lines = "; ".join(
@@ -134,15 +127,12 @@ class ClaudeReportAgent(ClaudeClient):
             if session.result is not None:
                 logger.info("job %s consolidated in %d turns", job_id, turn)
                 return session.result, usage
-            # All results of one turn go back in a single user message.
             messages.append({"role": "user", "content": results})
 
         raise ConsolidationError(f"no valid report after {self.max_turns} turns", usage)
 
 
 class _Session:
-    """Tool state for one consolidation run."""
-
     def __init__(
         self, analyses: list[FrameAnalysis], load_image: ImageLoader, max_image_views: int
     ) -> None:
@@ -205,7 +195,6 @@ class _Session:
 
 
 def _with_line_indices(analysis: FrameAnalysis) -> dict[str, Any]:
-    """Findings as JSON, each line prefixed with the `line_index` the agent cites it by."""
     data = analysis.model_dump(mode="json", exclude_none=True)
     data["lines"] = [{"line_index": i, **line} for i, line in enumerate(data["lines"])]
     return data

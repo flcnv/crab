@@ -1,5 +1,3 @@
-"""Integration: enqueue into a real Redis and check the worker would pick it up."""
-
 import uuid
 from collections.abc import AsyncGenerator
 
@@ -19,7 +17,7 @@ from app.worker.main import WorkerSettings
 async def _pool_or_skip(settings: RedisSettings) -> ArqRedis:
     try:
         return await create_pool(settings)
-    except (OSError, ConnectionError, RedisError) as e:  # redis has its own ConnectionError
+    except (OSError, ConnectionError, RedisError) as e:
         pytest.skip(f"Redis not reachable: {e}")
 
 
@@ -37,15 +35,13 @@ async def redis_settings() -> AsyncGenerator[RedisSettings]:
 
 
 async def test_unreachable_redis_skips_instead_of_erroring() -> None:
-    # Regression: redis raises redis.exceptions.ConnectionError, which is not the built-in
-    # ConnectionError, so the integration test errored instead of skipping without Redis.
     nothing_there = RedisSettings(host="127.0.0.1", port=1, conn_retries=0, conn_timeout=1)
     with pytest.raises(pytest.skip.Exception, match="Redis not reachable"):
         await _pool_or_skip(nothing_there)
 
 
 def test_worker_keeps_no_results() -> None:
-    assert WorkerSettings.keep_result == 0  # see test_finished_job_can_be_enqueued_again
+    assert WorkerSettings.keep_result == 0
 
 
 def test_task_name_matches_worker() -> None:
@@ -57,7 +53,7 @@ async def test_enqueue_is_queued_and_idempotent(redis_settings: RedisSettings) -
     job_id = uuid.uuid4()
     try:
         await queue.enqueue(job_id)
-        await queue.enqueue(job_id)  # same _job_id: no duplicate
+        await queue.enqueue(job_id)
 
         pool = await create_pool(redis_settings)
         arq_job = ArqJob(str(job_id), pool)
@@ -73,8 +69,6 @@ async def test_enqueue_is_queued_and_idempotent(redis_settings: RedisSettings) -
 
 
 async def test_finished_job_can_be_enqueued_again(redis_settings: RedisSettings) -> None:
-    # Regression: arq keeps a finished job's result for an hour by default, and enqueueing the
-    # same _job_id while a result exists is silently dropped -> a retry would never run.
     runs: list[str] = []
 
     async def process_job(ctx: dict[str, object], job_id: str) -> None:
@@ -94,7 +88,7 @@ async def test_finished_job_can_be_enqueued_again(redis_settings: RedisSettings)
     try:
         await queue.enqueue(job_id)
         await worker().main()
-        await queue.enqueue(job_id)  # the retry
+        await queue.enqueue(job_id)
         await worker().main()
     finally:
         await queue.aclose()

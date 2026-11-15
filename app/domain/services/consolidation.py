@@ -1,5 +1,3 @@
-"""Consolidation rules: checking an agent's report and a deterministic fallback merge."""
-
 from collections import defaultdict
 from collections.abc import Sequence
 from statistics import median
@@ -24,12 +22,6 @@ DEFAULT_LIMITATIONS: tuple[str, ...] = (
 
 
 def check_report_lines(lines: Sequence[ReportLine], analyses: Sequence[FrameAnalysis]) -> list[str]:
-    """Problems with a proposed set of lines; empty list means it is consistent with the frames.
-
-    Every line must reference at least one observation; each reference must point to an
-    existing frame and line index; no observation may be claimed by two lines; sizes need a
-    scale reference in at least one of the line's frames.
-    """
     by_id = {a.frame_id: a for a in analyses}
     claimed_by: dict[ObservationRef, str] = {}
     problems: list[str] = []
@@ -51,7 +43,6 @@ def check_report_lines(lines: Sequence[ReportLine], analyses: Sequence[FrameAnal
                 for r in out_of_range
             )
             continue
-        # setdefault records the first claim; a later line claiming the same ref is a problem
         problems.extend(
             f"{line.id}: observation {ref} is already used by {claimed_by[ref]}"
             for ref in line.observations
@@ -68,8 +59,6 @@ def check_report_lines(lines: Sequence[ReportLine], analyses: Sequence[FrameAnal
     return problems
 
 
-# --- deterministic fallback --------------------------------------------------------------
-
 type _Key = tuple[UtilityType, Material, str | None, bool | None]
 
 
@@ -79,17 +68,6 @@ def _key(obs: LineObservation) -> _Key:
 
 
 def merge_lines(analyses: Sequence[FrameAnalysis]) -> list[ReportLine]:
-    """Merge without an LLM: observations with the same type, material, color and pairing are
-    the same kind of line. The number of physical lines of a kind is the most seen in one frame.
-
-    References are assigned deterministically: the k-th line of a kind takes the k-th matching
-    observation (in frame order) of every frame that has one. Sizes and confidence of a line
-    come from its own observations only.
-
-    Crude by design: it cannot tell two identical pipes in different places apart. Used when
-    the agent fails, and as a baseline in the eval.
-    """
-    # kind -> frame_id -> indices of matching observations in that frame, in frame order
     refs: dict[_Key, dict[str, list[int]]] = defaultdict(dict)
     found: dict[tuple[str, int], LineObservation] = {}
     for analysis in analyses:

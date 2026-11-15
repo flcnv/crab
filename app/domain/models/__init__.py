@@ -1,5 +1,3 @@
-"""Domain schemas. Pure Pydantic, no I/O. Import from here: `from app.domain.models import Job`."""
-
 from app.domain.models.analysis import Evidence, FrameAnalysis, LineObservation
 from app.domain.models.enums import JobStatus, Material, ReviewReason, UtilityType
 from app.domain.models.geo import GeoPoint

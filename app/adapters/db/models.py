@@ -1,10 +1,3 @@
-"""SQLAlchemy ORM tables. Pipeline outputs are stored as JSONB of the domain models.
-
-jobs 1-n frames 1-1 frame_analyses
-jobs 1-1 reports
-jobs 1-n llm_calls      (every model call: tokens, cost, latency, prompt version)
-"""
-
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -26,7 +19,6 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.domain.models import JobStatus
 
-# Stable constraint names, so Alembic autogenerate produces deterministic migrations.
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -95,7 +87,7 @@ class FrameAnalysisRow(TimestampMixin, Base):
 
     job_id: Mapped[UUID] = mapped_column(primary_key=True)
     frame_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    status: Mapped[str] = mapped_column(String(8))  # "ok" | "failed"
+    status: Mapped[str] = mapped_column(String(8))
     analysis: Mapped[dict[str, Any] | None]
     error: Mapped[str | None] = mapped_column(Text)
 

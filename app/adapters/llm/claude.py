@@ -1,8 +1,3 @@
-"""Claude adapters (official `anthropic` SDK): shared client plumbing and VisionModel.
-
-The consolidation agent lives in `agent.py`.
-"""
-
 import base64
 import logging
 import time
@@ -28,8 +23,6 @@ logger = logging.getLogger(__name__)
 
 type Effort = Literal["low", "medium", "high", "xhigh", "max"]
 
-# Server-side fallback on a policy refusal: the API re-runs the request on a substitute
-# model within the same call. Only some models accept it (not Haiku).
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 MODELS_WITH_FALLBACKS = frozenset({"claude-opus-5-5", "claude-sonnet-5-5"})
 
@@ -41,7 +34,7 @@ def usage_from_response(response: BetaMessage, prompt_version: str, latency_s: f
     cache_read = u.cache_read_input_tokens or 0
     cache_write = u.cache_creation_input_tokens or 0
     return LLMUsage(
-        model=response.model,  # the model that actually served it (may be a fallback)
+        model=response.model,
         prompt_version=prompt_version,
         input_tokens=u.input_tokens + cache_read + cache_write,
         output_tokens=u.output_tokens,
@@ -65,8 +58,6 @@ def validation_summary(error: ValidationError, limit: int = 10) -> str:
 
 
 class ClaudeClient:
-    """Shared request plumbing: fallback on refusal, API errors -> domain errors, usage + cost."""
-
     error_type: ClassVar[type[ModelCallError]] = ModelCallError
 
     def __init__(
@@ -111,7 +102,7 @@ class ClaudeClient:
             )
         except anthropic.AuthenticationError as e:
             raise self.error_type("Anthropic API authentication failed", usage) from e
-        except anthropic.APIStatusError as e:  # after the SDK's own retries
+        except anthropic.APIStatusError as e:
             raise self.error_type(f"Anthropic API error {e.status_code}: {e.message}", usage) from e
         except anthropic.APIConnectionError as e:
             raise self.error_type(f"Anthropic API unreachable: {e}", usage) from e
@@ -130,13 +121,6 @@ class ClaudeClient:
 
 
 class ClaudeVisionModel(ClaudeClient):
-    """Per-frame extraction with structured output.
-
-    The JSON schema is enforced by the API; constraints it cannot express (value ranges,
-    minimum list length) are checked by Pydantic. On a validation error the model gets one
-    retry with the errors, then the frame fails with `FrameAnalysisError`.
-    """
-
     error_type = FrameAnalysisError
 
     def __init__(
@@ -156,7 +140,6 @@ class ClaudeVisionModel(ClaudeClient):
             max_tokens=max_tokens,
             refusal_fallback=refusal_fallback,
         )
-        # Same bytes for every frame, so the system prompt is a stable cache prefix.
         self._system = self.cached_system(load_prompt("analyze_frame", prompt_version))
         self._output_config: BetaOutputConfigParam = {
             "effort": effort,

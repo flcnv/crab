@@ -1,5 +1,3 @@
-"""Verification rules: one positive, one negative and the threshold edge per rule."""
-
 import uuid
 
 from app.domain.models import (
@@ -28,7 +26,7 @@ from app.domain.services.verification import (
     verify_report,
 )
 
-CONFIG = VerificationConfig()  # min_confidence 0.6, size_tolerance 0.15
+CONFIG = VerificationConfig()
 
 
 def obs(
@@ -92,9 +90,6 @@ def frames(*analyses: FrameAnalysis) -> dict[str, FrameAnalysis]:
     return {a.frame_id: a for a in analyses}
 
 
-# --- low_confidence ------------------------------------------------------------------------
-
-
 def test_low_confidence() -> None:
     finding = low_confidence(line("f001#0", confidence=0.4), CONFIG)
     assert finding == ReviewFinding(
@@ -107,9 +102,6 @@ def test_low_confidence_threshold_is_inclusive() -> None:
     assert low_confidence(line("f001#0", confidence=0.6), CONFIG) is not None
 
 
-# --- unknown_type / unknown_material -------------------------------------------------------
-
-
 def test_unknown_type() -> None:
     assert unknown_type(line("f001#0", utility=UtilityType.UNKNOWN)) is not None
     assert unknown_type(line("f001#0")) is None
@@ -118,9 +110,6 @@ def test_unknown_type() -> None:
 def test_unknown_material() -> None:
     assert unknown_material(line("f001#0", material=Material.UNKNOWN)) is not None
     assert unknown_material(line("f001#0")) is None
-
-
-# --- conflicting_types ---------------------------------------------------------------------
 
 
 def test_conflicting_types() -> None:
@@ -138,9 +127,6 @@ def test_agreeing_types_do_not_conflict() -> None:
 def test_unknown_observation_is_not_a_conflict() -> None:
     fs = frames(frame("f001", obs()), frame("f002", obs(UtilityType.UNKNOWN, None)))
     assert conflicting_types(line_evidence(line("f001#0", "f002#0"), fs)) is None
-
-
-# --- size_inconsistent ---------------------------------------------------------------------
 
 
 def test_size_inconsistent_diameter() -> None:
@@ -164,7 +150,6 @@ def test_size_inconsistent_depth_is_checked_separately() -> None:
 
 
 def test_size_spread_exactly_at_tolerance_is_consistent() -> None:
-    # 100, 100, 115: median 100, spread (115 - 100) / 100 = exactly 15 % -> not over
     fs = frames(
         frame("f001", obs(diameter=100), scale=True),
         frame("f002", obs(diameter=100), scale=True),
@@ -178,12 +163,9 @@ def test_size_spread_exactly_at_tolerance_is_consistent() -> None:
 def test_size_inconsistent_ignores_unscaled_frames_and_single_values() -> None:
     fs = frames(
         frame("f001", obs(diameter=100), scale=True),
-        frame("f002", obs(diameter=300)),  # no scale reference: not comparable
+        frame("f002", obs(diameter=300)),
     )
     assert size_inconsistent(line_evidence(line("f001#0", "f002#0"), fs), CONFIG) is None
-
-
-# --- size_without_scale --------------------------------------------------------------------
 
 
 def test_size_without_scale() -> None:
@@ -199,12 +181,9 @@ def test_size_with_scale_or_no_size_is_fine() -> None:
     assert size_without_scale(line_evidence(line("f001#0"), unscaled)) is None
 
 
-# --- color_contradicts_type ----------------------------------------------------------------
-
-
 def test_color_contradicts_type() -> None:
     fs = frames(frame("f001", obs(color="blue")))
-    finding = color_contradicts_type(line_evidence(line("f001#0"), fs))  # gas line
+    finding = color_contradicts_type(line_evidence(line("f001#0"), fs))
     assert finding is not None
     assert finding.detail == (
         "gas, but f001#0 'blue' usually means water (colour table: heuristic)"
@@ -222,9 +201,6 @@ def test_unknown_type_line_is_not_checked_against_colour() -> None:
     assert color_contradicts_type(evidence) is None
 
 
-# --- single_frame_only ---------------------------------------------------------------------
-
-
 def test_single_frame_only_in_video() -> None:
     finding = single_frame_only(line("f004#0"), "video")
     assert finding is not None
@@ -234,9 +210,6 @@ def test_single_frame_only_in_video() -> None:
 def test_single_frame_is_normal_for_photos_and_two_frames_are_enough() -> None:
     assert single_frame_only(line("f004#0"), "image") is None
     assert single_frame_only(line("f004#0", "f005#1"), "video") is None
-
-
-# --- verify_report -------------------------------------------------------------------------
 
 
 ANALYSES = [
@@ -275,7 +248,7 @@ def test_verify_report_flags_lines_in_enum_order() -> None:
     assert [f.reason for f in flagged.review] == [
         ReviewReason.LOW_CONFIDENCE,
         ReviewReason.UNKNOWN_MATERIAL,
-        ReviewReason.CONFLICTING_TYPES,  # f002#1 says gas
+        ReviewReason.CONFLICTING_TYPES,
     ]
     assert result.verification_flags == ["1 of 2 lines need review"]
 
@@ -298,7 +271,7 @@ def test_verify_report_is_idempotent_and_recomputes_from_scratch() -> None:
     twice = verify_report(once, ANALYSES, CONFIG, media_kind="video")
 
     assert once == twice
-    assert once.lines[0].review == []  # stale finding is gone, not kept
+    assert once.lines[0].review == []
     assert once.verification_flags == ["1 of 2 lines need review"]
 
 
@@ -332,15 +305,12 @@ def test_verify_report_handles_reports_stored_before_refs() -> None:
 def test_unresolvable_refs_are_skipped_not_fatal() -> None:
     dangling = line("f009#0", "f001#7", confidence=0.9)
     result = verify_report(report(dangling), ANALYSES, CONFIG, media_kind="video")
-    assert result.lines[0].review == []  # nothing resolvable to judge, and no crash
+    assert result.lines[0].review == []
 
 
 def test_rules_read_frames_from_observation_refs_not_a_stale_frame_list() -> None:
-    # Regression (found by eval/corruption.py): a line copied with new refs via model_copy
-    # (no validators) kept the old seen_in_frames, so single_frame_only and the scale check
-    # judged frames the line no longer cites. The refs are the source of truth.
     stale = line("f001#0", "f002#0", "f003#0").model_copy(update={"observations": refs("f002#0")})
-    assert stale.seen_in_frames == ["f001", "f002", "f003"]  # stale on purpose
+    assert stale.seen_in_frames == ["f001", "f002", "f003"]
 
     finding = single_frame_only(stale, "video")
     assert finding is not None
@@ -348,4 +318,4 @@ def test_rules_read_frames_from_observation_refs_not_a_stale_frame_list() -> Non
 
     fs = frames(frame("f001", obs(), scale=True), frame("f002", obs()), frame("f003", obs()))
     sized = stale.model_copy(update={"approx_outer_diameter_mm": 110})
-    assert size_without_scale(line_evidence(sized, fs)) is not None  # f001's scale not cited
+    assert size_without_scale(line_evidence(sized, fs)) is not None

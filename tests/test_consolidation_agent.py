@@ -1,5 +1,3 @@
-"""ClaudeReportAgent's tool-use loop against a scripted fake client."""
-
 import json
 import uuid
 
@@ -59,7 +57,6 @@ def agent(replies: list, **kwargs: int) -> tuple[ClaudeReportAgent, FakeMessages
 
 
 def results_of(request: dict) -> list[dict]:  # type: ignore[type-arg]
-    """Tool results sent back in the last user message of a request."""
     content = request["messages"][-1]["content"]
     assert isinstance(content, list)
     return content
@@ -97,7 +94,6 @@ async def test_findings_then_submit() -> None:
     findings = json.loads(result["content"])
     assert [f["frame_id"] for f in findings] == ["f001", "f002"]
     assert findings[0]["lines"][0]["line_index"] == 0
-    # append-only: the assistant turn goes back unchanged
     assert second["messages"][1]["role"] == "assistant"
 
 
@@ -140,7 +136,7 @@ async def test_image_tool_and_budget() -> None:
 
     await a.consolidate(uuid.uuid4(), ANALYSES, load_image)
 
-    image, budget = results_of(api.requests[1])  # both results in one user message
+    image, budget = results_of(api.requests[1])
     assert image["content"][0]["type"] == "image"
     assert image["content"][1]["text"] == "Frame f002"
     assert budget["is_error"] is True

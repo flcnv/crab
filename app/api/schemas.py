@@ -1,5 +1,3 @@
-"""API request/response models (separate from domain models)."""
-
 from datetime import datetime
 from typing import Self
 from uuid import UUID

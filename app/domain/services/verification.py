@@ -1,11 +1,3 @@
-"""Deterministic verification: which report lines need a human look, and why.
-
-One pure function per `ReviewReason`; each returns a `ReviewFinding` or None. `verify_report`
-runs all of them and writes only the review fields (`needs_review`, `review`, report-level
-`verification_flags`). Type, material, sizes and confidence are never changed, and the review
-fields are recomputed from scratch, so verifying twice gives an identical report.
-"""
-
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import median
@@ -28,24 +20,18 @@ from app.domain.services.conventions import COLOR_CONVENTIONS_SOURCE, expected_t
 
 @dataclass(frozen=True, slots=True)
 class LineEvidence:
-    """A report line with the per-frame data it was built from."""
-
     line: ReportLine
-    observations: tuple[tuple[ObservationRef, LineObservation], ...]  # refs that resolve
-    scaled_frames: frozenset[str]  # ids of the line's frames that show a scale reference
+    observations: tuple[tuple[ObservationRef, LineObservation], ...]
+    scaled_frames: frozenset[str]
 
 
 def frames_of(line: ReportLine) -> list[str]:
-    """Frames the line cites. The observation refs are the source of truth; `seen_in_frames`
-    is only used for reports stored before refs existed (empty `observations`)."""
     if line.observations:
         return sorted({ref.frame_id for ref in line.observations})
     return list(line.seen_in_frames)
 
 
 def line_evidence(line: ReportLine, frames: Mapping[str, FrameAnalysis]) -> LineEvidence:
-    """Resolve the line's observation refs. Refs that do not resolve are skipped: they are
-    rejected at submission (`check_report_lines`), so this only matters for stored data."""
     resolved = tuple(
         (ref, frames[ref.frame_id].lines[ref.line_index])
         for ref in line.observations
@@ -55,9 +41,6 @@ def line_evidence(line: ReportLine, frames: Mapping[str, FrameAnalysis]) -> Line
         f for f in frames_of(line) if f in frames and frames[f].scale_reference_visible
     )
     return LineEvidence(line=line, observations=resolved, scaled_frames=scaled)
-
-
-# --- rules ---------------------------------------------------------------------------------
 
 
 def low_confidence(line: ReportLine, config: VerificationConfig) -> ReviewFinding | None:
@@ -82,7 +65,6 @@ def unknown_material(line: ReportLine) -> ReviewFinding | None:
 
 
 def conflicting_types(evidence: LineEvidence) -> ReviewFinding | None:
-    """Merged observations name different utility types (`unknown` is not a disagreement)."""
     known = [
         (ref, o.utility_type)
         for ref, o in evidence.observations
@@ -97,9 +79,6 @@ def conflicting_types(evidence: LineEvidence) -> ReviewFinding | None:
 
 
 def size_inconsistent(evidence: LineEvidence, config: VerificationConfig) -> ReviewFinding | None:
-    """Sizes from frames with a scale reference spread more than `size_tolerance` around the
-    median. Diameter and depth are checked separately. Needs at least two scaled values, so
-    it stays dormant until absolute scale exists (Task E)."""
     scaled = [o for ref, o in evidence.observations if ref.frame_id in evidence.scaled_frames]
     problems = []
     for name, unit, values in (
@@ -124,9 +103,6 @@ def size_inconsistent(evidence: LineEvidence, config: VerificationConfig) -> Rev
 
 
 def size_without_scale(evidence: LineEvidence) -> ReviewFinding | None:
-    """Final safety net: a size although none of the line's frames has a scale reference.
-    Unreachable today (frames are stripped before saving, `check_report_lines` rejects it),
-    kept so a future regression is flagged instead of reported as fact."""
     line = evidence.line
     sized = line.approx_outer_diameter_mm is not None or line.approx_depth_of_cover_m is not None
     if not sized or evidence.scaled_frames:
@@ -138,7 +114,6 @@ def size_without_scale(evidence: LineEvidence) -> ReviewFinding | None:
 
 
 def color_contradicts_type(evidence: LineEvidence) -> ReviewFinding | None:
-    """An observed colour usually indicates other utility types than the line's type."""
     line_type = evidence.line.utility_type
     if line_type is UtilityType.UNKNOWN:
         return None
@@ -159,8 +134,6 @@ def color_contradicts_type(evidence: LineEvidence) -> ReviewFinding | None:
 
 
 def single_frame_only(line: ReportLine, media_kind: MediaKind) -> ReviewFinding | None:
-    """In a video a real line usually stays in view for several keyframes. Photos are
-    independent shots, so one frame is normal there."""
     cited = frames_of(line)
     if media_kind != "video" or len(cited) != 1:
         return None
@@ -170,11 +143,8 @@ def single_frame_only(line: ReportLine, media_kind: MediaKind) -> ReviewFinding 
     )
 
 
-# --- entry point ---------------------------------------------------------------------------
-
 type _Rule = Callable[[LineEvidence, VerificationConfig, MediaKind], ReviewFinding | None]
 
-# One entry per ReviewReason; findings are sorted by enum order anyway.
 RULES: tuple[_Rule, ...] = (
     lambda e, c, _: low_confidence(e.line, c),
     lambda e, _c, _m: unknown_type(e.line),

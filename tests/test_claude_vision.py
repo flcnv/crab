@@ -1,5 +1,3 @@
-"""ClaudeVisionModel against a fake Anthropic client: no network, no cost."""
-
 import base64
 import json
 
@@ -57,7 +55,7 @@ async def test_valid_output_becomes_frame_analysis() -> None:
 
     [u] = usage
     assert (u.model, u.prompt_version) == ("claude-sonnet-5-5", "v1")
-    assert u.input_tokens == 3000  # uncached + cache reads
+    assert u.input_tokens == 3000
     assert u.cost_usd == cost_usd(
         "claude-sonnet-5-5", input_tokens=1000, output_tokens=300, cache_read_tokens=2000
     )
@@ -132,7 +130,7 @@ async def test_unusable_responses_fail_the_frame(reply: BetaMessage, error: str)
     model, _ = vision([reply])
     with pytest.raises(FrameAnalysisError, match=error) as exc:
         await model.analyze(b"jpeg", "f001")
-    assert len(exc.value.usage) == 1  # the call was billed, so it is recorded
+    assert len(exc.value.usage) == 1
 
 
 async def test_api_errors_fail_the_frame_without_usage() -> None:
@@ -153,7 +151,6 @@ async def test_fallback_model_is_billed_at_its_own_price() -> None:
 
 
 def test_pricing() -> None:
-    # 1M uncached input + 1M output on Sonnet 5.5 = $2 + $10
     assert cost_usd("claude-sonnet-5-5", input_tokens=1_000_000, output_tokens=1_000_000) == 12.0
     assert cost_usd(
         "claude-haiku-5-5", input_tokens=0, output_tokens=0, cache_read_tokens=1_000_000

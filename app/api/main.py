@@ -22,7 +22,8 @@ app = FastAPI(title="Trench Report Agent", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # no auth and no cookies, so no credentials
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_headers=["*"],
     allow_methods=["*"],
 )

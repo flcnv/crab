@@ -1,9 +1,3 @@
-"""SqlJobRepository: implements domain.ports.JobRepository on Postgres.
-
-Each method runs in its own short transaction. Domain models go in and out;
-ORM rows never leave this module.
-"""
-
 from typing import Any
 from uuid import UUID
 
@@ -28,8 +22,6 @@ from app.domain.models import (
 class SqlJobRepository:
     def __init__(self, sessionmaker: async_sessionmaker[AsyncSession]) -> None:
         self._sm = sessionmaker
-
-    # --- jobs ---------------------------------------------------------------------------
 
     async def create(self, job_id: UUID, media_kind: MediaKind, upload_keys: list[str]) -> Job:
         row = JobRow(
@@ -74,7 +66,6 @@ class SqlJobRepository:
             return False
 
     async def record_stage_timing(self, job_id: UUID, stage: str, seconds: float) -> None:
-        # Atomic JSONB merge, no read-modify-write race.
         merged = JobRow.stage_timings_s.op("||")(literal({stage: seconds}, type_=JSONB))
         await self._update_job(job_id, stage_timings_s=merged)
 
@@ -89,12 +80,9 @@ class SqlJobRepository:
             if result.scalar_one_or_none() is None:
                 raise JobNotFoundError(job_id)
 
-    # --- frames -------------------------------------------------------------------------
-
     async def save_frames(self, job_id: UUID, frames: list[Frame]) -> None:
         async with self._sm.begin() as s:
             await self._require_job(s, job_id)
-            # Cascades to frame_analyses: new frames invalidate old analyses.
             await s.execute(delete(FrameRow).where(FrameRow.job_id == job_id))
             s.add_all(
                 FrameRow(
@@ -121,8 +109,6 @@ class SqlJobRepository:
                 )
                 for r in rows
             ]
-
-    # --- frame analyses -----------------------------------------------------------------
 
     async def save_analysis(self, job_id: UUID, analysis: FrameAnalysis) -> None:
         await self._upsert_analysis(
@@ -154,15 +140,11 @@ class SqlJobRepository:
             )
             return [FrameAnalysis.model_validate(a) for a in rows]
 
-    # --- llm usage ----------------------------------------------------------------------
-
     async def record_llm_usage(
         self, job_id: UUID, stage: str, usage: LLMUsage, frame_id: str | None = None
     ) -> None:
         async with self._sm.begin() as s:
             s.add(LLMCallRow(job_id=job_id, stage=stage, frame_id=frame_id, **usage.model_dump()))
-
-    # --- reports ------------------------------------------------------------------------
 
     async def save_report(self, job_id: UUID, report: TrenchReport) -> None:
         data = report.model_dump(mode="json")
@@ -177,8 +159,6 @@ class SqlJobRepository:
         async with self._sm() as s:
             data = await s.scalar(select(ReportRow.report).where(ReportRow.job_id == job_id))
             return None if data is None else TrenchReport.model_validate(data)
-
-    # --- helpers ------------------------------------------------------------------------
 
     @staticmethod
     async def _require_job(s: AsyncSession, job_id: UUID) -> None:

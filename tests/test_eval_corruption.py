@@ -19,7 +19,6 @@ def test_detectable_corruptions_are_caught_by_the_intended_rule(corruption: obje
 
 
 def test_blind_spots_stay_documented() -> None:
-    # If a new rule starts catching one of these, move it out of the blind spots on purpose.
     blind = {r.name: r.caught for r in run().results if r.expected is None}
     assert blind == {"wrong_type_ambiguous_colour": False, "wrong_type_everywhere": False}
 

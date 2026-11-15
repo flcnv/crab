@@ -1,9 +1,3 @@
-"""Composition root: the only place that picks concrete adapters for the domain ports.
-
-Both entrypoints (FastAPI in `app/api`, arq worker in `app/worker`) call `build_deps()`.
-Tests can build their own `Deps` with fakes instead.
-"""
-
 from dataclasses import dataclass
 
 import anthropic
@@ -56,7 +50,6 @@ def build_deps(settings: Settings | None = None) -> Deps:
     engine = create_engine(settings.database_url)
     key = settings.anthropic_api_key
     claude = anthropic.AsyncAnthropic(
-        # None -> the SDK resolves credentials itself (env var, `ant auth login` profile)
         api_key=key.get_secret_value() if key else None,
         max_retries=settings.claude_max_retries,
         timeout=settings.claude_timeout_s,

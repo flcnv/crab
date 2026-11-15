@@ -1,9 +1,3 @@
-"""Per-model token prices for cost logging (Anthropic first-party API, USD per 1M tokens).
-
-Prices as of 2026-11. Cache writes (5 min TTL) cost 1.25x the input price, cache reads 0.1x
-unless the model's price sheet says otherwise.
-"""
-
 import logging
 from dataclasses import dataclass
 
@@ -31,8 +25,8 @@ PRICES: frozendict[str, Price] = frozendict(
     {
         "claude-opus-5-5": _price(4.00, 20.00, cache_read=0.20),
         "claude-sonnet-5-5": _price(2.00, 10.00, cache_read=0.10),
-        "claude-sonnet-5": _price(2.00, 10.00),  # refusal fallback target of Sonnet 5.5
-        "claude-haiku-5-5": _price(0.10, 0.50),  # prompts up to 100K tokens
+        "claude-sonnet-5": _price(2.00, 10.00),
+        "claude-haiku-5-5": _price(0.10, 0.50),
     }
 )
 
@@ -45,7 +39,6 @@ def cost_usd(
     cache_read_tokens: int = 0,
     cache_write_tokens: int = 0,
 ) -> float:
-    """`input_tokens` is the uncached part only, as reported by the API."""
     price = PRICES.get(model)
     if price is None:
         logger.warning("no price for model %s, cost recorded as 0", model)

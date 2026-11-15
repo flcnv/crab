@@ -1,20 +1,3 @@
-"""Eval metrics: pure functions over ground truth + predictions (no I/O, no model calls).
-
-OpenTrench3D views (frame mode). The truth of a view is what its visible pixels show
-(`eval.opentrench.ViewTruth`): the area's utility type (water or district heating) if the main
-or an inactive utility of the owner is visible, plus "other utilities" of unknown type.
-
-A predicted line is **judged** only when the data decides it:
-- correct: type == the area's type, and the main or inactive utility is visible;
-- wrong: a concrete type other than the area's (or the area's type although neither the main
-  nor an inactive utility is visible), and **no** other utility is visible — so nothing in the
-  view could be that type;
-- not judged: `unknown` type (an abstention, counted separately), or a concrete other type while
-  other utilities are visible (they are untyped in the dataset).
-
-Rates come with counts and 95 % Wilson intervals; with a few dozen views they are wide.
-"""
-
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -29,7 +12,7 @@ from app.domain.models import (
 
 type Judgement = Literal["correct", "wrong", "abstain", "unjudged"]
 
-CONFIDENT = 0.8  # "wrong when confident" threshold (CLAUDE.md §11.4)
+CONFIDENT = 0.8
 CALIBRATION_BINS = 5
 
 
@@ -54,7 +37,6 @@ class Rate:
 
 
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float] | None:
-    """95 % Wilson score interval for k successes out of n (None for n = 0)."""
     if n == 0:
         return None
     p = k / n
@@ -66,11 +48,9 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float] | None:
 
 @dataclass(frozen=True, slots=True)
 class ViewFacts:
-    """What the data says about one rendered view (from eval.opentrench.ViewTruth)."""
-
     main_type: UtilityType
-    owner_visible: bool  # main or inactive utility of the area's type is visible
-    other_visible: bool  # utilities of other owners (type unknown) are visible
+    owner_visible: bool
+    other_visible: bool
 
 
 def judge(line_type: UtilityType, facts: ViewFacts) -> Judgement:
@@ -90,7 +70,7 @@ class JudgedLine:
     utility_type: UtilityType
     confidence: float
     judgement: Judgement
-    flagged: bool  # needs_review after verification
+    flagged: bool
 
 
 def judge_lines(
@@ -110,8 +90,6 @@ def judge_lines(
 
 
 def main_type_found(facts: ViewFacts, observations: Sequence[LineObservation]) -> bool | None:
-    """Did the model report a line of the area's type where one is visible? None if the
-    owner's utility is not visible in this view (nothing to find)."""
     if not facts.owner_visible:
         return None
     return any(o.utility_type is facts.main_type for o in observations)
@@ -130,18 +108,18 @@ class CalibrationBin:
 class Summary:
     views: int
     lines: int
-    main_found: Rate  # views where the owner's utility is visible
-    correct: Rate  # of judged lines
-    wrong_when_confident: Rate  # of judged lines with confidence >= CONFIDENT
-    abstain: Rate  # unknown type, of all lines
+    main_found: Rate
+    correct: Rate
+    wrong_when_confident: Rate
+    abstain: Rate
     unjudged: int
-    review_recall: Rate  # wrong lines that were flagged / wrong lines
-    review_precision: Rate  # flagged judged lines that are wrong / flagged judged lines
-    review_rate: Rate  # flagged / all lines
+    review_recall: Rate
+    review_precision: Rate
+    review_rate: Rate
     calibration: list[CalibrationBin]
     ece: float | None
     brier: float | None
-    no_trench_reported: Rate  # views with a visible trench where the model said "no trench"
+    no_trench_reported: Rate
 
 
 def calibration(lines: Sequence[JudgedLine], bins: int = CALIBRATION_BINS) -> list[CalibrationBin]:
@@ -224,8 +202,6 @@ def summarise(
 
 
 def hallucinated_sizes(raw: Sequence[FrameAnalysis]) -> int:
-    """Sizes the model returned without a visible scale reference (raw output, before the
-    pipeline strips them)."""
     return sum(
         (o.approx_outer_diameter_mm is not None) + (o.approx_depth_of_cover_m is not None)
         for a in raw

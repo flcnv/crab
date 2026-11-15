@@ -1,5 +1,3 @@
-"""FastAPI dependencies. `Deps` is built once in the app lifespan (see app/api/main.py)."""
-
 from typing import Annotated
 
 from fastapi import Depends, Request

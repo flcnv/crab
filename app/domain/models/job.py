@@ -8,8 +8,6 @@ from app.domain.models.media import MediaKind, MediaMetadata
 
 
 class Job(BaseModel):
-    """One processing job: an upload (video or photos) and its pipeline state."""
-
     id: UUID
     status: JobStatus
     media_kind: MediaKind

@@ -27,12 +27,11 @@ def test_all_blurry_keeps_the_sharpest() -> None:
 
 
 def test_duplicates_keep_the_sharper_copy() -> None:
-    # 0 and 1 differ by 1 bit (duplicate); 1 is sharper
     assert pick([c(0, 60, 0b0000), c(1, 95, 0b0001), c(2, 70, 0xFFFF)]) == [1, 2]
 
 
 def test_caps_at_max_frames_preferring_sharp() -> None:
-    cands = [c(i, 50 + i, 0xF << (4 * i)) for i in range(6)]  # pairwise 8 bits apart
+    cands = [c(i, 50 + i, 0xF << (4 * i)) for i in range(6)]
     assert pick(cands, max_frames=3) == [3, 4, 5]
 
 

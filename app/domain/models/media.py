@@ -18,8 +18,6 @@ class MediaMetadata(BaseModel):
 
 
 class Frame(BaseModel):
-    """A keyframe selected for analysis (reference to stored image, not bytes)."""
-
     frame_id: str
     storage_key: str
     timestamp_s: float | None = None
@@ -27,8 +25,6 @@ class Frame(BaseModel):
 
 
 class ExtractedFrame(BaseModel):
-    """A keyframe produced by a FrameExtractor, before it is stored (holds the JPEG bytes)."""
-
     jpeg: bytes
     timestamp_s: float | None = None
     sharpness: float | None = None

@@ -1,5 +1,3 @@
-"""Versioned prompts: <name>_<version>.md. The version is stored with every result."""
-
 from pathlib import Path
 
 PROMPTS_DIR = Path(__file__).parent

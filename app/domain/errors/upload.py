@@ -1,5 +1,4 @@
-class InvalidUploadError(ValueError):
-    """Upload rejected by domain rules (unsupported type, mixed media, too many files)."""
+class InvalidUploadError(ValueError): ...
 
 
 class UploadTooLargeError(ValueError):

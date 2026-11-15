@@ -1,5 +1,3 @@
-"""Pure domain logic: consolidation, measurement guards, verification rules."""
-
 from app.domain.services.consolidation import (
     DEFAULT_LIMITATIONS,
     build_report,

@@ -25,14 +25,14 @@ def _pattern(seed: int = 0) -> Image.Image:
 
 def test_prepare_image_rotates_and_downscales() -> None:
     exif = Image.Exif()
-    exif[0x0112] = 6  # stored landscape, displayed portrait
+    exif[0x0112] = 6
     data = _jpeg(Image.new("RGB", (4000, 3000), "gray"), exif=exif)
 
     out = Image.open(io.BytesIO(prepare_image(data, max_edge_px=1500)))
 
     assert out.size == (1125, 1500)
     assert out.format == "JPEG"
-    assert out.getexif().get(0x0112) is None  # EXIF stripped
+    assert out.getexif().get(0x0112) is None
 
 
 def test_prepare_image_rejects_garbage() -> None:

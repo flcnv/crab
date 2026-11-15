@@ -1,5 +1,3 @@
-"""In-memory implementations of domain ports for fast tests (no Postgres / Redis)."""
-
 from datetime import UTC, datetime
 from uuid import UUID
 

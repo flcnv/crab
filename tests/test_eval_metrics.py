@@ -1,5 +1,3 @@
-"""Eval metrics on hand-made fixtures."""
-
 import pytest
 
 from app.domain.models import Evidence, FrameAnalysis, LineObservation, Material, UtilityType
@@ -41,10 +39,10 @@ def test_wilson_matches_known_values() -> None:
     ("line", "facts", "expected"),
     [
         (W, ViewFacts(W, owner_visible=True, other_visible=False), "correct"),
-        (W, ViewFacts(W, owner_visible=False, other_visible=False), "wrong"),  # nothing there
+        (W, ViewFacts(W, owner_visible=False, other_visible=False), "wrong"),
         (DH, ViewFacts(W, owner_visible=True, other_visible=False), "wrong"),
         (GAS, ViewFacts(W, owner_visible=True, other_visible=False), "wrong"),
-        (GAS, ViewFacts(W, owner_visible=True, other_visible=True), "unjudged"),  # could be it
+        (GAS, ViewFacts(W, owner_visible=True, other_visible=True), "unjudged"),
         (W, ViewFacts(W, owner_visible=False, other_visible=True), "unjudged"),
         (UNK, ViewFacts(W, owner_visible=True, other_visible=False), "abstain"),
     ],
@@ -80,9 +78,9 @@ def jl(judgement: str, confidence: float, *, flagged: bool = False) -> JudgedLin
 LINES = [
     jl("correct", 0.9),
     jl("correct", 0.7),
-    jl("wrong", 0.85),  # confident and wrong, not flagged: the safety net missed it
+    jl("wrong", 0.85),
     jl("wrong", 0.5, flagged=True),
-    jl("correct", 0.55, flagged=True),  # flagged but right: costs precision
+    jl("correct", 0.55, flagged=True),
     jl("abstain", 0.3, flagged=True),
     jl("unjudged", 0.8),
 ]
@@ -104,12 +102,11 @@ def test_summary_counts() -> None:
 
 
 def test_calibration_and_scores() -> None:
-    # judged confidences: 0.9 0.7 0.85 0.5 0.55; bins [0,.2) [.2,.4) [.4,.6) [.6,.8) [.8,1]
     table = calibration(LINES)
     assert [b.n for b in table] == [0, 0, 2, 1, 2]
-    assert table[2].accuracy == 0.5  # 0.5 wrong, 0.55 correct
+    assert table[2].accuracy == 0.5
     assert table[4].mean_confidence == pytest.approx(0.875)
-    assert table[4].accuracy == 0.5  # 0.9 correct, 0.85 wrong
+    assert table[4].accuracy == 0.5
     perfect = [jl("correct", 1.0), jl("wrong", 0.0)]
     assert expected_calibration_error(calibration(perfect)) == 0
     assert brier(perfect) == 0

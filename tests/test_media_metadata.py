@@ -67,7 +67,7 @@ def test_video_metadata_from_probe() -> None:
     md = _video_metadata(probe)
     assert md.kind == "video"
     assert md.duration_s == 12.346
-    assert (md.width, md.height) == (1080, 1920)  # portrait phone video
+    assert (md.width, md.height) == (1080, 1920)
     assert md.location == GeoPoint(lat=47.3769, lon=8.5417)
     assert md.captured_at == datetime(2026, 5, 1, 10, 20, 30, tzinfo=UTC)
 
@@ -88,7 +88,7 @@ def _jpeg_with_exif(path: Path, *, orientation: int = 1) -> None:
 
 async def test_image_metadata_reads_exif(tmp_path: Path) -> None:
     path = tmp_path / "p.jpg"
-    _jpeg_with_exif(path, orientation=6)  # rotated 90 degrees
+    _jpeg_with_exif(path, orientation=6)
 
     md = await MediaMetadataReader().read(path, "image")
 

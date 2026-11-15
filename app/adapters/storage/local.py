@@ -1,5 +1,3 @@
-"""Local filesystem storage. Same interface as a future S3 adapter."""
-
 import asyncio
 from collections.abc import AsyncIterable
 from pathlib import Path
@@ -31,7 +29,7 @@ class LocalStorage:
                 async for chunk in chunks:
                     await asyncio.to_thread(f.write, chunk)
                     size += len(chunk)
-            tmp.replace(path)  # atomic: readers never see a half-written file
+            tmp.replace(path)
         except BaseException:
             tmp.unlink(missing_ok=True)
             raise

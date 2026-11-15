@@ -29,7 +29,6 @@ async def create_job(
     files: Annotated[list[UploadFile], File(description="One video or several photos")],
     deps: DepsDep,
 ) -> JobCreated:
-    """Store the upload, create a job and enqueue it for the worker."""
     job = await submit_job(
         [Upload(filename=f.filename or "", chunks=_read_chunks(f)) for f in files],
         jobs=deps.jobs,
@@ -47,7 +46,6 @@ async def create_job(
 
 @router.post("/{job_id}/retry", status_code=status.HTTP_202_ACCEPTED)
 async def retry(job_id: UUID, request: Request, deps: DepsDep) -> JobCreated:
-    """Re-enqueue a failed job; finished stages are skipped. 409 for any other status."""
     job = await retry_job(job_id, jobs=deps.jobs, queue=deps.queue)
     return JobCreated(
         job_id=job.id,
@@ -64,8 +62,6 @@ async def _get_job(deps: DepsDep, job_id: UUID) -> Job:
 
 
 async def _get_report(deps: DepsDep, job_id: UUID) -> tuple[Job, TrenchReport]:
-    """The report of a `done` job only: before that it exists without review results
-    (consolidate stores it, verify adds the reviews), and serving it would look verified."""
     job = await _get_job(deps, job_id)
     if job.status is JobStatus.FAILED:
         raise HTTPException(
@@ -86,7 +82,6 @@ async def get_job(job_id: UUID, deps: DepsDep) -> JobOut:
 
 @router.get("/{job_id}/report")
 async def get_report(job_id: UUID, deps: DepsDep) -> TrenchReport:
-    """The report as JSON, the source of truth for the other formats."""
     _, report = await _get_report(deps, job_id)
     return report
 
@@ -103,7 +98,6 @@ async def get_report_markdown(job_id: UUID, deps: DepsDep) -> str:
     responses={200: {"content": {GEOJSON: {}}}, 404: {"description": "No GPS location"}},
 )
 async def get_report_geojson(job_id: UUID, deps: DepsDep) -> JSONResponse:
-    """FeatureCollection with one Point at the capture location; 404 when the upload had no GPS."""
     _, report = await _get_report(deps, job_id)
     geojson = render_geojson(report)
     if geojson is None:

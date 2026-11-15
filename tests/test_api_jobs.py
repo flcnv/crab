@@ -16,7 +16,7 @@ from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
 @pytest.fixture
 def deps(tmp_path: Path) -> Deps:
-    real = build_deps()  # engine/queue are lazy: nothing connects
+    real = build_deps()
     settings = real.settings.model_copy(update={"max_upload_bytes": 1024, "max_images_per_job": 3})
     return dataclasses.replace(
         real,
@@ -150,8 +150,6 @@ def _job_with_report(client: TestClient, deps: Deps, status: JobStatus, error: s
 def test_stored_but_unverified_report_is_not_served(
     client: TestClient, deps: Deps, status: JobStatus
 ) -> None:
-    # Regression: the report was served as soon as consolidate stored it, so a client could
-    # read lines without review results while verify had not run yet.
     job_id = _job_with_report(client, deps, status, None)
     for path in REPORT_PATHS:
         resp = client.get(f"/jobs/{job_id}/{path}")

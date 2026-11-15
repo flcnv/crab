@@ -1,5 +1,3 @@
-"""Ports: interfaces the domain needs. Adapters implement them."""
-
 from app.domain.ports.llm import ReportAgent, VisionModel
 from app.domain.ports.media import FrameExtractor, MetadataReader
 from app.domain.ports.queue import JobQueue

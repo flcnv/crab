@@ -1,16 +1,3 @@
-"""Run the vision model on the OpenTrench3D views and score it (frame mode).
-
-    uv run python -m eval.run_eval --split dev                    # dry run: calls + cost estimate
-    uv run python -m eval.run_eval --split dev --yes              # real run (costs money)
-
-Per view: the rendered image goes through the production vision adapter (same prompt, schema,
-image preparation); the raw findings are kept (hallucinated sizes are counted on them), then
-the production measurement guard and verification run on a one-frame report. Scores per
-`eval.metrics`. Output: eval/results/<date>_<model>_<prompt>_<split>_opentrench.{json,md}.
-
-A real run needs `--yes`; without it nothing is sent to the API (CLAUDE.md §11.3).
-"""
-
 import argparse
 import asyncio
 import json
@@ -53,7 +40,6 @@ from eval.metrics import (
 from eval.opentrench import CASES_PATH, LICENCE, RENDER_DIR, OpenTrenchCase, read_cases
 
 RESULTS_DIR = Path("eval/results")
-# Rough per-call token budget for the estimate (image tokens are computed from the size).
 SYSTEM_PROMPT_CHARS_PER_TOKEN = 4
 EXPECTED_OUTPUT_TOKENS = 900
 IMAGE_PIXELS_PER_TOKEN = 750
@@ -81,8 +67,8 @@ class ViewResult(BaseModel):
     owner_visible: bool
     other_visible: bool
     error: str | None
-    raw: FrameAnalysis | None  # before the measurement guard
-    lines: list[ReportLine]  # after guard + verification
+    raw: FrameAnalysis | None
+    lines: list[ReportLine]
     usage: list[LLMUsage]
 
 
@@ -114,11 +100,10 @@ def estimate_cost(
     max_edge: int,
     render_dir: Path = RENDER_DIR,
 ) -> tuple[int, float]:
-    """(calls, USD) for one attempt per view; retries and fallbacks are not included."""
     system = len(load_prompt("analyze_frame", prompt)) // SYSTEM_PROMPT_CHARS_PER_TOKEN
     total = 0.0
     for v in views:
-        with Image.open(render_dir / v.file) as img:  # reads the header only
+        with Image.open(render_dir / v.file) as img:
             w, h = img.size
         s = min(1.0, max_edge / max(h, w))
         image_tokens = int(h * s * w * s / IMAGE_PIXELS_PER_TOKEN)
@@ -129,7 +114,6 @@ def estimate_cost(
 
 
 def one_frame_report(analysis: FrameAnalysis, config: VerificationConfig) -> list[ReportLine]:
-    """The production rules on a single image: rule-based merge, then verification."""
     report = TrenchReport(
         job_id=UUID(int=0),
         lines=Consolidation(lines=merge_lines([analysis]), method="rules").lines,
@@ -186,9 +170,6 @@ def score(results: Sequence[ViewResult]) -> tuple[Summary, list[JudgedLine]]:
         found.append(main_type_found(facts, r.raw.lines))
         trench.append(r.raw.is_trench_visible)
     return summarise(judged, found, trench), judged
-
-
-# --- report -------------------------------------------------------------------------------
 
 
 def _commit() -> str:

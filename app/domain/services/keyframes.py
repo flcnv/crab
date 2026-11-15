@@ -1,17 +1,12 @@
-"""Keyframe selection: which sampled video frames are worth sending to the vision model.
-
-Adapters measure each frame (sharpness, perceptual hash); the choice itself is pure logic.
-"""
-
 from collections.abc import Sequence
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
 class FrameCandidate:
-    index: int  # position in the sampled sequence (time order)
-    sharpness: float  # variance of Laplacian; higher = sharper
-    phash: int  # 64-bit perceptual hash
+    index: int
+    sharpness: float
+    phash: int
 
 
 def hamming(a: int, b: int) -> int:
@@ -25,12 +20,6 @@ def select_keyframes(
     min_sharpness: float,
     min_hash_distance: int,
 ) -> list[FrameCandidate]:
-    """Sharpest-first greedy pick of visually distinct frames, returned in time order.
-
-    - Frames below `min_sharpness` are dropped; if all are blurry, the sharpest one is kept.
-    - A frame closer than `min_hash_distance` bits to an already kept frame is a duplicate;
-      because we go sharpest-first, the sharper copy of a duplicate pair wins.
-    """
     if not candidates or max_frames <= 0:
         return []
 

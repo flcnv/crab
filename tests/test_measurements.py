@@ -36,8 +36,8 @@ def test_strips_sizes_without_scale_reference() -> None:
         (line.approx_outer_diameter_mm, line.approx_depth_of_cover_m) == (None, None)
         for line in guarded.lines
     )
-    assert guarded.lines[0].color == "blue"  # everything else untouched
-    assert raw.lines[0].approx_outer_diameter_mm == 110  # input not mutated
+    assert guarded.lines[0].color == "blue"
+    assert raw.lines[0].approx_outer_diameter_mm == 110
 
 
 def test_keeps_sizes_with_scale_reference() -> None:

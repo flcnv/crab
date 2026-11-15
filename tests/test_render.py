@@ -96,7 +96,7 @@ def test_markdown_report() -> None:
         "  - low confidence: confidence 0.72 <= 0.80\n"
         "  - colour contradicts type: district_heating, but f001#0 'blue' usually means water\n"
     ) in md
-    assert "L2**" not in md  # lines without findings are not listed
+    assert "L2**" not in md
     assert "## Limitations\n\n- No 3D reconstruction.\n" in md
 
 

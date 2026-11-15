@@ -1,5 +1,3 @@
-"""FrameExtractor: ffmpeg sampling -> sharpness + dHash per frame -> domain keyframe selection."""
-
 import asyncio
 import tempfile
 from pathlib import Path

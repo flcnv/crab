@@ -101,7 +101,7 @@ async def test_requeue_failed_only_moves_failed_jobs(repo: SqlJobRepository) -> 
 
     await repo.set_status(job.id, JobStatus.FAILED, error="analyze_frames: boom")
     assert await repo.requeue_failed(job.id) is True
-    assert await repo.requeue_failed(job.id) is False  # second concurrent retry loses
+    assert await repo.requeue_failed(job.id) is False
 
     got = await repo.get(job.id)
     assert got is not None
@@ -131,7 +131,7 @@ async def test_analysis_upsert_and_failed_frames(repo: SqlJobRepository) -> None
     job_id = await _job_with_frames(repo, "f001", "f002")
 
     await repo.save_analysis(job_id, _analysis("f002", confidence=0.4))
-    await repo.save_analysis(job_id, _analysis("f002", confidence=0.9))  # upsert
+    await repo.save_analysis(job_id, _analysis("f002", confidence=0.9))
     await repo.mark_frame_failed(job_id, "f001", "validation error")
 
     analyses = await repo.get_analyses(job_id)

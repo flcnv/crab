@@ -12,14 +12,14 @@ from app.domain.services import COLOR_CONVENTIONS_SOURCE, expected_types
         ("blue", {U.WATER}),
         ("blau", {U.WATER}),
         ("brown", {U.WASTEWATER}),
-        ("orange-brown", {U.WASTEWATER}),  # compound wins over "orange" (cable)
+        ("orange-brown", {U.WASTEWATER}),
         ("Orangebraun", {U.WASTEWATER}),
         ("red", {U.POWER, U.TELECOM}),
         ("orange", {U.POWER, U.TELECOM}),
         ("green", {U.TELECOM}),
         ("grün", {U.TELECOM}),
-        ("black with yellow stripes", {U.GAS}),  # black says nothing, yellow does
-        ("red/green", {U.POWER, U.TELECOM}),  # union of named colours
+        ("black with yellow stripes", {U.GAS}),
+        ("red/green", {U.POWER, U.TELECOM}),
     ],
 )
 def test_known_colours(color: str, expected: set[U]) -> None:

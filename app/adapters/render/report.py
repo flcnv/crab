@@ -1,5 +1,3 @@
-"""Render a TrenchReport (the JSON source of truth) as Markdown or GeoJSON, on request."""
-
 from pathlib import Path
 from typing import Any
 
@@ -52,7 +50,6 @@ CONSOLIDATION_LABELS: frozendict[str, str] = frozendict(
 
 
 def _cell(value: object) -> str:
-    """Make a value safe inside a Markdown table cell."""
     if value is None:
         return "-"
     return str(value).replace("|", "\\|").replace("\n", " ").strip() or "-"
@@ -84,10 +81,6 @@ def render_markdown(report: TrenchReport, job: Job) -> str:
 
 
 def render_geojson(report: TrenchReport) -> dict[str, Any] | None:
-    """One Point feature at the capture location, lines as properties. None without GPS.
-
-    A single point is all a phone capture gives us; line geometry would need a survey.
-    """
     if report.location is None:
         return None
     loc = report.location
@@ -96,7 +89,7 @@ def render_geojson(report: TrenchReport) -> dict[str, Any] | None:
         "features": [
             {
                 "type": "Feature",
-                "geometry": {"type": "Point", "coordinates": [loc.lon, loc.lat]},  # lon, lat
+                "geometry": {"type": "Point", "coordinates": [loc.lon, loc.lat]},
                 "properties": {
                     "job_id": str(report.job_id),
                     "location_accuracy_m": loc.accuracy_m,

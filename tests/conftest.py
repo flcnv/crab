@@ -1,9 +1,3 @@
-"""Shared fixtures.
-
-DB tests run against a real Postgres (docker compose locally, a service container in CI),
-in a separate `<POSTGRES_DB>_test` database. They are skipped if Postgres is unreachable.
-"""
-
 import asyncio
 from collections.abc import AsyncGenerator
 
@@ -47,7 +41,6 @@ def _test_database(test_settings: Settings) -> None:
 
 @pytest.fixture
 async def db_engine(_test_database: None, test_settings: Settings) -> AsyncGenerator[AsyncEngine]:
-    """Fresh schema per test: drop + create all tables."""
     engine = create_engine(test_settings.database_url)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

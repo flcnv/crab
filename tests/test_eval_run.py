@@ -1,5 +1,3 @@
-"""Eval runner with a fake vision model: no API calls."""
-
 from pathlib import Path
 
 import cv2
@@ -62,8 +60,6 @@ def line(
 
 
 class FakeVision:
-    """top: right type + a confident wrong gas line; left: fails."""
-
     async def analyze(self, image: bytes, frame_id: str) -> tuple[FrameAnalysis, list[LLMUsage]]:
         if frame_id.endswith(":left"):
             raise FrameAnalysisError("model refused", [USAGE])
@@ -73,8 +69,8 @@ class FakeVision:
             scale_reference_visible=False,
             warning_tapes=[],
             lines=[
-                line(UtilityType.WATER, "blue", 0.9, diameter=110),  # size without scale
-                line(UtilityType.GAS, "black", 0.85),  # wrong, ambiguous colour: unflagged
+                line(UtilityType.WATER, "blue", 0.9, diameter=110),
+                line(UtilityType.GAS, "black", 0.85),
             ],
             image_quality_issues=[],
         )
@@ -112,16 +108,16 @@ async def test_run_and_score(renders: Path) -> None:
     )
     top, left = results
     assert left.error == "model refused"
-    assert left.usage == [USAGE]  # failed calls are still billed
+    assert left.usage == [USAGE]
     assert top.raw is not None
-    assert top.raw.lines[0].approx_outer_diameter_mm == 110  # raw keeps the invented size
-    assert all(ln.approx_outer_diameter_mm is None for ln in top.lines)  # guard stripped it
+    assert top.raw.lines[0].approx_outer_diameter_mm == 110
+    assert all(ln.approx_outer_diameter_mm is None for ln in top.lines)
 
     summary, judged = score(results)
     assert (summary.correct.k, summary.correct.n) == (1, 2)
     assert (summary.wrong_when_confident.k, summary.wrong_when_confident.n) == (1, 2)
-    assert (summary.review_recall.k, summary.review_recall.n) == (0, 1)  # the blind spot
-    assert (summary.main_found.k, summary.main_found.n) == (1, 2)  # failed view counts as miss
+    assert (summary.review_recall.k, summary.review_recall.n) == (0, 1)
+    assert (summary.main_found.k, summary.main_found.n) == (1, 2)
 
     md = to_markdown({"split": "dev", "model": "fake"}, summary, judged, results)
     assert "1 views failed" in md
