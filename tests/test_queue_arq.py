@@ -4,14 +4,22 @@ import uuid
 from collections.abc import AsyncGenerator
 
 import pytest
-from arq import create_pool
+from arq import ArqRedis, create_pool
 from arq.connections import RedisSettings
 from arq.jobs import Job as ArqJob
 from arq.jobs import JobStatus as ArqJobStatus
+from redis.exceptions import RedisError
 
 from app.adapters.queue.arq import PROCESS_JOB_TASK, ArqJobQueue
 from app.settings import get_settings
 from app.worker.main import WorkerSettings
+
+
+async def _pool_or_skip(settings: RedisSettings) -> ArqRedis:
+    try:
+        return await create_pool(settings)
+    except (OSError, ConnectionError, RedisError) as e:  # redis has its own ConnectionError
+        pytest.skip(f"Redis not reachable: {e}")
 
 
 @pytest.fixture
@@ -20,14 +28,19 @@ async def redis_settings() -> AsyncGenerator[RedisSettings]:
     settings = RedisSettings(
         host=s.redis_host, port=s.redis_port, database=15, conn_retries=0, conn_timeout=1
     )
-    try:
-        pool = await create_pool(settings)
-    except (OSError, ConnectionError) as e:
-        pytest.skip(f"Redis not reachable: {e}")
+    pool = await _pool_or_skip(settings)
     await pool.flushdb()
     yield settings
     await pool.flushdb()
     await pool.aclose()
+
+
+async def test_unreachable_redis_skips_instead_of_erroring() -> None:
+    # Regression: redis raises redis.exceptions.ConnectionError, which is not the built-in
+    # ConnectionError, so the integration test errored instead of skipping without Redis.
+    nothing_there = RedisSettings(host="127.0.0.1", port=1, conn_retries=0, conn_timeout=1)
+    with pytest.raises(pytest.skip.Exception, match="Redis not reachable"):
+        await _pool_or_skip(nothing_there)
 
 
 def test_task_name_matches_worker() -> None:
