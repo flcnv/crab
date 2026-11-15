@@ -1,0 +1,40 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(uv run pytest:*)",
+            "Bash(uv run ruff check:*)",
+            "Bash(uv run ruff format:*)",
+            "Bash(uv run mypy:*)",
+            "Bash(uv run alembic check:*)",
+            "Bash(git status:*)",
+            "Bash(git diff:*)",
+            "Bash(git log:*)",
+            "Bash(git show:*)",
+            "Bash(git blame:*)"
+        ],
+        "deny": [
+            "Bash(git add:*)",
+            "Bash(git commit:*)",
+            "Bash(git push:*)",
+            "Bash(git merge:*)",
+            "Bash(git rebase:*)",
+            "Bash(git reset:*)",
+            "Bash(git revert:*)",
+            "Bash(git cherry-pick:*)",
+            "Bash(git tag:*)",
+            "Bash(git stash:*)",
+            "Bash(git checkout:*)",
+            "Bash(git switch:*)",
+            "Bash(git restore:*)",
+            "Bash(git clean:*)",
+            "Bash(git branch -d:*)",
+            "Bash(git branch -D:*)",
+            "Bash(git rm:*)",
+            "Bash(git mv:*)",
+            "Bash(gh pr create:*)",
+            "Bash(gh pr merge:*)",
+            "Bash(gh release:*)",
+            "Read(./.env)"
+        ]
+    }
+}
