@@ -1,15 +1,24 @@
 """Domain schemas. Pure Pydantic, no I/O. Import from here: `from app.domain.models import Job`."""
 
 from app.domain.models.analysis import Evidence, FrameAnalysis, LineObservation
-from app.domain.models.enums import JobStatus, Material, UtilityType
+from app.domain.models.enums import JobStatus, Material, ReviewReason, UtilityType
 from app.domain.models.geo import GeoPoint
 from app.domain.models.job import Job
 from app.domain.models.media import ExtractedFrame, Frame, MediaKind, MediaMetadata
-from app.domain.models.report import Consolidation, ObservationRef, ReportLine, TrenchReport
+from app.domain.models.report import (
+    Consolidation,
+    ConsolidationMethod,
+    ObservationRef,
+    ReportLine,
+    ReviewFinding,
+    TrenchReport,
+)
 from app.domain.models.usage import LLMUsage
+from app.domain.models.verification import VerificationConfig
 
 __all__ = [
     "Consolidation",
+    "ConsolidationMethod",
     "Evidence",
     "ExtractedFrame",
     "Frame",
@@ -24,6 +33,9 @@ __all__ = [
     "MediaMetadata",
     "ObservationRef",
     "ReportLine",
+    "ReviewFinding",
+    "ReviewReason",
     "TrenchReport",
     "UtilityType",
+    "VerificationConfig",
 ]

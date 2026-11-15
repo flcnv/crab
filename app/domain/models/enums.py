@@ -30,3 +30,16 @@ class JobStatus(StrEnum):
     VERIFYING = "verifying"
     DONE = "done"
     FAILED = "failed"
+
+
+class ReviewReason(StrEnum):
+    """Why a report line needs a human look. Member order is the order findings are listed in."""
+
+    LOW_CONFIDENCE = "low_confidence"
+    UNKNOWN_TYPE = "unknown_type"
+    UNKNOWN_MATERIAL = "unknown_material"
+    CONFLICTING_TYPES = "conflicting_types"
+    SIZE_INCONSISTENT = "size_inconsistent"
+    SIZE_WITHOUT_SCALE = "size_without_scale"
+    COLOR_CONTRADICTS_TYPE = "color_contradicts_type"
+    SINGLE_FRAME_ONLY = "single_frame_only"

@@ -141,4 +141,5 @@ def build_report(
         verification_flags=[],
         limitations=limitations,
         location=job.metadata.location if job.metadata else None,
+        consolidation_method=consolidation.method,
     )

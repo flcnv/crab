@@ -321,6 +321,7 @@ async def test_report_is_saved_with_limitations(deps: Deps) -> None:
     assert report.location == GeoPoint(lat=1, lon=2)
     assert "1 of 3 frames could not be analyzed." in report.limitations
     assert report.limitations[-1] == "agent remark"
+    assert report.consolidation_method == "agent"
     assert _agent(deps).images == [b"jpeg0"]  # agent can load frame images
 
 
@@ -334,6 +335,7 @@ async def test_agent_failure_falls_back_to_rules(deps: Deps) -> None:
     assert report is not None
     [line] = report.lines  # same type/material/color in all frames -> one line
     assert line.notes == "merged by rule (color: blue)"
+    assert report.consolidation_method == "rules"
     assert any("Automatic consolidation failed" in lim for lim in report.limitations)
     job = await deps.jobs.get(job_id)
     assert job is not None

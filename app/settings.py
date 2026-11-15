@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     claude_refusal_fallback: bool = True  # server-side fallback model on a policy refusal
     llm_concurrency: int = 4
 
+    # Verification rules (see VerificationConfig); tune on the eval dev split only
+    verify_min_confidence: float = 0.6  # inclusive: confidence <= this is flagged
+    verify_size_tolerance: float = 0.15  # (max - min) / median across scaled frames
+
     # Frame extraction
     sample_fps: float = 1.0
     max_frames: int = 12

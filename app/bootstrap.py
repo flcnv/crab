@@ -18,6 +18,7 @@ from app.adapters.media.frames import FfmpegFrameExtractor
 from app.adapters.media.metadata import MediaMetadataReader
 from app.adapters.queue.arq import ArqJobQueue
 from app.adapters.storage.local import LocalStorage
+from app.domain.models import VerificationConfig
 from app.domain.ports import (
     FrameExtractor,
     JobQueue,
@@ -44,6 +45,7 @@ class Deps:
     vision_model: VisionModel
     report_agent: ReportAgent
     verifier: Verifier
+    verification: VerificationConfig
 
     async def aclose(self) -> None:
         await self.queue.aclose()
@@ -93,5 +95,9 @@ def build_deps(settings: Settings | None = None) -> Deps:
         ),
         verifier=ClaudeVerifier(
             claude, settings.claude_model, prompt_version=settings.prompt_version
+        ),
+        verification=VerificationConfig(
+            min_confidence=settings.verify_min_confidence,
+            size_tolerance=settings.verify_size_tolerance,
         ),
     )

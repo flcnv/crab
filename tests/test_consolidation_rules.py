@@ -200,6 +200,8 @@ def test_build_report() -> None:
 
     assert report.job_id == job.id
     assert report.location == GeoPoint(lat=47.0, lon=8.0)
+    assert report.consolidation_method == "agent"
+    assert report.verification_flags == []
     assert report.limitations == [
         *DEFAULT_LIMITATIONS,
         "1 of 3 frames failed",
