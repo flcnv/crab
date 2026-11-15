@@ -207,10 +207,11 @@ __marimo__/
 .vscode/
 .idea/
 
-# OD
+# OS
 .DS_Store
 
 # AI
 CLAUDE.md
+
 # Project
 /storage/
