@@ -9,6 +9,8 @@ from app.domain.models import (
     Material,
     MediaMetadata,
     ReportLine,
+    ReviewFinding,
+    ReviewReason,
     TrenchReport,
     UtilityType,
 )
@@ -39,6 +41,14 @@ def _report(job: Job, *, location: GeoPoint | None = None) -> TrenchReport:
             seen_in_frames=["f001", "f002"],
             confidence=0.72,
             notes="pair of dark pipes | supply\nand return",
+            needs_review=True,
+            review=[
+                ReviewFinding(reason=ReviewReason.LOW_CONFIDENCE, detail="confidence 0.72 <= 0.80"),
+                ReviewFinding(
+                    reason=ReviewReason.COLOR_CONTRADICTS_TYPE,
+                    detail="district_heating, but f001#0 'blue' usually means water",
+                ),
+            ],
         ),
         ReportLine(
             id="L2",
@@ -54,9 +64,10 @@ def _report(job: Job, *, location: GeoPoint | None = None) -> TrenchReport:
     return TrenchReport(
         job_id=job.id,
         lines=lines,
-        verification_flags=["L1: type based on shape only"],
+        verification_flags=["1 of 2 lines need review"],
         limitations=["No 3D reconstruction."],
         location=location,
+        consolidation_method="rules",
     )
 
 
@@ -71,12 +82,21 @@ def test_markdown_report() -> None:
     assert "| Source | 1 video |" in md
     assert "| Captured | 2026-05-01 10:20 |" in md
     assert "| Location | 47.376900, 8.541700 (± 5 m) |" in md
+    assert "| Consolidation | rule-based fallback (agent failed) |" in md
     assert (
-        "| L1 | District heating | Pre-insulated | - | - | 72 % | f001, f002 | "
+        "| L1 | District heating | Pre-insulated | - | - | 72 % | "
+        "⚠ low confidence, colour contradicts type | f001, f002 | "
         "pair of dark pipes \\| supply and return |" in md
     )
-    assert "| L2 | Gas | PE | 63 | 0.9 | 95 % | f003 | - |" in md
-    assert "## Verification flags\n\n- L1: type based on shape only\n" in md
+    assert "| L2 | Gas | PE | 63 | 0.9 | 95 % | ok | f003 | - |" in md
+    assert "## Verification flags\n\n- 1 of 2 lines need review\n" in md
+    assert (
+        "## Needs review\n\n"
+        "- **L1** (District heating)\n"
+        "  - low confidence: confidence 0.72 <= 0.80\n"
+        "  - colour contradicts type: district_heating, but f001#0 'blue' usually means water\n"
+    ) in md
+    assert "L2**" not in md  # lines without findings are not listed
     assert "## Limitations\n\n- No 3D reconstruction.\n" in md
 
 
@@ -88,7 +108,15 @@ def test_markdown_without_location_and_lines() -> None:
     assert "| Location | not available (no GPS in the upload) |" in md
     assert "No utility lines were identified." in md
     assert "Verification flags" not in md
+    assert "Needs review" not in md
     assert "Captured" not in md
+
+
+def test_markdown_of_report_stored_before_verification() -> None:
+    job = _job()
+    old = _report(job).model_copy(update={"consolidation_method": None})
+    md = render_markdown(old, job)
+    assert "Consolidation" not in md
 
 
 def test_geojson() -> None:
@@ -99,7 +127,8 @@ def test_geojson() -> None:
     assert geo is not None
     [feature] = geo["features"]
     assert feature["geometry"] == {"type": "Point", "coordinates": [8.5417, 47.3769]}
-    assert [line["utility_type"] for line in feature["properties"]["lines"]] == [
-        "district_heating",
-        "gas",
-    ]
+    l1, l2 = feature["properties"]["lines"]
+    assert (l1["utility_type"], l2["utility_type"]) == ("district_heating", "gas")
+    assert l1["needs_review"] is True
+    assert [f["reason"] for f in l1["review"]] == ["low_confidence", "color_contradicts_type"]
+    assert (l2["needs_review"], l2["review"]) == (False, [])

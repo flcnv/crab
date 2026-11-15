@@ -13,18 +13,24 @@
 | Location | not available (no GPS in the upload) |
 {% endif %}
 | Created | {{ job.created_at.strftime("%Y-%m-%d %H:%M UTC") }} |
+{% if report.consolidation_method %}
+| Consolidation | {{ report.consolidation_method | consolidation }} |
+{% endif %}
 
 ## Lines
 
 {% if report.lines %}
-| ID | Utility | Material | Outer Ø (mm) | Cover (m) | Confidence | Seen in frames | Notes |
-|----|---------|----------|-------------:|----------:|-----------:|----------------|-------|
+| ID | Utility | Material | Outer Ø (mm) | Cover (m) | Confidence | Review | Seen in frames | Notes |
+|----|---------|----------|-------------:|----------:|-----------:|--------|----------------|-------|
 {% for line in report.lines %}
-| {{ line.id }} | {{ line.utility_type | utility }} | {{ line.material | material }} | {{ line.approx_outer_diameter_mm | cell }} | {{ line.approx_depth_of_cover_m | cell }} | {{ line.confidence | percent }} | {{ line.seen_in_frames | join(", ") }} | {{ line.notes | cell }} |
+| {{ line.id }} | {{ line.utility_type | utility }} | {{ line.material | material }} | {{ line.approx_outer_diameter_mm | cell }} | {{ line.approx_depth_of_cover_m | cell }} | {{ line.confidence | percent }} | {% if line.needs_review %}⚠ {{ line.review | map(attribute="reason") | map("reason") | join(", ") }}{% else %}ok{% endif %} | {{ line.seen_in_frames | join(", ") }} | {{ line.notes | cell }} |
 {% endfor %}
 
 Confidence is the estimated probability that the utility type is correct.
 Sizes are only given where a scale reference was visible.
+{% if report.lines | selectattr("needs_review") | list %}
+"⚠" marks lines a person should check before the report is used; reasons are listed below.
+{% endif %}
 {% else %}
 No utility lines were identified.
 {% endif %}
@@ -34,6 +40,17 @@ No utility lines were identified.
 
 {% for flag in report.verification_flags %}
 - {{ flag }}
+{% endfor %}
+{% endif %}
+{% if report.lines | selectattr("needs_review") | list %}
+
+## Needs review
+
+{% for line in report.lines if line.needs_review %}
+- **{{ line.id }}** ({{ line.utility_type | utility }})
+{% for finding in line.review %}
+  - {{ finding.reason | reason }}: {{ finding.detail | cell }}
+{% endfor %}
 {% endfor %}
 {% endif %}
 

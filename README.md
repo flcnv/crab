@@ -40,15 +40,38 @@ Job states: `queued -> extracting -> analyzing -> consolidating -> verifying -> 
 | `ingest` | Duration, resolution, capture time and GPS: `ffprobe` for videos (incl. phone ISO 6709 location and rotation), EXIF for photos |
 | `extract_frames` | Video: sample 1 fps, drop blurry frames, drop near-duplicates, keep the best 12. Photos: fix EXIF rotation, downscale to 1500 px |
 | `analyze_frames` | Claude vision call per frame -> typed `FrameAnalysis` |
-| `consolidate` | Tool-use agent merges per-frame findings into distinct physical lines; rule-based merge if the agent fails |
-| `verify` | Independent pass flags claims not supported by the frames |
+| `consolidate` | Tool-use agent merges per-frame findings into distinct physical lines, citing the frame observations each line is built from; rule-based merge if the agent fails |
+| `verify` | Deterministic rules mark lines that need a human look (`needs_review` + reasons); no model call |
 
 Every stage is idempotent and skips work that is already stored, so re-running a failed job
-resumes where it stopped. A failing stage marks the job `failed` with `"<stage>: <reason>"`
+resumes where it stopped. `verify` is the exception: it is cheap and recomputes the review
+from scratch on every run. A failing stage marks the job `failed` with `"<stage>: <reason>"`
 and never crashes the worker. Per-stage timings are recorded on the job.
 
 The report is stored once as JSON (the source of truth); Markdown and GeoJSON are rendered
 from it on request.
+
+### Verification
+
+The system should say when it is unsure, not hide it. Every report line keeps references to
+the per-frame observations it was merged from (`observations`: frame id + line index), and
+`verify` checks each line with plain Python rules (`app/domain/services/verification.py`).
+A rule that fires adds a reason; it never changes type, material, size or confidence.
+
+| Reason | Fires when |
+|--------|------------|
+| `low_confidence` | confidence <= 0.6 (lines identified by colour alone are capped at 0.6 by the prompt, so they are flagged) |
+| `unknown_type` / `unknown_material` | the field is `unknown` |
+| `conflicting_types` | the merged observations name different utility types |
+| `size_inconsistent` | sizes from frames with a scale reference spread more than 15 % around the median (diameter and depth separately) |
+| `size_without_scale` | a size without any scale reference in the line's frames (a safety net; the earlier stages already prevent it) |
+| `color_contradicts_type` | an observed colour usually means another utility type |
+| `single_frame_only` | video only: the line was seen in a single keyframe |
+
+Thresholds are settings (`VERIFY_MIN_CONFIDENCE`, `VERIFY_SIZE_TOLERANCE`). The colour table
+(`app/domain/services/conventions.py`, English and German colour names) is a **heuristic**
+based on common practice, not yet checked against SIA 405 or operator rules, so a colour
+mismatch only asks for review.
 
 ### Keyframe selection
 
@@ -72,13 +95,13 @@ Measuring happens in the adapter; the selection rule is pure domain code
 |--------|------|--------|
 | `POST` | `/jobs` | multipart `files`: one video **or** 1-50 photos -> `202 {job_id, status, status_url}` |
 | `GET` | `/jobs/{id}` | status, media kind, error, stage timings, cost |
-| `GET` | `/jobs/{id}/report` | `TrenchReport` JSON; `409` while the job is still running |
-| `GET` | `/jobs/{id}/report.md` | human-readable Markdown report |
-| `GET` | `/jobs/{id}/report.geojson` | `FeatureCollection` with one point at the capture location and the lines as properties; `404` without GPS |
+| `GET` | `/jobs/{id}/report` | `TrenchReport` JSON; `409` until the job is `done` (a stored but not yet verified report is never served) or when it `failed` |
+| `GET` | `/jobs/{id}/report.md` | human-readable Markdown report, with a review column and the reasons per flagged line |
+| `GET` | `/jobs/{id}/report.geojson` | `FeatureCollection` with one point at the capture location and the lines (incl. `needs_review` and reasons) as properties; `404` without GPS |
 | `GET` | `/health` | liveness |
 
 Accepted files: `.mp4 .mov .m4v .webm` or `.jpg .jpeg .png .webp`, up to 500 MB per job.
-Errors: `404` unknown job, `413` too large, `422` invalid upload (wrong type, video + photos mixed).
+Errors: `404` unknown job, `409` report not ready or job failed (all three report formats), `413` too large, `422` invalid upload (wrong type, video + photos mixed).
 
 ```bash
 curl -F "files=@trench.mp4" localhost:8000/jobs

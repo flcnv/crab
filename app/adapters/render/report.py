@@ -5,7 +5,7 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
-from app.domain.models import Job, Material, TrenchReport, UtilityType
+from app.domain.models import Job, Material, ReviewReason, TrenchReport, UtilityType
 
 UTILITY_LABELS: frozendict[UtilityType, str] = frozendict(
     {
@@ -33,6 +33,24 @@ MATERIAL_LABELS: frozendict[Material, str] = frozendict(
 )
 
 
+REVIEW_LABELS: frozendict[ReviewReason, str] = frozendict(
+    {
+        ReviewReason.LOW_CONFIDENCE: "low confidence",
+        ReviewReason.UNKNOWN_TYPE: "unknown type",
+        ReviewReason.UNKNOWN_MATERIAL: "unknown material",
+        ReviewReason.CONFLICTING_TYPES: "frames disagree on type",
+        ReviewReason.SIZE_INCONSISTENT: "size inconsistent",
+        ReviewReason.SIZE_WITHOUT_SCALE: "size without scale",
+        ReviewReason.COLOR_CONTRADICTS_TYPE: "colour contradicts type",
+        ReviewReason.SINGLE_FRAME_ONLY: "single frame only",
+    }
+)
+
+CONSOLIDATION_LABELS: frozendict[str, str] = frozendict(
+    {"agent": "agent", "rules": "rule-based fallback (agent failed)"}
+)
+
+
 def _cell(value: object) -> str:
     """Make a value safe inside a Markdown table cell."""
     if value is None:
@@ -53,6 +71,8 @@ def _env() -> Environment:
     env.filters["utility"] = lambda u: UTILITY_LABELS[u]
     env.filters["material"] = lambda m: MATERIAL_LABELS[m]
     env.filters["percent"] = lambda x: f"{round(x * 100)} %"
+    env.filters["reason"] = lambda r: REVIEW_LABELS[r]
+    env.filters["consolidation"] = lambda m: CONSOLIDATION_LABELS[m]
     return env
 
 
@@ -88,6 +108,10 @@ def render_geojson(report: TrenchReport) -> dict[str, Any] | None:
                             "approx_outer_diameter_mm": line.approx_outer_diameter_mm,
                             "approx_depth_of_cover_m": line.approx_depth_of_cover_m,
                             "confidence": line.confidence,
+                            "needs_review": line.needs_review,
+                            "review": [
+                                {"reason": f.reason.value, "detail": f.detail} for f in line.review
+                            ],
                         }
                         for line in report.lines
                     ],
