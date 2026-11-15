@@ -10,7 +10,7 @@ from app.adapters.storage.local import LocalStorage
 from app.api.deps import get_deps
 from app.api.main import app
 from app.bootstrap import Deps, build_deps
-from app.domain.models import GeoPoint, TrenchReport
+from app.domain.models import GeoPoint, JobStatus, TrenchReport
 from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
 
@@ -105,6 +105,7 @@ def test_report_not_ready_then_ready(client: TestClient, deps: Deps) -> None:
     )
     assert isinstance(deps.jobs, InMemoryJobRepository)
     deps.jobs.reports[uuid.UUID(job_id)] = report
+    deps.jobs.jobs[uuid.UUID(job_id)].status = JobStatus.DONE
 
     assert client.get(f"/jobs/{job_id}/report").json() == report.model_dump(mode="json")
     md = client.get(f"/jobs/{job_id}/report.md")
@@ -124,3 +125,49 @@ def test_report_not_ready_then_ready(client: TestClient, deps: Deps) -> None:
     assert geo.status_code == 200
     assert geo.headers["content-type"] == "application/geo+json"
     assert geo.json()["features"][0]["geometry"]["coordinates"] == [8.5417, 47.3769]
+
+
+REPORT_PATHS = ("report", "report.md", "report.geojson")
+
+
+def _job_with_report(client: TestClient, deps: Deps, status: JobStatus, error: str | None) -> str:
+    resp = client.post("/jobs", files=[("files", ("a.mp4", b"v", "video/mp4"))])
+    job_id: str = resp.json()["job_id"]
+    assert isinstance(deps.jobs, InMemoryJobRepository)
+    deps.jobs.reports[uuid.UUID(job_id)] = TrenchReport(
+        job_id=job_id,
+        lines=[],
+        verification_flags=[],
+        limitations=[],
+        location=GeoPoint(lat=47.0, lon=8.0),
+    )
+    job = deps.jobs.jobs[uuid.UUID(job_id)]
+    job.status, job.error = status, error
+    return job_id
+
+
+@pytest.mark.parametrize("status", [JobStatus.CONSOLIDATING, JobStatus.VERIFYING])
+def test_stored_but_unverified_report_is_not_served(
+    client: TestClient, deps: Deps, status: JobStatus
+) -> None:
+    # Regression: the report was served as soon as consolidate stored it, so a client could
+    # read lines without review results while verify had not run yet.
+    job_id = _job_with_report(client, deps, status, None)
+    for path in REPORT_PATHS:
+        resp = client.get(f"/jobs/{job_id}/{path}")
+        assert resp.status_code == 409, path
+        assert resp.json()["detail"] == f"report not ready, job status: {status}"
+
+
+def test_report_of_failed_job_is_not_served(client: TestClient, deps: Deps) -> None:
+    job_id = _job_with_report(client, deps, JobStatus.FAILED, "verify: storage lost")
+    for path in REPORT_PATHS:
+        resp = client.get(f"/jobs/{job_id}/{path}")
+        assert resp.status_code == 409, path
+        assert resp.json()["detail"] == "job failed (verify: storage lost); no verified report"
+
+
+def test_report_of_done_job_is_served(client: TestClient, deps: Deps) -> None:
+    job_id = _job_with_report(client, deps, JobStatus.DONE, None)
+    for path in REPORT_PATHS:
+        assert client.get(f"/jobs/{job_id}/{path}").status_code == 200, path

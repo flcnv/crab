@@ -9,7 +9,7 @@ from app.adapters.render.report import render_geojson, render_markdown
 from app.api.deps import DepsDep
 from app.api.schemas import JobCreated, JobOut
 from app.domain.errors import JobNotFoundError
-from app.domain.models import Job, TrenchReport
+from app.domain.models import Job, JobStatus, TrenchReport
 from app.domain.services import Upload, submit_job
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -53,8 +53,14 @@ async def _get_job(deps: DepsDep, job_id: UUID) -> Job:
 
 
 async def _get_report(deps: DepsDep, job_id: UUID) -> tuple[Job, TrenchReport]:
+    """The report of a `done` job only: before that it exists without review results
+    (consolidate stores it, verify adds the reviews), and serving it would look verified."""
     job = await _get_job(deps, job_id)
-    report = await deps.jobs.get_report(job_id)
+    if job.status is JobStatus.FAILED:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, detail=f"job failed ({job.error}); no verified report"
+        )
+    report = await deps.jobs.get_report(job_id) if job.status is JobStatus.DONE else None
     if report is None:
         raise HTTPException(
             status.HTTP_409_CONFLICT, detail=f"report not ready, job status: {job.status}"
