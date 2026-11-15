@@ -1,4 +1,4 @@
-"""Claude adapters (official `anthropic` SDK): shared client plumbing, VisionModel, Verifier.
+"""Claude adapters (official `anthropic` SDK): shared client plumbing and VisionModel.
 
 The consolidation agent lives in `agent.py`.
 """
@@ -22,7 +22,7 @@ from app.adapters.llm.pricing import cost_usd
 from app.adapters.llm.prompts import load_prompt
 from app.adapters.llm.schemas import FrameFindings
 from app.domain.errors import FrameAnalysisError, ModelCallError
-from app.domain.models import FrameAnalysis, LLMUsage, TrenchReport
+from app.domain.models import FrameAnalysis, LLMUsage
 
 logger = logging.getLogger(__name__)
 
@@ -214,17 +214,3 @@ class ClaudeVisionModel(ClaudeClient):
             return findings.to_domain(frame_id), usage
 
         raise AssertionError("unreachable")  # pragma: no cover
-
-
-class ClaudeVerifier:
-    def __init__(
-        self, client: anthropic.AsyncAnthropic, model: str, *, prompt_version: str = "v1"
-    ) -> None:
-        self.client = client
-        self.model = model
-        self.prompt_version = prompt_version
-
-    async def verify(
-        self, report: TrenchReport, analyses: list[FrameAnalysis]
-    ) -> tuple[list[str], LLMUsage]:
-        raise NotImplementedError

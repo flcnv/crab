@@ -21,8 +21,11 @@ from app.domain.models import (
     Material,
     MediaKind,
     MediaMetadata,
+    ObservationRef,
     ReportLine,
+    ReviewReason,
     UtilityType,
+    VerificationConfig,
 )
 from app.domain.ports.llm import ImageLoader
 from app.worker.pipeline import run_pipeline
@@ -133,8 +136,8 @@ class FakeReportAgent:
             material=Material.PE,
             approx_outer_diameter_mm=None,
             approx_depth_of_cover_m=None,
-            seen_in_frames=[a.frame_id for a in analyses],
-            confidence=0.6,
+            observations=[ObservationRef(frame_id=a.frame_id, line_index=0) for a in analyses],
+            confidence=0.6,  # at the inclusive threshold -> flagged low_confidence
             notes=None,
         )
         return Consolidation(lines=[line], remarks=["agent remark"], method="agent"), usage
@@ -166,11 +169,17 @@ async def test_video_job_stores_frames_and_analyses(deps: Deps) -> None:
 
     job = await deps.jobs.get(job_id)
     assert job is not None
-    assert job.status is JobStatus.FAILED
-    assert job.error == "verify: not implemented yet"
+    assert job.status is JobStatus.DONE
+    assert job.error is None
     assert job.metadata is not None
     assert job.metadata.location == GeoPoint(lat=1, lon=2)
-    assert set(job.stage_timings_s) == {"ingest", "extract_frames", "analyze_frames", "consolidate"}
+    assert set(job.stage_timings_s) == {
+        "ingest",
+        "extract_frames",
+        "analyze_frames",
+        "consolidate",
+        "verify",
+    }
     assert job.cost_usd == pytest.approx(0.013)  # 3 frames + 1 consolidation
 
     frames = await deps.jobs.get_frames(job_id)
@@ -190,9 +199,24 @@ async def test_photo_job_uses_every_photo(deps: Deps) -> None:
     assert len(deps.metadata_reader.calls) == 2
 
 
+async def _fail_after_the_fact(deps: Deps, job_id: UUID) -> None:
+    """Simulate a job that failed late (e.g. worker killed in verify), so a rerun resumes it."""
+    await deps.jobs.set_status(job_id, JobStatus.FAILED, "verify: worker killed")
+
+
+async def test_done_job_is_not_run_again(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(deps, job_id)
+    await run_pipeline(deps, job_id)
+
+    assert _agent(deps).calls == 1
+    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]  # each frame once
+
+
 async def test_rerun_skips_finished_stages(deps: Deps) -> None:
     job_id = await _new_job(deps, "video", "clip.mp4")
     await run_pipeline(deps, job_id)
+    await _fail_after_the_fact(deps, job_id)
     await run_pipeline(deps, job_id)
 
     assert isinstance(deps.frame_extractor, FakeFrameExtractor)
@@ -253,7 +277,7 @@ async def test_failed_frame_is_not_fatal_and_its_cost_counts(deps: Deps) -> None
 
     job = await deps.jobs.get(job_id)
     assert job is not None
-    assert job.error == "verify: not implemented yet"  # moved past analyze_frames
+    assert job.status is JobStatus.DONE  # one failed frame does not fail the job
     assert job.cost_usd == pytest.approx(0.013)  # the failed frame call was billed too
     assert [a.frame_id for a in await deps.jobs.get_analyses(job_id)] == ["f001", "f003"]
 
@@ -279,6 +303,7 @@ async def test_rerun_only_retries_failed_frames(deps: Deps) -> None:
         dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f002"})), job_id
     )
 
+    await _fail_after_the_fact(deps, job_id)  # a done job is not rerun; resume explicitly
     healthy = FakeVisionModel()
     await run_pipeline(dataclasses.replace(deps, vision_model=healthy), job_id)
 
@@ -345,5 +370,70 @@ async def test_agent_failure_falls_back_to_rules(deps: Deps) -> None:
 async def test_rerun_keeps_existing_report(deps: Deps) -> None:
     job_id = await _new_job(deps, "video", "clip.mp4")
     await run_pipeline(deps, job_id)
+    await _fail_after_the_fact(deps, job_id)
     await run_pipeline(deps, job_id)
     assert _agent(deps).calls == 1
+
+
+async def test_job_reaches_done_with_reviews(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    [line] = report.lines
+    assert line.needs_review is True
+    assert [f.reason for f in line.review] == [ReviewReason.LOW_CONFIDENCE]
+    assert line.review[0].detail == "confidence 0.60 <= 0.60"
+    assert report.verification_flags == ["1 of 1 lines need review"]
+    assert line.confidence == 0.6  # verification flags, it never changes the line
+
+
+async def test_rerun_recomputes_reviews_from_scratch(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(deps, job_id)
+    first = await deps.jobs.get_report(job_id)
+    assert first is not None
+
+    # Stale review data in storage must not survive a rerun of verify.
+    stale = first.model_copy(
+        update={
+            "lines": [
+                ln.model_copy(update={"needs_review": False, "review": []}) for ln in first.lines
+            ],
+            "verification_flags": ["stale"],
+        }
+    )
+    await deps.jobs.save_report(job_id, stale)
+    await _fail_after_the_fact(deps, job_id)
+    await run_pipeline(deps, job_id)
+
+    assert await deps.jobs.get_report(job_id) == first
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert (job.status, job.error) == (JobStatus.DONE, None)
+
+
+async def test_verify_uses_configured_threshold(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, verification=VerificationConfig(min_confidence=0.5))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    assert report.lines[0].needs_review is False
+    assert report.verification_flags == []
+
+
+async def test_rules_fallback_report_is_verified_too(deps: Deps) -> None:
+    deps = dataclasses.replace(deps, report_agent=FakeReportAgent(fail=True))
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    assert report.consolidation_method == "rules"
+    assert [f.reason for f in report.lines[0].review] == [ReviewReason.LOW_CONFIDENCE]

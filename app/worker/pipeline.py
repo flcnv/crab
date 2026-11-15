@@ -21,6 +21,7 @@ from app.domain.services import (
     merge_image_metadata,
     merge_lines,
     strip_unscaled_measurements,
+    verify_report,
 )
 
 logger = logging.getLogger(__name__)
@@ -154,7 +155,19 @@ async def consolidate(deps: Deps, job: Job) -> None:
 
 
 async def verify(deps: Deps, job: Job) -> None:
-    raise NotImplementedError
+    """Deterministic review of every report line (`verify_report`).
+
+    Never skipped: the review fields are recomputed from the stored consolidation result and
+    frame analyses on every run, so a rerun gives the same report (and picks up rule changes).
+    """
+    report = await deps.jobs.get_report(job.id)
+    if report is None:  # consolidate always saves one; only reachable if the data was removed
+        raise LookupError("no report to verify")
+    analyses = await deps.jobs.get_analyses(job.id)
+    verified = verify_report(report, analyses, deps.verification, media_kind=job.media_kind)
+    await deps.jobs.save_report(job.id, verified)
+    if flagged := sum(line.needs_review for line in verified.lines):
+        logger.info("job %s: %d of %d lines need review", job.id, flagged, len(verified.lines))
 
 
 STAGES: tuple[tuple[str, JobStatus, Stage], ...] = (
@@ -180,10 +193,6 @@ async def run_pipeline(deps: Deps, job_id: UUID) -> None:
         started = time.perf_counter()
         try:
             await stage(deps, job)
-        except NotImplementedError:
-            logger.info("job %s stopped at %s: not implemented yet", job_id, name)
-            await deps.jobs.set_status(job_id, JobStatus.FAILED, f"{name}: not implemented yet")
-            return
         except Exception as e:
             logger.exception("job %s failed at %s", job_id, name)
             await deps.jobs.set_status(job_id, JobStatus.FAILED, f"{name}: {e}")

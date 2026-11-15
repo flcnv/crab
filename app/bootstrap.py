@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.adapters.db.repositories import SqlJobRepository
 from app.adapters.db.session import create_engine, create_sessionmaker
 from app.adapters.llm.agent import ClaudeReportAgent
-from app.adapters.llm.claude import ClaudeVerifier, ClaudeVisionModel
+from app.adapters.llm.claude import ClaudeVisionModel
 from app.adapters.media.frames import FfmpegFrameExtractor
 from app.adapters.media.metadata import MediaMetadataReader
 from app.adapters.queue.arq import ArqJobQueue
@@ -26,7 +26,6 @@ from app.domain.ports import (
     MetadataReader,
     ReportAgent,
     Storage,
-    Verifier,
     VisionModel,
 )
 from app.settings import Settings, get_settings
@@ -44,7 +43,6 @@ class Deps:
     frame_extractor: FrameExtractor
     vision_model: VisionModel
     report_agent: ReportAgent
-    verifier: Verifier
     verification: VerificationConfig
 
     async def aclose(self) -> None:
@@ -92,9 +90,6 @@ def build_deps(settings: Settings | None = None) -> Deps:
             max_turns=settings.agent_max_turns,
             max_image_views=settings.agent_max_image_views,
             refusal_fallback=settings.claude_refusal_fallback,
-        ),
-        verifier=ClaudeVerifier(
-            claude, settings.claude_model, prompt_version=settings.prompt_version
         ),
         verification=VerificationConfig(
             min_confidence=settings.verify_min_confidence,
