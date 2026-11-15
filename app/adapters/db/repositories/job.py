@@ -60,6 +60,19 @@ class SqlJobRepository:
     async def set_status(self, job_id: UUID, status: JobStatus, error: str | None = None) -> None:
         await self._update_job(job_id, status=status, error=error)
 
+    async def requeue_failed(self, job_id: UUID) -> bool:
+        async with self._sm.begin() as s:
+            result = await s.execute(
+                update(JobRow)
+                .where(JobRow.id == job_id, JobRow.status == JobStatus.FAILED)
+                .values(status=JobStatus.QUEUED, error=None)
+                .returning(JobRow.id)
+            )
+            if result.scalar_one_or_none() is not None:
+                return True
+            await self._require_job(s, job_id)
+            return False
+
     async def record_stage_timing(self, job_id: UUID, stage: str, seconds: float) -> None:
         # Atomic JSONB merge, no read-modify-write race.
         merged = JobRow.stage_timings_s.op("||")(literal({stage: seconds}, type_=JSONB))

@@ -8,6 +8,7 @@ from arq import ArqRedis, create_pool
 from arq.connections import RedisSettings
 from arq.jobs import Job as ArqJob
 from arq.jobs import JobStatus as ArqJobStatus
+from arq.worker import Worker, func
 from redis.exceptions import RedisError
 
 from app.adapters.queue.arq import PROCESS_JOB_TASK, ArqJobQueue
@@ -43,6 +44,10 @@ async def test_unreachable_redis_skips_instead_of_erroring() -> None:
         await _pool_or_skip(nothing_there)
 
 
+def test_worker_keeps_no_results() -> None:
+    assert WorkerSettings.keep_result == 0  # see test_finished_job_can_be_enqueued_again
+
+
 def test_task_name_matches_worker() -> None:
     assert PROCESS_JOB_TASK in [f.__name__ for f in WorkerSettings.functions]
 
@@ -65,3 +70,33 @@ async def test_enqueue_is_queued_and_idempotent(redis_settings: RedisSettings) -
         await pool.aclose()
     finally:
         await queue.aclose()
+
+
+async def test_finished_job_can_be_enqueued_again(redis_settings: RedisSettings) -> None:
+    # Regression: arq keeps a finished job's result for an hour by default, and enqueueing the
+    # same _job_id while a result exists is silently dropped -> a retry would never run.
+    runs: list[str] = []
+
+    async def process_job(ctx: dict[str, object], job_id: str) -> None:
+        runs.append(job_id)
+
+    def worker() -> Worker:
+        return Worker(
+            functions=[func(process_job, name=PROCESS_JOB_TASK)],
+            redis_settings=redis_settings,
+            burst=True,
+            keep_result=WorkerSettings.keep_result,
+            max_tries=WorkerSettings.max_tries,
+        )
+
+    queue = ArqJobQueue(redis_settings)
+    job_id = uuid.uuid4()
+    try:
+        await queue.enqueue(job_id)
+        await worker().main()
+        await queue.enqueue(job_id)  # the retry
+        await worker().main()
+    finally:
+        await queue.aclose()
+
+    assert runs == [str(job_id), str(job_id)]

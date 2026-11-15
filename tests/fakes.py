@@ -56,6 +56,12 @@ class InMemoryJobRepository:
     async def set_status(self, job_id: UUID, status: JobStatus, error: str | None = None) -> None:
         self._update(job_id, status=status, error=error)
 
+    async def requeue_failed(self, job_id: UUID) -> bool:
+        if self._require(job_id).status is not JobStatus.FAILED:
+            return False
+        self._update(job_id, status=JobStatus.QUEUED, error=None)
+        return True
+
     async def record_stage_timing(self, job_id: UUID, stage: str, seconds: float) -> None:
         job = self._require(job_id)
         self._update(job_id, stage_timings_s={**job.stage_timings_s, stage: seconds})

@@ -28,6 +28,7 @@ from app.domain.models import (
     VerificationConfig,
 )
 from app.domain.ports.llm import ImageLoader
+from app.domain.services import retry_job
 from app.worker.pipeline import run_pipeline
 from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
@@ -437,3 +438,21 @@ async def test_rules_fallback_report_is_verified_too(deps: Deps) -> None:
     assert report is not None
     assert report.consolidation_method == "rules"
     assert [f.reason for f in report.lines[0].review] == [ReviewReason.LOW_CONFIDENCE]
+
+
+async def test_retried_job_resumes_and_reaches_done(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    await run_pipeline(
+        dataclasses.replace(deps, vision_model=FakeVisionModel(fail={"f001", "f002", "f003"})),
+        job_id,
+    )
+
+    await retry_job(job_id, jobs=deps.jobs, queue=deps.queue)
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert (job.status, job.error) == (JobStatus.DONE, None)
+    assert isinstance(deps.frame_extractor, FakeFrameExtractor)
+    assert deps.frame_extractor.calls == 1  # finished stages were skipped
+    assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]  # failed frames retried

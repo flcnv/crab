@@ -10,7 +10,7 @@ from app.api.deps import DepsDep
 from app.api.schemas import JobCreated, JobOut
 from app.domain.errors import JobNotFoundError
 from app.domain.models import Job, JobStatus, TrenchReport
-from app.domain.services import Upload, submit_job
+from app.domain.services import Upload, retry_job, submit_job
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -38,6 +38,17 @@ async def create_job(
         max_bytes=deps.settings.max_upload_bytes,
         max_images=deps.settings.max_images_per_job,
     )
+    return JobCreated(
+        job_id=job.id,
+        status=job.status,
+        status_url=str(request.url_for("get_job", job_id=job.id)),
+    )
+
+
+@router.post("/{job_id}/retry", status_code=status.HTTP_202_ACCEPTED)
+async def retry(job_id: UUID, request: Request, deps: DepsDep) -> JobCreated:
+    """Re-enqueue a failed job; finished stages are skipped. 409 for any other status."""
+    job = await retry_job(job_id, jobs=deps.jobs, queue=deps.queue)
     return JobCreated(
         job_id=job.id,
         status=job.status,

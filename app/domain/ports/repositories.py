@@ -24,6 +24,14 @@ class JobRepository(Protocol):
     async def set_status(
         self, job_id: UUID, status: JobStatus, error: str | None = None
     ) -> None: ...
+    async def requeue_failed(self, job_id: UUID) -> bool:
+        """Atomically move a `failed` job back to `queued` and clear its error.
+
+        Returns False (and changes nothing) if the job is in any other status, so two
+        concurrent retries cannot both re-run it and a running job cannot be restarted.
+        """
+        ...
+
     async def record_stage_timing(self, job_id: UUID, stage: str, seconds: float) -> None: ...
     async def save_metadata(self, job_id: UUID, metadata: MediaMetadata) -> None: ...
 

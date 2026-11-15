@@ -171,3 +171,28 @@ def test_report_of_done_job_is_served(client: TestClient, deps: Deps) -> None:
     job_id = _job_with_report(client, deps, JobStatus.DONE, None)
     for path in REPORT_PATHS:
         assert client.get(f"/jobs/{job_id}/{path}").status_code == 200, path
+
+
+def test_retry_failed_job(client: TestClient, deps: Deps) -> None:
+    job_id = _job_with_report(client, deps, JobStatus.FAILED, "verify: worker killed")
+
+    resp = client.post(f"/jobs/{job_id}/retry")
+
+    assert resp.status_code == 202
+    body = resp.json()
+    assert (body["job_id"], body["status"]) == (job_id, "queued")
+    assert body["status_url"].endswith(f"/jobs/{job_id}")
+    assert isinstance(deps.queue, FakeJobQueue)
+    assert deps.queue.enqueued[-1] == uuid.UUID(job_id)
+    assert client.get(f"/jobs/{job_id}").json()["error"] is None
+
+
+def test_retry_of_job_that_did_not_fail_is_409(client: TestClient, deps: Deps) -> None:
+    job_id = _job_with_report(client, deps, JobStatus.DONE, None)
+    resp = client.post(f"/jobs/{job_id}/retry")
+    assert resp.status_code == 409
+    assert resp.json()["detail"] == "job is done, only failed jobs can be retried"
+
+
+def test_retry_of_unknown_job_is_404(client: TestClient) -> None:
+    assert client.post(f"/jobs/{uuid.uuid4()}/retry").status_code == 404

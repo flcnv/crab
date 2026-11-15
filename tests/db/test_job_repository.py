@@ -94,9 +94,25 @@ async def test_status_metadata_and_timings(repo: SqlJobRepository) -> None:
     assert got.stage_timings_s == {"extract_frames": 1.2, "analyze_frames": 8.0}
 
 
+async def test_requeue_failed_only_moves_failed_jobs(repo: SqlJobRepository) -> None:
+    job = await repo.create(uuid.uuid4(), "video", ["uploads/a.mp4"])
+    await repo.set_status(job.id, JobStatus.ANALYZING)
+    assert await repo.requeue_failed(job.id) is False
+
+    await repo.set_status(job.id, JobStatus.FAILED, error="analyze_frames: boom")
+    assert await repo.requeue_failed(job.id) is True
+    assert await repo.requeue_failed(job.id) is False  # second concurrent retry loses
+
+    got = await repo.get(job.id)
+    assert got is not None
+    assert (got.status, got.error) == (JobStatus.QUEUED, None)
+
+
 async def test_updates_on_unknown_job_raise(repo: SqlJobRepository) -> None:
     with pytest.raises(JobNotFoundError):
         await repo.set_status(uuid.uuid4(), JobStatus.DONE)
+    with pytest.raises(JobNotFoundError):
+        await repo.requeue_failed(uuid.uuid4())
     with pytest.raises(JobNotFoundError):
         await repo.save_frames(uuid.uuid4(), [])
 

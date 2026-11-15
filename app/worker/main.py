@@ -27,5 +27,8 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
     job_timeout = 30 * 60  # video decoding + many model calls can take a while
-    max_tries = 1  # failed jobs are resumed explicitly, not retried blindly
+    max_tries = 1  # failed jobs are resumed explicitly (POST /jobs/{id}/retry), not blindly
+    # Keep no arq results: job state lives in Postgres. A kept result blocks enqueueing the
+    # same job id again (arq silently drops it), which would make a retry a no-op for an hour.
+    keep_result = 0
     redis_settings: ClassVar = RedisSettings.from_dsn(get_settings().redis_url)

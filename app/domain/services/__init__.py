@@ -13,7 +13,7 @@ from app.domain.services.measurements import (
     strip_unscaled_measurements,
 )
 from app.domain.services.metadata import merge_image_metadata
-from app.domain.services.submission import Upload, classify_uploads, submit_job
+from app.domain.services.submission import Upload, classify_uploads, retry_job, submit_job
 from app.domain.services.verification import verify_report
 
 __all__ = [
@@ -29,6 +29,7 @@ __all__ = [
     "hamming",
     "merge_image_metadata",
     "merge_lines",
+    "retry_job",
     "select_keyframes",
     "strip_unscaled_measurements",
     "submit_job",

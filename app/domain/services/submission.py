@@ -1,11 +1,17 @@
-"""Use case: accept an upload, store it, create the job, hand it to the worker."""
+"""Use cases: accept an upload and hand the new job to the worker; retry a failed job."""
 
 import uuid
 from collections.abc import AsyncIterable, AsyncIterator, Sequence
 from dataclasses import dataclass
 from pathlib import PurePath
+from uuid import UUID
 
-from app.domain.errors import InvalidUploadError, UploadTooLargeError
+from app.domain.errors import (
+    InvalidUploadError,
+    JobNotFoundError,
+    JobNotRetryableError,
+    UploadTooLargeError,
+)
 from app.domain.models import Job, JobStatus, MediaKind
 from app.domain.ports import JobQueue, JobRepository, Storage
 
@@ -97,9 +103,30 @@ async def submit_job(
         raise
 
     job = await jobs.create(job_id, kind, keys)
+    await _enqueue_or_fail(job_id, jobs, queue)
+    return job
+
+
+async def retry_job(job_id: UUID, *, jobs: JobRepository, queue: JobQueue) -> Job:
+    """Re-run a `failed` job. Finished stages are skipped by the pipeline, `verify` reruns.
+
+    Raises `JobNotFoundError` for an unknown job and `JobNotRetryableError` for any status
+    other than `failed` (the status check and the switch to `queued` are one atomic step).
+    """
+    if not await jobs.requeue_failed(job_id):
+        job = await jobs.get(job_id)
+        raise JobNotRetryableError(job_id, job.status if job else "unknown")
+    await _enqueue_or_fail(job_id, jobs, queue)
+    job = await jobs.get(job_id)
+    if job is None:  # deleted between the two calls
+        raise JobNotFoundError(job_id)
+    return job
+
+
+async def _enqueue_or_fail(job_id: UUID, jobs: JobRepository, queue: JobQueue) -> None:
+    """A job that cannot be handed to the worker is marked failed, so it can be retried."""
     try:
         await queue.enqueue(job_id)
     except Exception as e:
         await jobs.set_status(job_id, JobStatus.FAILED, error=f"could not enqueue job: {e}")
         raise
-    return job
