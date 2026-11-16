@@ -44,6 +44,11 @@ def check_report_lines(lines: Sequence[ReportLine], analyses: Sequence[FrameAnal
             )
             continue
         problems.extend(
+            f"{line.id}: observation {ref} is listed twice"
+            for ref in sorted(set(line.observations), key=str)
+            if line.observations.count(ref) > 1
+        )
+        problems.extend(
             f"{line.id}: observation {ref} is already used by {claimed_by[ref]}"
             for ref in line.observations
             if claimed_by.setdefault(ref, line.id) != line.id

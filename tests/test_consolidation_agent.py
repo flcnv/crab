@@ -89,6 +89,7 @@ async def test_findings_then_submit() -> None:
     assert all(t["strict"] for t in TOOLS)
     assert first["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert first["output_config"] == {"effort": "high"}
+    assert all(r["cache_control"] == {"type": "ephemeral"} for r in api.requests)
     [result] = results_of(second)
     assert result["tool_use_id"] == "toolu_1"
     findings = json.loads(result["content"])

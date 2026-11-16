@@ -78,6 +78,7 @@ async def test_request_shape() -> None:
     assert req["output_config"]["format"]["type"] == "json_schema"
     assert req["output_config"]["effort"] == "medium"
     assert (req["betas"], req["fallbacks"]) == ([FALLBACK_BETA], "default")
+    assert req["cache_control"] is anthropic.omit
 
 
 async def test_haiku_gets_no_fallback() -> None:

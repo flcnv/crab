@@ -21,6 +21,8 @@ def _price(per_input: float, per_output: float, cache_read: float | None = None)
     )
 
 
+PRICES_VERIFIED_ON = "2026-11-16"
+
 PRICES: frozendict[str, Price] = frozendict(
     {
         "claude-opus-5-5": _price(4.00, 20.00, cache_read=0.20),

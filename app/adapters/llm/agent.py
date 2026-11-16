@@ -116,6 +116,7 @@ class ClaudeReportAgent(ClaudeClient):
                 system=self._system,
                 output_config={"effort": self._effort},
                 tools=TOOLS,
+                cache_conversation=True,
             )
             messages.append({"role": "assistant", "content": response.content})
             calls = [b for b in response.content if b.type == "tool_use"]

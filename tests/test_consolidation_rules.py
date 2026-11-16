@@ -177,6 +177,9 @@ def test_check_report_lines_rejects_bad_refs() -> None:
     assert problems(_line(refs("f001#0")), _line(refs("f001#0", "f002#0"), line_id="L2")) == [
         "L2: observation f001#0 is already used by L1"
     ]
+    assert problems(_line(refs("f001#0", "f001#0", "f002#0"))) == [
+        "L1: observation f001#0 is listed twice"
+    ]
     assert "scale reference" in problems(_line(refs("f001#0"), diameter=110))[0]
 
 

@@ -87,6 +87,7 @@ class ClaudeClient:
         system: list[BetaTextBlockParam],
         output_config: BetaOutputConfigParam,
         tools: list[BetaToolParam] | None = None,
+        cache_conversation: bool = False,
     ) -> BetaMessage:
         started = time.perf_counter()
         try:
@@ -97,6 +98,7 @@ class ClaudeClient:
                 messages=messages,
                 output_config=output_config,
                 tools=tools if tools is not None else anthropic.omit,
+                cache_control={"type": "ephemeral"} if cache_conversation else anthropic.omit,
                 betas=[FALLBACK_BETA] if self.use_fallback else anthropic.omit,
                 fallbacks="default" if self.use_fallback else anthropic.omit,
             )

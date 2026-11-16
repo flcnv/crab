@@ -14,7 +14,7 @@ from uuid import UUID
 from PIL import Image
 from pydantic import BaseModel
 
-from app.adapters.llm.pricing import PRICES, cost_usd
+from app.adapters.llm.pricing import PRICES, PRICES_VERIFIED_ON, cost_usd
 from app.adapters.llm.prompts import load_prompt
 from app.adapters.media.images import prepare_image
 from app.domain.errors import FrameAnalysisError
@@ -382,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
         "views": len(views),
         "cost_usd": round(sum(u.cost_usd for u in usage), 4),
         "wall_s": round(time.perf_counter() - started, 1),
-        "pricing_as_of": "2026-11 (unverified, see pricing.py)",
+        "pricing_as_of": PRICES_VERIFIED_ON,
     }
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     stem = RESULTS_DIR / f"{meta['date']}_{args.model}_{args.prompt}_{args.split}_opentrench"
