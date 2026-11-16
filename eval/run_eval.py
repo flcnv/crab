@@ -395,7 +395,8 @@ def main(argv: list[str] | None = None) -> int:
             },
             indent=1,
             default=str,
-        ),
+        )
+        + "\n",
         encoding="utf-8",
     )
     stem.with_suffix(".md").write_text(

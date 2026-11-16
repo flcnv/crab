@@ -1,0 +1,6368 @@
+{
+ "meta": {
+  "date": "2026-11-16",
+  "commit": "eaadc9d",
+  "model": "claude-sonnet-5-5",
+  "prompt": "v1",
+  "split": "test",
+  "cases": 15,
+  "views": 45,
+  "cost_usd": 0.4365,
+  "wall_s": 56.1,
+  "pricing_as_of": "2026-11-16"
+ },
+ "summary": {
+  "views": 45,
+  "failed_views": 0,
+  "judgeable_views": 0,
+  "lines": 99,
+  "main_found": {
+   "k": 32,
+   "n": 43
+  },
+  "main_found_large": {
+   "k": 24,
+   "n": 25
+  },
+  "main_found_small": {
+   "k": 8,
+   "n": 18
+  },
+  "main_invented": {
+   "k": 1,
+   "n": 2
+  },
+  "correct": {
+   "k": 0,
+   "n": 0
+  },
+  "wrong_when_confident": {
+   "k": 0,
+   "n": 0
+  },
+  "abstain": {
+   "k": 35,
+   "n": 99
+  },
+  "unjudged": 64,
+  "review_recall": {
+   "k": 0,
+   "n": 0
+  },
+  "review_precision": {
+   "k": 0,
+   "n": 0
+  },
+  "review_rate": {
+   "k": 79,
+   "n": 99
+  },
+  "calibration": [
+   {
+    "lower": 0.0,
+    "upper": 0.2,
+    "n": 0,
+    "mean_confidence": null,
+    "accuracy": null
+   },
+   {
+    "lower": 0.2,
+    "upper": 0.4,
+    "n": 0,
+    "mean_confidence": null,
+    "accuracy": null
+   },
+   {
+    "lower": 0.4,
+    "upper": 0.6,
+    "n": 0,
+    "mean_confidence": null,
+    "accuracy": null
+   },
+   {
+    "lower": 0.6,
+    "upper": 0.8,
+    "n": 0,
+    "mean_confidence": null,
+    "accuracy": null
+   },
+   {
+    "lower": 0.8,
+    "upper": 1.0,
+    "n": 0,
+    "mean_confidence": null,
+    "accuracy": null
+   }
+  ],
+  "ece": null,
+  "brier": null,
+  "no_trench_reported": {
+   "k": 0,
+   "n": 45
+  }
+ },
+ "results": [
+  {
+   "case_id": "ot_h1_a1_s6_part_2",
+   "view": "top",
+   "file": "ot_h1_a1_s6_part_2_top.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.12958,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_2:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run parallel side by side, typical of a pre-insulated district heating supply/return pair"
+       },
+       {
+        "cue": "color",
+        "detail": "Smooth black/dark grey jacket, no stripes"
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper pipe, running horizontally across the middle of the trench"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical to the upper pipe and parallel to it, forming a supply/return pair"
+       },
+       {
+        "cue": "color",
+        "detail": "Smooth black/dark grey jacket, no stripes"
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower pipe, running horizontally along the bottom of the trench, parallel to the upper pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:top"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:top"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4141,
+     "output_tokens": 499,
+     "cost_usd": 0.007633,
+     "latency_s": 5.352
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s6_part_2",
+   "view": "left",
+   "file": "ot_h1_a1_s6_part_2_left.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.13104,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_2:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run side by side in parallel, typical of a supply/return pair of pre-insulated district heating pipes."
+       },
+       {
+        "cue": "color",
+        "detail": "Dark black jacket with no stripes. Color alone is weak evidence, but it is consistent with a pre-insulated casing."
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "middle of the image, upper of the two parallel pipes, running horizontally across the trench"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Parallel to and identical in size to the upper pipe, forming a pair typical of supply and return."
+       },
+       {
+        "cue": "color",
+        "detail": "Dark black jacket, partly covered by light soil or sand."
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower half of the image, lower of the two parallel pipes, running horizontally below the first pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:left"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:left"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 3941,
+     "output_tokens": 538,
+     "cost_usd": 0.007623,
+     "latency_s": 7.459
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s6_part_2",
+   "view": "right",
+   "file": "ot_h1_a1_s6_part_2_right.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.11522,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_2:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run side by side in parallel, typical of a pre-insulated district heating supply/return pair."
+       },
+       {
+        "cue": "color",
+        "detail": "Black, dirty jacket with no stripes. Color alone is weak evidence."
+       },
+       {
+        "cue": "context",
+        "detail": "The image is a textured 3D reconstruction with gaps. No tape or pipe marking is readable, so the classification rests on shape only."
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper middle, running horizontally across the trench, upper of the two parallel pipes"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical thick dark pipe running parallel to the upper pipe at the same level, forming a pair."
+       },
+       {
+        "cue": "color",
+        "detail": "Black jacket with soil residue, no stripes."
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower middle, running horizontally parallel to and below the upper pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:right"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_2:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_2:right"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 3891,
+     "output_tokens": 553,
+     "cost_usd": 0.007673,
+     "latency_s": 5.835
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s6_part_3",
+   "view": "top",
+   "file": "ot_h1_a1_s6_part_3_top.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.22795,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_3:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run parallel and side by side, typical of a supply/return pair in district heating."
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "A casing joint sleeve is visible in the middle of the pipe, as used on pre-insulated pipes. A white label is visible but its text is not legible."
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper horizontal pipe, running left to right across the middle of the trench"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical to the upper pipe, parallel and the same size, forming a pair."
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "A joint sleeve with a handwritten or printed marking and a white label are visible, but the text is unreadable."
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower horizontal pipe, running left to right below the first pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:top"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:top"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 3791,
+     "output_tokens": 535,
+     "cost_usd": 0.007293,
+     "latency_s": 5.086
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s6_part_3",
+   "view": "left",
+   "file": "ot_h1_a1_s6_part_3_left.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.19435,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_3:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thick dark jacketed pipe running parallel to a second identical pipe directly below, typical of a supply/return pair in district heating"
+       },
+       {
+        "cue": "color",
+        "detail": "Black/dark jacket, consistent with pre-insulated pipe casing"
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "middle band, upper of the two horizontal dark pipes running across the full width"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black/dark grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thick dark jacketed pipe running parallel to an identical pipe above it, suggesting a supply/return pair"
+       },
+       {
+        "cue": "color",
+        "detail": "Black/dark jacket, same as the upper pipe"
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower band, lower of the two horizontal dark pipes running across the full width, partly covered by sandy/pale patches"
+     },
+     {
+      "utility_type": "power",
+      "material": "unknown",
+      "color": "orange-red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Red/orange corrugated flexible conduit, often used for power cable or telecom protection"
+       },
+       {
+        "cue": "shape",
+        "detail": "Ribbed corrugated tube, cut off and open at the top, running vertically toward the surface"
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": false,
+      "is_paired": false,
+      "position": "upper center, vertical corrugated orange-red conduit entering the trench near the top, under a concrete slab"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:left"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:left"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: black/dark grey)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L3",
+     "utility_type": "power",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:left"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: orange-red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 3741,
+     "output_tokens": 749,
+     "cost_usd": 0.009333,
+     "latency_s": 5.153
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s6_part_3",
+   "view": "right",
+   "file": "ot_h1_a1_s6_part_3_right.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.17423,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s6_part_3:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run parallel and close together, typical of a supply/return pair in district heating"
+       },
+       {
+        "cue": "color",
+        "detail": "Black jacket with a visible joint sleeve section in the middle-right, consistent with pre-insulated pipe joints"
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper horizontal pipe spanning the full width of the image, above the lower pipe"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical thick dark jacketed pipe running parallel to the upper pipe, forming a pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "White handwritten or printed marking on the joint sleeve, unreadable"
+       },
+       {
+        "cue": "color",
+        "detail": "Black jacket with a joint sleeve section in the middle-right, matching the upper pipe"
+       }
+      ],
+      "confidence": 0.8,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower horizontal pipe spanning the full width of the image, below the upper pipe, partly covered by a wooden board"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "orange-red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Orange-red corrugated conduit, weak color evidence only"
+       },
+       {
+        "cue": "shape",
+        "detail": "Corrugated tube standing in the soil beneath the main pipes, could be a conduit or a drainage hose, with no marking visible"
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom center, vertical orange corrugated tube below the lower pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:right"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:right"
+     ],
+     "confidence": 0.8,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s6_part_3:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s6_part_3:right"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: orange-red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 3691,
+     "output_tokens": 796,
+     "cost_usd": 0.009703,
+     "latency_s": 5.528
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s2_part_1",
+   "view": "top",
+   "file": "ot_h1_a1_s2_part_1_top.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.17300000000000001,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s2_part_1:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick dark jacketed pipes run parallel, typical of a district heating supply/return pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "Small stickers or labels on the jacket and dark heat-shrink joint sleeves, but the text is not legible"
+       },
+       {
+        "cue": "context",
+        "detail": "Diameter steps at the joint sleeves, as on pre-insulated bonded pipe systems"
+       }
+      ],
+      "confidence": 0.88,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper center, running horizontally across the trench from left to right"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical thick dark jacketed pipe running parallel to the upper one, forming a supply/return pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "Small label sticker on the jacket and a dark joint sleeve near the left; text not legible"
+       }
+      ],
+      "confidence": 0.88,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower center, running horizontally parallel to and below the first pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:top"
+     ],
+     "confidence": 0.88,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:top"
+     ],
+     "confidence": 0.88,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4191,
+     "output_tokens": 562,
+     "cost_usd": 0.008363,
+     "latency_s": 5.035
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s2_part_1",
+   "view": "left",
+   "file": "ot_h1_a1_s2_part_1_left.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.13699999999999998,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s2_part_1:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick black jacketed pipes run side by side in parallel, typical of pre-insulated district heating supply and return"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "Small white labels or stickers on the jacket, unreadable"
+       },
+       {
+        "cue": "context",
+        "detail": "Sections with a joint sleeve and an insulated end at the left, consistent with pre-insulated pipe"
+       }
+      ],
+      "confidence": 0.85,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "center to right, upper of the two parallel large pipes running horizontally across the trench"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical thick black jacketed pipe running parallel to the upper pipe, typical of a district heating pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "Red and white label on the jacket, unreadable"
+       }
+      ],
+      "confidence": 0.85,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "center to right, lower of the two parallel large pipes running horizontally across the trench"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "red and gray",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Several thin red and gray cables or conduits cross the trench in a bundle, behind the red struts"
+       },
+       {
+        "cue": "color",
+        "detail": "Red and gray thin lines are weak evidence, possibly power or telecom cable"
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "top right, crossing the trench above the large pipes between the red struts"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:left"
+     ],
+     "confidence": 0.85,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:left"
+     ],
+     "confidence": 0.85,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:left"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red and gray)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4291,
+     "output_tokens": 764,
+     "cost_usd": 0.010583,
+     "latency_s": 6.039
+    }
+   ]
+  },
+  {
+   "case_id": "ot_h1_a1_s2_part_1",
+   "view": "right",
+   "file": "ot_h1_a1_s2_part_1_right.jpg",
+   "main_type": "district_heating",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.12368,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_h1_a1_s2_part_1:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two identical thick black jacketed pipes run parallel and side by side, typical of a pre-insulated district heating supply/return pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "Small labels or stickers on the jacket near the joint, but not legible"
+       },
+       {
+        "cue": "context",
+        "detail": "Black joint sleeve (field joint) visible on the pipe, consistent with pre-insulated pipe systems"
+       }
+      ],
+      "confidence": 0.85,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "upper pipe, running horizontally across the middle of the image from the left edge to the right, with a joint sleeve at center-right"
+     },
+     {
+      "utility_type": "district_heating",
+      "material": "pre_insulated",
+      "color": "black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Identical thick black jacketed pipe running parallel to the upper one, forming a supply/return pair"
+       },
+       {
+        "cue": "marking_on_pipe",
+        "detail": "White label on the jacket at the left and a small sticker near the joint, not legible"
+       },
+       {
+        "cue": "context",
+        "detail": "Black joint sleeve at the right end, consistent with pre-insulated pipe"
+       }
+      ],
+      "confidence": 0.85,
+      "has_stripes": false,
+      "is_paired": true,
+      "position": "lower pipe, running parallel below the upper pipe from the left edge to the right, partly covered by a wooden board, with a joint sleeve at right"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:right"
+     ],
+     "confidence": 0.85,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "district_heating",
+     "material": "pre_insulated",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_h1_a1_s2_part_1:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_h1_a1_s2_part_1:right"
+     ],
+     "confidence": 0.85,
+     "notes": "merged by rule (color: black)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4291,
+     "output_tokens": 645,
+     "cost_usd": 0.009393,
+     "latency_s": 5.387
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s52",
+   "view": "top",
+   "file": "ot_w1_a1_s52_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01504,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s52:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": true,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Smooth blue pipe, which often indicates drinking water PE. Color is weak evidence."
+       },
+       {
+        "cue": "shape",
+        "detail": "Single pipe of moderate diameter running the length of the trench."
+       }
+      ],
+      "confidence": 0.55,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "lower center, running horizontally along the trench bottom from left to right below the shoring struts"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "dark blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Dark blue pipe, consistent with a water service line."
+       },
+       {
+        "cue": "context",
+        "detail": "Branches off the main blue pipe at a fitting or valve and leads away from it, which suggests a service connection."
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, a short dark blue branch running diagonally from the main blue pipe upward toward the back of the trench, with a fitting or valve near the junction"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s52:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s52:top"
+     ],
+     "confidence": 0.55,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.55 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s52:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s52:top"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: dark blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4141,
+     "output_tokens": 533,
+     "cost_usd": 0.007973,
+     "latency_s": 4.528
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s52",
+   "view": "left",
+   "file": "ot_w1_a1_s52_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00345,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s52:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4541,
+     "output_tokens": 70,
+     "cost_usd": 0.004143,
+     "latency_s": 2.603
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s52",
+   "view": "right",
+   "file": "ot_w1_a1_s52_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00636,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s52:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue linear feature at left edge near the shoring; in this point-cloud rendering it could be a pipe, but it may also be a shoring edge or marking. Color is weak evidence."
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "left edge, horizontal blue line running along the shoring at mid-left"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "darkness",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s52:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s52:right"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4691,
+     "output_tokens": 271,
+     "cost_usd": 0.006453,
+     "latency_s": 2.733
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s39",
+   "view": "top",
+   "file": "ot_w1_a1_s39_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00848,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s39:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin blue line on the gravel floor of the trench. Blue is weak evidence and often indicates drinking water, but it could also be a marker line or cable."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left, thin blue line running across the trench floor from lower left toward the center, partly hidden by the cross braces"
+     },
+     {
+      "utility_type": "gas",
+      "material": "unknown",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin yellow linear element. It may be a gas line, but it could also be a marking or spacer. The view is a 3D point-cloud rendering, so the material is unclear."
+       }
+      ],
+      "confidence": 0.25,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, thin yellow line running along the trench floor from the upper center toward the bottom, parallel to the left shoring"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "gas",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:top"
+     ],
+     "confidence": 0.25,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.25 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:top"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5691,
+     "output_tokens": 471,
+     "cost_usd": 0.010453,
+     "latency_s": 3.914
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s39",
+   "view": "left",
+   "file": "ot_w1_a1_s39_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.0047799999999999995,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s39:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": true,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark gray/black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two thin dark parallel lines side by side, which could be conduits or cables; the type cannot be determined from this image"
+       },
+       {
+        "cue": "color",
+        "detail": "Dark gray/black jacket, with no discernible marking"
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": true,
+      "position": "center-right, two parallel dark pipes running diagonally along the trench next to the timber shoring"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark gray with a yellowish stripe or highlight",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Dark line with a yellowish tint, which is unclear in the point-cloud rendering"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left, a thin dark rod-like line running diagonally in the trench with a yellowish tint along its length"
+     },
+     {
+      "utility_type": "gas",
+      "material": "pe",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Yellow pipe, which is often gas; color alone is weak evidence and the pipe is mostly occluded"
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left behind the shoring, a thick yellow pipe partly hidden by timber and shadow"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "gas",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:left"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:left"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: dark gray with a yellowish stripe or highlight)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:left"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: dark gray/black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5691,
+     "output_tokens": 713,
+     "cost_usd": 0.012873,
+     "latency_s": 5.404
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s39",
+   "view": "right",
+   "file": "ot_w1_a1_s39_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00518,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s39:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": true,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark grey/black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Dark, thick, rod-like jacket with no readable marking; color alone is not specific enough to classify"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "left-center, running along the trench from top to bottom, dark pipe next to the left shoring board"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark grey/black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Dark pipe of similar appearance to its neighbour, no markings or text visible"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "left of center, running parallel to the first dark pipe, at the same orientation"
+     },
+     {
+      "utility_type": "gas",
+      "material": "unknown",
+      "color": "dark with a yellow rope or stripe along it",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Yellow line or stripe running along a dark pipe; could be a yellow-striped gas PE pipe, a marker rope or a tracer wire. This is weak evidence on its own."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": true,
+      "is_paired": false,
+      "position": "center, between the strut and the right-hand pipe, running from the upper middle toward the bottom right"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "reddish-brown / dark",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Reddish-brown pipe or conduit with no readable marking; the color is ambiguous"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "right side, running diagonally from the upper middle to the lower right near the right shoring wall"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:right"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: dark grey/black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:right"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: dark grey/black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "gas",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: dark with a yellow rope or stripe along it)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L4",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s39:right",
+       "line_index": 3
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s39:right"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: reddish-brown / dark)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5641,
+     "output_tokens": 861,
+     "cost_usd": 0.014253,
+     "latency_s": 6.25
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s63",
+   "view": "top",
+   "file": "ot_w1_a1_s63_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01293,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s63:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Bright blue pipe jacket, which often indicates drinking water. Color is weak evidence, and no text or marking is readable."
+       },
+       {
+        "cue": "context",
+        "detail": "A blue valve or fitting cap is visible near the top right of the pipe, consistent with a water gate valve. The image is a point-cloud rendering with partial gaps."
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left to lower right, horizontal-ish blue pipe running across the pit beneath the shoring struts"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cast_iron",
+      "color": "brown-grey, corroded or earthy",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thick pipe with a bell or socket and a flared collar, typical of an old cast iron pipe or a fitting. It crosses over the blue pipe."
+       },
+       {
+        "cue": "color",
+        "detail": "Rusty brown-grey surface with no markings or text readable, so its function is unclear."
+       }
+      ],
+      "confidence": 0.25,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, diagonal from the upper center down to the lower left, crossing over the blue pipe"
+     }
+    ],
+    "image_quality_issues": [
+     "water",
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cast_iron",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s63:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s63:top"
+     ],
+     "confidence": 0.25,
+     "notes": "merged by rule (color: brown-grey, corroded or earthy)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.25 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s63:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s63:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5091,
+     "output_tokens": 577,
+     "cost_usd": 0.010313,
+     "latency_s": 4.35
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s63",
+   "view": "left",
+   "file": "ot_w1_a1_s63_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01124,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s63:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue and dark/black",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe section visible at the left and dark/black pipe section toward the right, both passing through the shoring opening; blue is weak evidence for drinking water"
+       },
+       {
+        "cue": "shape",
+        "detail": "Blue flanged gate valve with a spindle/operating stem next to the line, typical of a pressurized water main with a gate valve"
+       },
+       {
+        "cue": "context",
+        "detail": "Blue-painted valve body is common for drinking water fittings; the image is a point-cloud/photogrammetry render, so colors and details are partly degraded"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom left to bottom center, passing through an opening in the shoring wall at the front of the pit"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s63:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s63:left"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue and dark/black)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4991,
+     "output_tokens": 389,
+     "cost_usd": 0.008233,
+     "latency_s": 4.236
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w1_a1_s63",
+   "view": "right",
+   "file": "ot_w1_a1_s63_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.0058,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w1_a1_s63:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "A dark blue, pipe-like object is visible at the trench floor between the shoring panels, with another blue patch at the lower right. This could be a blue PE water pipe, but it is poorly resolved in this point-cloud render and partly hidden by shoring and water."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center to bottom center, along the trench floor beneath the shoring struts, partly submerged in water"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "water",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w1_a1_s63:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w1_a1_s63:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: dark blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5041,
+     "output_tokens": 304,
+     "cost_usd": 0.007483,
+     "latency_s": 2.654
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s09",
+   "view": "top",
+   "file": "ot_w3_a3_s09_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.022,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s09:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Solid blue pipe, typical of drinking water PE, but color is weak evidence"
+       },
+       {
+        "cue": "shape",
+        "detail": "Blue branch with fittings leaves the pipe toward the top of the trench, consistent with a service connection"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": false,
+      "is_paired": false,
+      "position": "upper center, running left to right across the trench above the gray lines"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "white/translucent gray",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Bundle of thin flexible light-colored lines, possibly cables or conduits, curving across the trench"
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "upper left, bundle of thin light-colored lines running down along the left shoring"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "gray",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Wide flat gray element, possibly a duct, cable protection or a shoring member; type is unclear in this point-cloud rendering"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, wide gray band running diagonally across the trench"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "yellow and pink/red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Yellow segments with pink/red markings. Yellow may suggest gas, but the red/pink could be spray marking or a different line, so it is ambiguous"
+       }
+      ],
+      "confidence": 0.25,
+      "has_stripes": true,
+      "is_paired": false,
+      "position": "lower center to right, along the lower trench wall"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:top",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:top"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: gray)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:top"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: white/translucent gray)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:top",
+       "line_index": 3
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:top"
+     ],
+     "confidence": 0.25,
+     "notes": "merged by rule (color: yellow and pink/red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.25 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L4",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4991,
+     "output_tokens": 815,
+     "cost_usd": 0.012493,
+     "latency_s": 6.5
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s09",
+   "view": "left",
+   "file": "ot_w3_a3_s09_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01617,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s09:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Smooth blue pipe, which often indicates drinking water. Color is weak evidence on its own."
+       },
+       {
+        "cue": "shape",
+        "detail": "Single pipe with a dark fitting or valve-like coupling near its right end."
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": false,
+      "is_paired": false,
+      "position": "center, running left to right along the trench floor below the horizontal shoring brace"
+     },
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue vertical pipe section, probably a branch of the blue water line. This is not confirmed."
+       },
+       {
+        "cue": "context",
+        "detail": "A red element sits next to it, possibly a cap or marking. Its purpose is unclear."
+       }
+      ],
+      "confidence": 0.45,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center right, a vertical blue pipe rising toward the upper trench wall with a red fitting or cap next to it"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Flexible grey or silver cable-like or hose-like lines, partly bundled and partly hidden by the shoring. Several strands seem to run together."
+       },
+       {
+        "cue": "color",
+        "detail": "Grey, not a standard utility color. It could be armored cable or a temporary hose, so the type is uncertain."
+       }
+      ],
+      "confidence": 0.25,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "upper left to center, hanging down the left shoring wall and curving across the trench behind the brace"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:left"
+     ],
+     "confidence": 0.25,
+     "notes": "merged by rule (color: grey)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.25 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:left"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:left"
+     ],
+     "confidence": 0.45,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.45 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5241,
+     "output_tokens": 741,
+     "cost_usd": 0.012253,
+     "latency_s": 5.648
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s09",
+   "view": "right",
+   "file": "ot_w3_a3_s09_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.006999999999999999,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s09:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "gray-blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thin flexible grayish-blue jacketed lines running horizontally across the pit, bundled together, resembling cables or conduits"
+       },
+       {
+        "cue": "color",
+        "detail": "Gray/blue jackets are non-specific; no markings readable"
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center, spanning across the shored pit from left to right in the upper middle, partly covered by gravel/soil"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Red-colored line or marking next to the bundle; could be a conduit or paint marking, unclear"
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center-left, along the shoring beam, red-marked line beside the gray cables"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "gray",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Several thin gray lines bending downward into the pit wall, looking like cables or small conduits leaving the bundle"
+       }
+      ],
+      "confidence": 0.25,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "right side, curving down from the cable bundle at the pit wall near the right shoring post"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue elongated item at the lower right of the pit; could be a blue pipe, but color alone is weak and no markings are visible"
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom right, lower part of the pit behind the wooden boards"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:right"
+     ],
+     "confidence": 0.25,
+     "notes": "merged by rule (color: gray)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.25 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: gray-blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:right",
+       "line_index": 3
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L4",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s09:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s09:right"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5191,
+     "output_tokens": 826,
+     "cost_usd": 0.013003,
+     "latency_s": 5.979
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s19",
+   "view": "top",
+   "file": "ot_w3_a3_s19_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01504,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s19:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "gas",
+      "material": "pe",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Smooth yellow PE-like pipe, which is commonly used for gas"
+       },
+       {
+        "cue": "context",
+        "detail": "Connects to a red-capped fitting and valve, consistent with a gas service connection, but no text is readable"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center to upper right, curving from the top edge of the trench down to the junction near the center right"
+     },
+     {
+      "utility_type": "gas",
+      "material": "pe",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Yellow flexible pipe, typical of gas PE"
+       },
+       {
+        "cue": "context",
+        "detail": "Joins the other yellow line and the valve cluster near the center, suggesting a gas main or branch"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center to right, running from the central valve junction toward the right trench wall"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue PE pipe, commonly used for drinking water"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center to upper right, from the junction toward the right trench wall above the yellow pipe"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue with black sections and white fittings",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe sections with black couplings, common for water pipes"
+       },
+       {
+        "cue": "context",
+        "detail": "Blue-handled valves and a red-capped fitting suggest a water connection, but there are no readable markings"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "left to center, from the red fitting at the left trench wall toward the central valves"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "gas",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "gas",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:top",
+       "line_index": 3
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue with black sections and white fittings)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L4",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:top",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4691,
+     "output_tokens": 848,
+     "cost_usd": 0.012223,
+     "latency_s": 5.935
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s19",
+   "view": "left",
+   "file": "ot_w3_a3_s19_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.0143,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s19:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "gas",
+      "material": "pe",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Smooth yellow flexible pipe, typical of PE gas pipe; no printed text legible"
+       },
+       {
+        "cue": "context",
+        "detail": "Runs next to a red-bodied valve and blue valve spindle, consistent with a gas service/valve arrangement"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "upper center, yellow pipe running diagonally from upper left behind the shoring toward the center near the blue valve key"
+     },
+     {
+      "utility_type": "gas",
+      "material": "pe",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Yellow pipe partly covered by soil/point-cloud noise, similar to the upper yellow pipe; could be the same line continuing or a separate one"
+       }
+      ],
+      "confidence": 0.45,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "lower center, yellow-orange pipe running diagonally across the lower trench section behind the point-cloud soil layer"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue PE-looking pipe, typical of drinking water"
+       },
+       {
+        "cue": "context",
+        "detail": "Connected to a red-bodied valve/fitting with a blue valve spindle, typical of water valve arrangement"
+       }
+      ],
+      "confidence": 0.65,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "lower left to lower right, blue pipe running horizontally along the lower trench from the red fitting at left to the right edge"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "gas",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:left"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "gas",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:left"
+     ],
+     "confidence": 0.45,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.45 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:left"
+     ],
+     "confidence": 0.65,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4791,
+     "output_tokens": 726,
+     "cost_usd": 0.011203,
+     "latency_s": 5.407
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s19",
+   "view": "right",
+   "file": "ot_w3_a3_s19_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00765,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s19:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe/hose, possibly drinking water service; the point cloud rendering is sparse and the surrounding wood shoring partly hides it."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, blue line rising vertically from the pit floor toward the top, left of center"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe with a valve or fitting near the lower end at the shoring wall, where a blue and dark segment leads out of the trench."
+       },
+       {
+        "cue": "context",
+        "detail": "Connects to a fitting and passes through the shoring, which could point to a water connection, but this is uncertain."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center right, thin blue line running down from the top toward a fitting at the shoring wall"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "yellow",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin yellow line or cable running along the shoring panel. It could be a gas pipe, a yellow cable or a temporary line, and the color alone is weak evidence."
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom center, yellow line curving across the lower shoring panel"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:right"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:right"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s19:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s19:right"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: yellow)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5291,
+     "output_tokens": 676,
+     "cost_usd": 0.011703,
+     "latency_s": 6.145
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s51",
+   "view": "top",
+   "file": "ot_w3_a3_s51_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01303,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s51:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "light blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Light blue smooth pipe, which often indicates drinking water; color is weak evidence on its own."
+       },
+       {
+        "cue": "context",
+        "detail": "Connects to a blue fitting/valve at lower left, which supports a water service line."
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom center to right, running horizontally along the lower trench floor toward the right wall"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Grey metallic-looking pipe with a valve or fitting and a box-like device at the top; material and utility are not clearly identifiable."
+       },
+       {
+        "cue": "context",
+        "detail": "Joins the blue fitting at lower left, so it may be part of a water installation, but this is uncertain."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "left of center, vertical grey pipe running from the top-left device down to the blue fitting"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "red/pink",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin red line, possibly a cable or marking line. Red often indicates power or telecom, but this is weak evidence."
+       },
+       {
+        "cue": "shape",
+        "detail": "Thin and flexible, forming a loop at the lower left, consistent with a cable."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, thin red/pink cable running from the top across the trench, with a loop at the lower left"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:top",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:top"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red/pink)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:top"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: grey)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: light blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5391,
+     "output_tokens": 739,
+     "cost_usd": 0.012533,
+     "latency_s": 6.601
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s51",
+   "view": "left",
+   "file": "ot_w3_a3_s51_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00756,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s51:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "red and pink with a green strand",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin red, pink and green strands run together as a bundle, which looks like cables or small conduits. Color alone is weak evidence."
+       },
+       {
+        "cue": "shape",
+        "detail": "They are thin lines that run closely together, which fits cable rather than a thick pipe."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center, running diagonally from the top center down to the trench floor behind the cross strut"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "A blue line or hose reaches the trench floor, with a bright blue end near the center left. It could be a water service line, a marking, or a temporary hose. The material and purpose cannot be told apart."
+       }
+      ],
+      "confidence": 0.2,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom left, descending along the front shoring wall into the trench"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:left"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red and pink with a green strand)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:left"
+     ],
+     "confidence": 0.2,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.20 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5441,
+     "output_tokens": 497,
+     "cost_usd": 0.010213,
+     "latency_s": 4.359
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w3_a3_s51",
+   "view": "right",
+   "file": "ot_w3_a3_s51_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01025,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w3_a3_s51:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue jacket, often drinking water, but color is weak evidence. The image is a point-cloud rendering, so colors may be unreliable."
+       }
+      ],
+      "confidence": 0.45,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, vertical blue pipe rising from the trench floor toward the top edge"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin red and green lines running together along the shoring. They could be cable or conduit, but this is not certain."
+       },
+       {
+        "cue": "shape",
+        "detail": "Thin, flexible lines suggest cable, but they are only partly visible."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left, thin red line running down along the shoring beam toward the trench floor, with a green line beside it"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "cable",
+      "color": "red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thin, flexible, looping line, consistent with cable or a marker line."
+       },
+       {
+        "cue": "color",
+        "detail": "Red, weak evidence for power or telecom."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-right, thin red cable arcing in a loop from the center to the right trench wall"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "cable",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w3_a3_s51:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w3_a3_s51:right"
+     ],
+     "confidence": 0.45,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.45 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5441,
+     "output_tokens": 662,
+     "cost_usd": 0.011863,
+     "latency_s": 5.415
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s07",
+   "view": "top",
+   "file": "ot_w4_a4_s07_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.03769,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s07:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "light grey / blue-grey with a blue band at the bottom",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue marking or band at the lower end of the pipe suggests drinking water, but the pipe body is mostly grey and weathered"
+       },
+       {
+        "cue": "context",
+        "detail": "A dark fitting or valve sits where the thin blue service line joins the main, consistent with a water service tapping"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "right pit, vertical main running top to bottom through the center of the shored pit"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Bright blue small-diameter pipe, typical of PE drinking water service"
+       },
+       {
+        "cue": "shape",
+        "detail": "Thin branch leaving the larger main toward the left, a typical house connection, with a blue fitting or valve visible along it"
+       },
+       {
+        "cue": "context",
+        "detail": "Connects at a dark fitting on the main"
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center to right, thin blue line running horizontally from the left pit across to the main in the right pit"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "pink/magenta",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Pink/magenta sheeting or hose-like material; unclear whether it is a conduit, tape or something else"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom right of the right pit, pink/magenta curved object next to the shoring"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:top",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:top"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: pink/magenta)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:top"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: light grey / blue-grey with a blue band at the bottom)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4641,
+     "output_tokens": 740,
+     "cost_usd": 0.011043,
+     "latency_s": 5.725
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s07",
+   "view": "left",
+   "file": "ot_w4_a4_s07_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.021179999999999997,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s07:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "grey-blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Large-diameter smooth cylindrical pipe with a dark valve or fitting at its lower end; consistent with a water main but no marking is readable"
+       },
+       {
+        "cue": "color",
+        "detail": "Grey-blue coloring, weak evidence"
+       }
+      ],
+      "confidence": 0.45,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "right side, large grey/blue pipe running vertically in the excavated pit"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin blue PE-like pipe or hose branching off the large pipe, suggesting a small water service line"
+       },
+       {
+        "cue": "context",
+        "detail": "Connects to the larger pipe near the fitting, so it may be a house connection"
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "right side, thin blue line leading from the large pipe to the left toward the shoring"
+     },
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe, partly buried, no markings readable"
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom right, blue pipe section emerging in the lower pit"
+     },
+     {
+      "utility_type": "water",
+      "material": "cast_iron",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue fitting with a spindle or valve head, typical of a water valve or hydrant"
+       },
+       {
+        "cue": "shape",
+        "detail": "Short vertical standpipe form"
+       }
+      ],
+      "confidence": 0.55,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center-left, vertical blue pipe with a valve or hydrant-like top"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Horizontal grey pipe passing under the vertical posts, partly hidden by shoring and leaves; function unclear"
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "left, horizontal grey pipe running along the back under the shoring struts"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:left",
+       "line_index": 4
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:left"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: grey)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "cast_iron",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:left",
+       "line_index": 3
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:left"
+     ],
+     "confidence": 0.55,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.55 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:left"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L4",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:left",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:left"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L5",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:left"
+     ],
+     "confidence": 0.45,
+     "notes": "merged by rule (color: grey-blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.45 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4691,
+     "output_tokens": 1022,
+     "cost_usd": 0.013963,
+     "latency_s": 7.193
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s07",
+   "view": "right",
+   "file": "ot_w4_a4_s07_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.022949999999999998,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s07:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe section visible at the upper end of a grey pipe in the left pit; blue is often drinking water, but this is weak evidence."
+       },
+       {
+        "cue": "shape",
+        "detail": "Single pipe of moderate diameter running along the trench floor, partly covered by soil."
+       }
+      ],
+      "confidence": 0.55,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "left excavation pit, running vertically along the trench floor from center-left up toward the top, with a blue end section at about x=260,y=470"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin bright blue pipe or hose leaving the main pipe at a right angle, consistent with a small water branch or service line."
+       },
+       {
+        "cue": "shape",
+        "detail": "Small diameter branch joining the larger pipe, possibly a house connection."
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "left pit, bottom center, short bright blue thin line branching off horizontally at about y=635"
+     },
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue vertical element that looks like a valve or hydrant spindle or riser, which suggests the water network."
+       },
+       {
+        "cue": "context",
+        "detail": "Fitting stands in the soil of the middle pit, so it is likely a valve or a standpipe on a water line."
+       }
+      ],
+      "confidence": 0.45,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center right pit, upright blue fitting at about x=815,y=500"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:right"
+     ],
+     "confidence": 0.55,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.55 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s07:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s07:right"
+     ],
+     "confidence": 0.45,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.45 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4891,
+     "output_tokens": 750,
+     "cost_usd": 0.011643,
+     "latency_s": 7.083
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s40",
+   "view": "top",
+   "file": "ot_w4_a4_s40_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00448,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s40:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Smooth blue pipe, which often indicates drinking water PE. Color is weak evidence on its own."
+       },
+       {
+        "cue": "shape",
+        "detail": "Single thin flexible pipe with a gentle curve. This looks like a service-size line and not a pre-insulated pair. No markings are readable."
+       }
+      ],
+      "confidence": 0.55,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, running left to right across the trench, passing over the shoring struts and ending near the right wall"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "darkness",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s40:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s40:top"
+     ],
+     "confidence": 0.55,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.55 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5441,
+     "output_tokens": 309,
+     "cost_usd": 0.008333,
+     "latency_s": 3.322
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s40",
+   "view": "left",
+   "file": "ot_w4_a4_s40_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00231,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s40:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin blue linear features along the near trench wall and at the lower left; could be a blue PE water pipe or conduit, but the image is a point-cloud rendering with sparse detail, so this is weak evidence."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom center, thin blue line running horizontally along the near trench wall just below the top edge, with another blue segment at lower left and blue pieces at the bottom"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion",
+     "darkness"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s40:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s40:left"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5491,
+     "output_tokens": 305,
+     "cost_usd": 0.008393,
+     "latency_s": 2.913
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s40",
+   "view": "right",
+   "file": "ot_w4_a4_s40_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00242,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s40:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5441,
+     "output_tokens": 70,
+     "cost_usd": 0.005943,
+     "latency_s": 1.297
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s17",
+   "view": "top",
+   "file": "ot_w4_a4_s17_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00298,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s17:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Thin blue pipe or conduit crossing the trench; blue is weakly associated with drinking water, but no marking or text is legible."
+       },
+       {
+        "cue": "shape",
+        "detail": "Single thin line crossing the trench at a right angle, which could be a service line or a conduit. This is not enough to confirm the type."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, running horizontally across the trench from the left shoring wall to the right, between the two vertical struts"
+     }
+    ],
+    "image_quality_issues": [
+     "darkness",
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s17:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s17:top"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5241,
+     "output_tokens": 316,
+     "cost_usd": 0.008003,
+     "latency_s": 2.667
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s17",
+   "view": "left",
+   "file": "ot_w4_a4_s17_left.jpg",
+   "main_type": "water",
+   "owner_visible": false,
+   "other_visible": true,
+   "owner_fraction": 0.00071,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s17:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": null,
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Elongated dark band crossing the pit, coated in soil; it could be a pipe or cable, but no jacket, marking or color is discernible."
+       }
+      ],
+      "confidence": 0.1,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center-left, a dark, soil-covered linear feature running vertically from the rectangular recess toward the bottom of the shored pit"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": null,
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Two or three thin dark parallel lines, soil-covered, which might be cables or pipes; the material and jacket are not identifiable in this textured 3D-reconstruction view."
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "right side, several dark parallel linear features running vertically in a narrow channel near the right shoring wall"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s17:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s17:left"
+     ],
+     "confidence": 0.1,
+     "notes": "merged by rule (color: unknown)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.10 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s17:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s17:left"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: unknown)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5391,
+     "output_tokens": 477,
+     "cost_usd": 0.009913,
+     "latency_s": 3.816
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w4_a4_s17",
+   "view": "right",
+   "file": "ot_w4_a4_s17_right.jpg",
+   "main_type": "water",
+   "owner_visible": false,
+   "other_visible": true,
+   "owner_fraction": 0.00186,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w4_a4_s17:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "A thin blue line or pipe runs horizontally across the lower part of the image, with a light-brown short section near the left. Blue PE is often drinking water, but the line is very thin and partly hidden by shoring, so it could also be a cable, string line or hose."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom left, in the lower shored section just below the central trench wall, running horizontally"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "too_far",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w4_a4_s17:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w4_a4_s17:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5291,
+     "output_tokens": 296,
+     "cost_usd": 0.007903,
+     "latency_s": 3.338
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s35",
+   "view": "top",
+   "file": "ot_w5_a5_s35_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.017419999999999998,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s35:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue flexible pipe, typical for drinking water PE, but color alone is weak evidence"
+       },
+       {
+        "cue": "shape",
+        "detail": "Single thin flexible pipe with a curved run, consistent with a service connection; it connects to a metal fitting at the upper left"
+       },
+       {
+        "cue": "context",
+        "detail": "The metal fitting at the upper left may be a connection to a main or a valve, which fits a house connection but is not certain"
+       }
+      ],
+      "confidence": 0.6,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, curving from the upper left (near the metal fitting) across the trench floor to the right edge"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s35:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s35:top"
+     ],
+     "confidence": 0.6,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.60 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5041,
+     "output_tokens": 343,
+     "cost_usd": 0.007873,
+     "latency_s": 3.246
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s35",
+   "view": "left",
+   "file": "ot_w5_a5_s35_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01068,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s35:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe or hose with a darker end fitting; blue PE is often drinking water, but color is weak evidence and no marking is readable."
+       },
+       {
+        "cue": "shape",
+        "detail": "Thin line running diagonally through the trench toward the lower edge, possibly a service line."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "left side, diagonal from the left trench wall down to the lower center, partly hidden behind the shoring frame"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "dark brown",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thick dark cylindrical shape across the trench, covered in soil. It could be an existing pipe or a timber/shoring element, so nothing can be concluded."
+       }
+      ],
+      "confidence": 0.1,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "center, vertical thick dark brown cylindrical object left of the right-hand strut, crossing the trench"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s35:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s35:left"
+     ],
+     "confidence": 0.1,
+     "notes": "merged by rule (color: dark brown)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.10 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s35:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s35:left"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5041,
+     "output_tokens": 508,
+     "cost_usd": 0.009523,
+     "latency_s": 4.429
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s35",
+   "view": "right",
+   "file": "ot_w5_a5_s35_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01142,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s35:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue smooth pipe, often drinking water, but color is weak evidence and no marking is readable"
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom left, blue pipe running along the trench floor toward the left shoring wall, partly hidden by the soil edge"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe, likely the continuation of the same water line seen at bottom left, partly hidden by the soil ridge in the foreground"
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom right, blue pipe running diagonally along the trench floor toward the right, in front of the soil ridge"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s35:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s35:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s35:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s35:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 4991,
+     "output_tokens": 445,
+     "cost_usd": 0.008793,
+     "latency_s": 4.158
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s46",
+   "view": "top",
+   "file": "ot_w5_a5_s46_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.01052,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s46:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "red-orange",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Red-orange linear element crossing the trench floor; red/orange conduits are often power or telecom, but this is weak evidence."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-left, vertical across the trench from top to bottom, red/orange"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "grey",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "shape",
+        "detail": "Thin grey linear element running parallel to the red line across the trench floor; type and material not discernible. It could also be a strut or other non-utility item."
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, vertical line right of the red one, grey/dark"
+     }
+    ],
+    "image_quality_issues": [
+     "other",
+     "occlusion"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s46:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s46:top"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: grey)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s46:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s46:top"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red-orange)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5041,
+     "output_tokens": 431,
+     "cost_usd": 0.008753,
+     "latency_s": 4.852
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s46",
+   "view": "left",
+   "file": "ot_w5_a5_s46_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00551,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s46:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "red-orange",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Red-orange pipe or conduit. Color is weak evidence, since red or orange conduits are often power or telecom, but this could also be a steel pipe or a rusted or painted object."
+       },
+       {
+        "cue": "shape",
+        "detail": "Slender, straight, round section, much thinner than a district heating pipe. No marking or tape is visible."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, a vertical red-orange pipe running across the trench floor from the top shoring beam toward the bottom of the image"
+     },
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Faint blue marks that could be a blue PE pipe, or could be marking paint or debris. They are partly hidden by shoring and not clearly identifiable."
+       }
+      ],
+      "confidence": 0.15,
+      "has_stripes": null,
+      "is_paired": null,
+      "position": "bottom center, faint blue streaks on the ground below the plywood shoring"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s46:left",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s46:left"
+     ],
+     "confidence": 0.15,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.15 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s46:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s46:left"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: red-orange)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5441,
+     "output_tokens": 522,
+     "cost_usd": 0.010463,
+     "latency_s": 4.83
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s46",
+   "view": "right",
+   "file": "ot_w5_a5_s46_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00575,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s46:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "unknown",
+      "material": "unknown",
+      "color": "orange-red",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Orange-red smooth conduit or pipe; this color is often used for power cable or telecom conduits, but conventions vary and it is weak evidence."
+       },
+       {
+        "cue": "shape",
+        "detail": "Thin, straight, single tube that is much slimmer than a typical supply or return pipe, so it is not district heating. It could also be a marker rod or support post."
+       }
+      ],
+      "confidence": 0.3,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center-right, running vertically from the upper trench wall down through the shoring toward the bottom of the image"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "unknown",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s46:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s46:right"
+     ],
+     "confidence": 0.3,
+     "notes": "merged by rule (color: orange-red)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.30 <= 0.60"
+      },
+      {
+       "reason": "unknown_type",
+       "detail": "utility type is unknown"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5191,
+     "output_tokens": 331,
+     "cost_usd": 0.008053,
+     "latency_s": 3.366
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s39",
+   "view": "top",
+   "file": "ot_w5_a5_s39_top.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00992,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s39:top",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": false,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue PE-type pipe, lighter blue at the left end and darker blue in the middle, with dark fittings and a valve in the center. Blue is commonly used for drinking water."
+       },
+       {
+        "cue": "context",
+        "detail": "A blue gate valve with a spindle cap sits at the junction in the center of the pit. This is typical of a water network. The blue spray marking 'X3' on the surface is only weak support."
+       }
+      ],
+      "confidence": 0.75,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, running diagonally from upper left to right across the pit, above the middle strut"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": true,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Light blue pipe, similar to the main line, branching off at the valve."
+       },
+       {
+        "cue": "context",
+        "detail": "It leaves the main line as a smaller branch and ends in a red fitting. This is consistent with a service or house connection."
+       }
+      ],
+      "confidence": 0.7,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center to bottom, branching from the valve toward the lower left and ending at a red fitting"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:top",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:top"
+     ],
+     "confidence": 0.75,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": false,
+     "review": []
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:top",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:top"
+     ],
+     "confidence": 0.7,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": false,
+     "review": []
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5291,
+     "output_tokens": 545,
+     "cost_usd": 0.010393,
+     "latency_s": 4.514
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s39",
+   "view": "left",
+   "file": "ot_w5_a5_s39_left.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00549,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s39:left",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe or fitting rising from the pit floor; blue is weakly associated with drinking water. Colors come from a point-cloud rendering and may be unreliable."
+       },
+       {
+        "cue": "shape",
+        "detail": "Short vertical stub with a thicker top, like a riser or valve spindle. No marking or text is readable."
+       }
+      ],
+      "confidence": 0.4,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, vertical blue pipe standing up from the gravel floor of the shored pit"
+     }
+    ],
+    "image_quality_issues": [
+     "occlusion",
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:left",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:left"
+     ],
+     "confidence": 0.4,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.40 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5191,
+     "output_tokens": 313,
+     "cost_usd": 0.007873,
+     "latency_s": 3.139
+    }
+   ]
+  },
+  {
+   "case_id": "ot_w5_a5_s39",
+   "view": "right",
+   "file": "ot_w5_a5_s39_right.jpg",
+   "main_type": "water",
+   "owner_visible": true,
+   "other_visible": true,
+   "owner_fraction": 0.00887,
+   "error": null,
+   "raw": {
+    "frame_id": "ot_w5_a5_s39:right",
+    "is_trench_visible": true,
+    "scale_reference_visible": false,
+    "warning_tapes": [],
+    "lines": [
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe jacket; blue is often associated with drinking water, but this is weak evidence on its own."
+       },
+       {
+        "cue": "shape",
+        "detail": "Short upright pipe with a fitting at the top, possibly a service or house connection stub."
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, upright blue pipe rising from the gravel floor toward the upper left, with a blue-coated fitting at its top"
+     },
+     {
+      "utility_type": "water",
+      "material": "unknown",
+      "color": "light blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Light blue pipe with a red end fitting; blue suggests water but this is weak evidence."
+       },
+       {
+        "cue": "context",
+        "detail": "Red end cap or valve body at the pipe end, consistent with a water fitting but not conclusive."
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "center, diagonal light-blue pipe running toward a red-capped end or valve at the back wall"
+     },
+     {
+      "utility_type": "water",
+      "material": "pe",
+      "color": "blue",
+      "approx_outer_diameter_mm": null,
+      "approx_depth_of_cover_m": null,
+      "is_house_connection": null,
+      "evidence": [
+       {
+        "cue": "color",
+        "detail": "Blue pipe jacket, partly hidden by shoring and soil; the blue color suggests drinking water but is weak evidence."
+       }
+      ],
+      "confidence": 0.5,
+      "has_stripes": null,
+      "is_paired": false,
+      "position": "bottom center, blue pipe lying along the lower trench wall and continuing outside the shoring at the bottom right"
+     }
+    ],
+    "image_quality_issues": [
+     "other"
+    ]
+   },
+   "lines": [
+    {
+     "id": "L1",
+     "utility_type": "water",
+     "material": "pe",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:right",
+       "line_index": 2
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      }
+     ]
+    },
+    {
+     "id": "L2",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:right",
+       "line_index": 0
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    },
+    {
+     "id": "L3",
+     "utility_type": "water",
+     "material": "unknown",
+     "approx_outer_diameter_mm": null,
+     "approx_depth_of_cover_m": null,
+     "observations": [
+      {
+       "frame_id": "ot_w5_a5_s39:right",
+       "line_index": 1
+      }
+     ],
+     "seen_in_frames": [
+      "ot_w5_a5_s39:right"
+     ],
+     "confidence": 0.5,
+     "notes": "merged by rule (color: light blue)",
+     "needs_review": true,
+     "review": [
+      {
+       "reason": "low_confidence",
+       "detail": "confidence 0.50 <= 0.60"
+      },
+      {
+       "reason": "unknown_material",
+       "detail": "material is unknown"
+      }
+     ]
+    }
+   ],
+   "usage": [
+    {
+     "model": "claude-sonnet-5-5",
+     "prompt_version": "v1",
+     "input_tokens": 5491,
+     "output_tokens": 704,
+     "cost_usd": 0.012383,
+     "latency_s": 5.441
+    }
+   ]
+  }
+ ]
+}
