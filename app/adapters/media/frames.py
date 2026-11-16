@@ -29,33 +29,35 @@ class FfmpegFrameExtractor:
             )
             if not paths:
                 raise MediaProcessingError("video contains no decodable frames")
-            jpegs = await asyncio.to_thread(lambda: [p.read_bytes() for p in paths])
-
-        candidates = await asyncio.to_thread(self._measure, jpegs)
-        picked = select_keyframes(
-            candidates,
-            max_frames=max_frames,
-            min_sharpness=self.min_sharpness,
-            min_hash_distance=self.min_hash_distance,
-        )
+            candidates = await asyncio.to_thread(self._measure, paths)
+            picked = select_keyframes(
+                candidates,
+                max_frames=max_frames,
+                min_sharpness=self.min_sharpness,
+                min_hash_distance=self.min_hash_distance,
+            )
+            jpegs = await asyncio.to_thread(lambda: [paths[c.index].read_bytes() for c in picked])
         return [
             ExtractedFrame(
-                jpeg=jpegs[c.index],
+                jpeg=jpeg,
                 timestamp_s=round(c.index / self.sample_fps, 3),
                 sharpness=round(c.sharpness, 2),
             )
-            for c in picked
+            for c, jpeg in zip(picked, jpegs, strict=True)
         ]
 
     async def from_images(self, image_paths: list[Path]) -> list[ExtractedFrame]:
         return await asyncio.to_thread(self._prepare_images, image_paths)
 
     @staticmethod
-    def _measure(jpegs: list[bytes]) -> list[FrameCandidate]:
-        return [
-            FrameCandidate(index=i, sharpness=images.sharpness(j), phash=images.dhash(j))
-            for i, j in enumerate(jpegs)
-        ]
+    def _measure(paths: list[Path]) -> list[FrameCandidate]:
+        candidates = []
+        for i, path in enumerate(paths):
+            jpeg = path.read_bytes()
+            candidates.append(
+                FrameCandidate(index=i, sharpness=images.sharpness(jpeg), phash=images.dhash(jpeg))
+            )
+        return candidates
 
     def _prepare_images(self, image_paths: list[Path]) -> list[ExtractedFrame]:
         frames = []

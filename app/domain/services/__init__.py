@@ -2,6 +2,7 @@ from app.domain.services.consolidation import (
     DEFAULT_LIMITATIONS,
     build_report,
     check_report_lines,
+    collect_warning_tapes,
     merge_lines,
 )
 from app.domain.services.conventions import COLOR_CONVENTIONS_SOURCE, expected_types
@@ -22,6 +23,7 @@ __all__ = [
     "build_report",
     "check_report_lines",
     "classify_uploads",
+    "collect_warning_tapes",
     "count_unscaled_measurements",
     "expected_types",
     "hamming",

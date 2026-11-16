@@ -12,6 +12,7 @@ from app.domain.models import (
     ReportLine,
     TrenchReport,
     UtilityType,
+    WarningTape,
 )
 
 DEFAULT_LIMITATIONS: tuple[str, ...] = (
@@ -111,10 +112,24 @@ def merge_lines(analyses: Sequence[FrameAnalysis]) -> list[ReportLine]:
     return lines
 
 
+def collect_warning_tapes(analyses: Sequence[FrameAnalysis]) -> list[WarningTape]:
+    tapes: dict[str, WarningTape] = {}
+    for analysis in analyses:
+        for text in analysis.warning_tapes:
+            key = " ".join(text.lower().split())
+            if not key:
+                continue
+            tape = tapes.setdefault(key, WarningTape(text=" ".join(text.split()), frames=[]))
+            if analysis.frame_id not in tape.frames:
+                tape.frames.append(analysis.frame_id)
+    return list(tapes.values())
+
+
 def build_report(
     job: Job,
     consolidation: Consolidation,
     *,
+    analyses: Sequence[FrameAnalysis] = (),
     extra_limitations: Sequence[str] = (),
 ) -> TrenchReport:
     limitations = [*DEFAULT_LIMITATIONS, *extra_limitations, *consolidation.remarks]
@@ -125,4 +140,5 @@ def build_report(
         limitations=limitations,
         location=job.metadata.location if job.metadata else None,
         consolidation_method=consolidation.method,
+        warning_tapes=collect_warning_tapes(analyses),
     )

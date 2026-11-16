@@ -56,6 +56,11 @@ class ReportLine(BaseModel):
         return self
 
 
+class WarningTape(BaseModel):
+    text: str
+    frames: list[str]
+
+
 class Consolidation(BaseModel):
     lines: list[ReportLine]
     remarks: list[str] = Field(default_factory=list)
@@ -69,3 +74,4 @@ class TrenchReport(BaseModel):
     limitations: list[str]
     location: GeoPoint | None
     consolidation_method: ConsolidationMethod | None = None
+    warning_tapes: list[WarningTape] = Field(default_factory=list)

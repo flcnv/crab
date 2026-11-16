@@ -13,6 +13,7 @@ from app.domain.models import (
     ReviewReason,
     TrenchReport,
     UtilityType,
+    WarningTape,
 )
 
 NOW = datetime(2026, 5, 1, 10, 20, tzinfo=UTC)
@@ -68,6 +69,9 @@ def _report(job: Job, *, location: GeoPoint | None = None) -> TrenchReport:
         limitations=["No 3D reconstruction."],
         location=location,
         consolidation_method="rules",
+        warning_tapes=[
+            WarningTape(text="yellow: Achtung Gasleitung | 63", frames=["f001", "f003"])
+        ],
     )
 
 
@@ -89,6 +93,8 @@ def test_markdown_report() -> None:
         "pair of dark pipes \\| supply and return |" in md
     )
     assert "| L2 | Gas | PE | 63 | 0.9 | 95 % | ok | f003 | - |" in md
+    assert "## Warning tapes" in md
+    assert "- yellow: Achtung Gasleitung \\| 63 (frames f001, f003)\n" in md
     assert "## Verification flags\n\n- 1 of 2 lines need review\n" in md
     assert (
         "## Needs review\n\n"
@@ -102,12 +108,15 @@ def test_markdown_report() -> None:
 
 def test_markdown_without_location_and_lines() -> None:
     job = _job()
-    report = _report(job).model_copy(update={"lines": [], "verification_flags": []})
+    report = _report(job).model_copy(
+        update={"lines": [], "verification_flags": [], "warning_tapes": []}
+    )
     md = render_markdown(report, job)
 
     assert "| Location | not available (no GPS in the upload) |" in md
     assert "No utility lines were identified." in md
     assert "Verification flags" not in md
+    assert "Warning tapes" not in md
     assert "Needs review" not in md
     assert "Captured" not in md
 
@@ -132,3 +141,6 @@ def test_geojson() -> None:
     assert l1["needs_review"] is True
     assert [f["reason"] for f in l1["review"]] == ["low_confidence", "color_contradicts_type"]
     assert (l2["needs_review"], l2["review"]) == (False, [])
+    assert feature["properties"]["warning_tapes"] == [
+        {"text": "yellow: Achtung Gasleitung | 63", "frames": ["f001", "f003"]}
+    ]

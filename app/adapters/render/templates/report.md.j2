@@ -34,6 +34,16 @@ Sizes are only given where a scale reference was visible.
 {% else %}
 No utility lines were identified.
 {% endif %}
+{% if report.warning_tapes %}
+
+## Warning tapes
+
+Text printed on warning tapes, as transcribed from the images. A readable tape names the utility directly and is stronger evidence than colour.
+
+{% for tape in report.warning_tapes %}
+- {{ tape.text | cell }} (frames {{ tape.frames | join(", ") }})
+{% endfor %}
+{% endif %}
 {% if report.verification_flags %}
 
 ## Verification flags

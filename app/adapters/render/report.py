@@ -108,6 +108,9 @@ def render_geojson(report: TrenchReport) -> dict[str, Any] | None:
                         }
                         for line in report.lines
                     ],
+                    "warning_tapes": [
+                        {"text": tape.text, "frames": tape.frames} for tape in report.warning_tapes
+                    ],
                 },
             }
         ],

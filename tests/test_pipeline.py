@@ -35,12 +35,19 @@ from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
 
 class FakeMetadataReader:
-    def __init__(self) -> None:
+    def __init__(self, duration_s: float | None = None) -> None:
         self.calls: list[Path] = []
+        self.duration_s = duration_s
 
     async def read(self, path: Path, kind: MediaKind) -> MediaMetadata:
         self.calls.append(path)
-        return MediaMetadata(kind=kind, width=100, height=50, location=GeoPoint(lat=1, lon=2))
+        return MediaMetadata(
+            kind=kind,
+            duration_s=self.duration_s,
+            width=100,
+            height=50,
+            location=GeoPoint(lat=1, lon=2),
+        )
 
 
 class FakeFrameExtractor:
@@ -62,8 +69,9 @@ class FakeFrameExtractor:
 
 
 class FakeVisionModel:
-    def __init__(self, *, fail: set[str] | None = None) -> None:
+    def __init__(self, *, fail: set[str] | None = None, tapes: list[str] | None = None) -> None:
         self.fail = fail or set()
+        self.tapes = tapes or []
         self.calls: list[str] = []
         self.active = self.max_active = 0
 
@@ -99,7 +107,7 @@ class FakeVisionModel:
             frame_id=frame_id,
             is_trench_visible=True,
             scale_reference_visible=False,
-            warning_tapes=[],
+            warning_tapes=self.tapes,
             lines=[line],
             image_quality_issues=[],
         )
@@ -506,3 +514,43 @@ async def test_cancelled_pipeline_is_marked_failed(deps: Deps) -> None:
     job = await deps.jobs.get(job_id)
     assert job is not None
     assert job.status is JobStatus.FAILED
+
+
+async def test_warning_tapes_reach_the_report(deps: Deps) -> None:
+    deps = dataclasses.replace(
+        deps, vision_model=FakeVisionModel(tapes=["yellow: Achtung Gasleitung"])
+    )
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    report = await deps.jobs.get_report(job_id)
+    assert report is not None
+    assert [(t.text, t.frames) for t in report.warning_tapes] == [
+        ("yellow: Achtung Gasleitung", ["f001", "f002", "f003"])
+    ]
+
+
+@pytest.mark.parametrize(
+    ("duration_s", "status"), [(600.0, JobStatus.DONE), (601.0, JobStatus.FAILED)]
+)
+async def test_video_longer_than_the_limit_fails_at_ingest(
+    deps: Deps, duration_s: float, status: JobStatus
+) -> None:
+    deps = dataclasses.replace(
+        deps,
+        settings=deps.settings.model_copy(update={"max_video_duration_s": 600}),
+        metadata_reader=FakeMetadataReader(duration_s=duration_s),
+    )
+    job_id = await _new_job(deps, "video", "clip.mp4")
+
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.status is status
+    if status is JobStatus.FAILED:
+        assert job.error == "ingest: video is 601 s long; the limit is 600 s (10 min)"
+        assert job.metadata is None
+        assert isinstance(deps.frame_extractor, FakeFrameExtractor)
+        assert deps.frame_extractor.calls == 0

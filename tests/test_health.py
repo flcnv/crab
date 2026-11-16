@@ -6,7 +6,7 @@ from app.api.main import app
 def test_health() -> None:
     with TestClient(app) as client:
         assert client.get("/health").json() == {"status": "ok"}
-        assert app.state.deps.vision_model is not None
+        assert app.state.deps.anthropic is None
 
 
 def test_cors_allows_any_origin_without_credentials() -> None:

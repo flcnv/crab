@@ -29,6 +29,12 @@ async def ingest(deps: Deps, job: Job) -> None:
     paths = [deps.storage.local_path(k) for k in job.upload_keys]
     if job.media_kind == "video":
         metadata = await deps.metadata_reader.read(paths[0], "video")
+        limit = deps.settings.max_video_duration_s
+        if metadata.duration_s is not None and metadata.duration_s > limit:
+            raise MediaProcessingError(
+                f"video is {metadata.duration_s:.0f} s long; the limit is {limit} s "
+                f"({limit / 60:g} min)"
+            )
     else:
         metadata = merge_image_metadata(
             [await deps.metadata_reader.read(p, "image") for p in paths]
@@ -133,7 +139,9 @@ async def consolidate(deps: Deps, job: Job) -> None:
     failed = len(frames) - len(analyses)
     if failed:
         extra_limitations.append(f"{failed} of {len(frames)} frames could not be analyzed.")
-    report = build_report(job, consolidation, extra_limitations=extra_limitations)
+    report = build_report(
+        job, consolidation, analyses=analyses, extra_limitations=extra_limitations
+    )
     await deps.jobs.save_report(job.id, report)
 
 

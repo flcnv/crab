@@ -69,7 +69,8 @@ Four cases from the report, each traced to the stored raw model output:
 
 Hexagonal (ports & adapters): the domain (`app/domain`) holds models, rules and port
 interfaces and imports no framework, database, queue or LLM SDK. Adapters implement the ports;
-`app/bootstrap.py` is the single place that wires them together for both entrypoints.
+`app/bootstrap.py` is the single place that wires them together for both entrypoints. The API
+process is built without the LLM adapters: only the worker talks to Claude.
 
 ```
             +-----------+     enqueue      +---------+
@@ -96,7 +97,7 @@ Job states: `queued -> extracting -> analyzing -> consolidating -> verifying -> 
 
 | Stage | What it does |
 |-------|--------------|
-| `ingest` | Duration, resolution, capture time and GPS: `ffprobe` for videos (incl. phone ISO 6709 location and rotation), EXIF for photos |
+| `ingest` | Duration, resolution, capture time and GPS: `ffprobe` for videos (incl. phone ISO 6709 location and rotation), EXIF for photos. Videos longer than `MAX_VIDEO_DURATION_S` (10 min) fail here |
 | `extract_frames` | Video: sample 1 fps, drop blurry frames, drop near-duplicates, keep the best 12. Photos: fix EXIF rotation, downscale to 1500 px |
 | `analyze_frames` | Claude vision call per frame with structured output -> typed `FrameAnalysis`; sizes without a visible scale reference are dropped |
 | `consolidate` | Tool-use agent merges per-frame findings into distinct physical lines, citing the frame observations each line is built from; rule-based merge if the agent fails |
@@ -111,7 +112,9 @@ by a hard kill becomes retryable once it has made no progress for longer than th
 with tokens, cost and latency, are recorded.
 
 The report is stored once as JSON (the source of truth); Markdown and GeoJSON are rendered
-from it on request.
+from it on request. Besides the lines, it lists the text of every warning tape the model read
+("yellow: Achtung Gasleitung") with the frames it appears in, because a readable tape names the
+utility more reliably than any colour.
 
 ### Consolidation agent
 
@@ -233,8 +236,8 @@ uv run python -m eval.corruption                # safety net, free
 | `GET` | `/jobs/{id}` | status, media kind, error, stage timings, cost |
 | `POST` | `/jobs/{id}/retry` | re-run a `failed` job, or one stuck in a running stage for longer than the worker timeout -> `202 {job_id, status, status_url}`; finished stages are skipped; `409` otherwise |
 | `GET` | `/jobs/{id}/report` | `TrenchReport` JSON; `409` until the job is `done` (a stored but not yet verified report is never served) or when it `failed` |
-| `GET` | `/jobs/{id}/report.md` | human-readable Markdown report, with a review column and the reasons per flagged line |
-| `GET` | `/jobs/{id}/report.geojson` | `FeatureCollection` with one point at the capture location and the lines (incl. `needs_review` and reasons) as properties; `404` without GPS |
+| `GET` | `/jobs/{id}/report.md` | human-readable Markdown report, with a review column, the reasons per flagged line and the warning tapes |
+| `GET` | `/jobs/{id}/report.geojson` | `FeatureCollection` with one point at the capture location and the lines (incl. `needs_review` and reasons) and warning tapes as properties; `404` without GPS |
 | `GET` | `/health` | liveness |
 
 Accepted files: `.mp4 .mov .m4v .webm` or `.jpg .jpeg .png .webp`, up to 500 MB per job.

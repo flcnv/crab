@@ -16,7 +16,7 @@ from tests.fakes import FakeJobQueue, InMemoryJobRepository
 
 @pytest.fixture
 def deps(tmp_path: Path) -> Deps:
-    real = build_deps()
+    real = build_deps(with_llm=False)
     settings = real.settings.model_copy(update={"max_upload_bytes": 1024, "max_images_per_job": 3})
     return dataclasses.replace(
         real,

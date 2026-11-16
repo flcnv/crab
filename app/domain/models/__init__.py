@@ -16,6 +16,7 @@ from app.domain.models.report import (
     ReportLine,
     ReviewFinding,
     TrenchReport,
+    WarningTape,
 )
 from app.domain.models.usage import LLMUsage
 from app.domain.models.verification import VerificationConfig
@@ -43,4 +44,5 @@ __all__ = [
     "TrenchReport",
     "UtilityType",
     "VerificationConfig",
+    "WarningTape",
 ]

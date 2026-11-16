@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     verify_size_tolerance: float = 0.15
 
     sample_fps: float = 1.0
+    max_video_duration_s: int = 10 * 60
     max_frames: int = 12
     max_image_edge_px: int = 1500
     min_frame_sharpness: float = 60.0

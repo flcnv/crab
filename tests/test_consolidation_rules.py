@@ -16,9 +16,17 @@ from app.domain.models import (
     MediaMetadata,
     ObservationRef,
     ReportLine,
+    TrenchReport,
     UtilityType,
+    WarningTape,
 )
-from app.domain.services import DEFAULT_LIMITATIONS, build_report, check_report_lines, merge_lines
+from app.domain.services import (
+    DEFAULT_LIMITATIONS,
+    build_report,
+    check_report_lines,
+    collect_warning_tapes,
+    merge_lines,
+)
 
 
 def obs(
@@ -144,7 +152,7 @@ def test_seen_in_frames_contradicting_observations_is_rejected() -> None:
 
 
 def test_report_line_stored_before_refs_still_loads() -> None:
-    old = {
+    old: dict[str, object] = {
         "id": "L1",
         "utility_type": "gas",
         "material": "pe",
@@ -198,7 +206,14 @@ def test_build_report() -> None:
         lines=[_line(refs("f001#0"))], remarks=["east end not filmed"], method="agent"
     )
 
-    report = build_report(job, consolidation, extra_limitations=["1 of 3 frames failed"])
+    analyses = [
+        frame("f001", obs(*GAS)).model_copy(
+            update={"warning_tapes": ["yellow: Achtung Gasleitung"]}
+        )
+    ]
+    report = build_report(
+        job, consolidation, analyses=analyses, extra_limitations=["1 of 3 frames failed"]
+    )
 
     assert report.job_id == job.id
     assert report.location == GeoPoint(lat=47.0, lon=8.0)
@@ -209,3 +224,36 @@ def test_build_report() -> None:
         "1 of 3 frames failed",
         "east end not filmed",
     ]
+    assert report.warning_tapes == [WarningTape(text="yellow: Achtung Gasleitung", frames=["f001"])]
+
+
+def test_collect_warning_tapes_merges_the_same_text_across_frames() -> None:
+    def tapes(frame_id: str, *texts: str) -> FrameAnalysis:
+        return frame(frame_id).model_copy(update={"warning_tapes": list(texts)})
+
+    collected = collect_warning_tapes(
+        [
+            tapes("f001", "yellow: Achtung Gasleitung", "blue: unreadable"),
+            tapes("f002", "Yellow:  ACHTUNG Gasleitung "),
+            tapes("f003"),
+            tapes("f004", "red: Achtung Kabel", "yellow: Achtung Gasleitung"),
+        ]
+    )
+
+    assert collected == [
+        WarningTape(text="yellow: Achtung Gasleitung", frames=["f001", "f002", "f004"]),
+        WarningTape(text="blue: unreadable", frames=["f001"]),
+        WarningTape(text="red: Achtung Kabel", frames=["f004"]),
+    ]
+    assert collect_warning_tapes([tapes("f001", "  ")]) == []
+
+
+def test_report_stored_before_warning_tapes_still_loads() -> None:
+    old: dict[str, object] = {
+        "job_id": str(uuid.uuid4()),
+        "lines": [],
+        "verification_flags": [],
+        "limitations": [],
+        "location": None,
+    }
+    assert TrenchReport.model_validate(old).warning_tapes == []

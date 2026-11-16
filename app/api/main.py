@@ -11,7 +11,7 @@ from app.bootstrap import build_deps
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    app.state.deps = deps = build_deps()
+    app.state.deps = deps = build_deps(with_llm=False)
     try:
         yield
     finally:
