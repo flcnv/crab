@@ -189,7 +189,7 @@ def test_retry_of_job_that_did_not_fail_is_409(client: TestClient, deps: Deps) -
     job_id = _job_with_report(client, deps, JobStatus.DONE, None)
     resp = client.post(f"/jobs/{job_id}/retry")
     assert resp.status_code == 409
-    assert resp.json()["detail"] == "job is done, only failed jobs can be retried"
+    assert resp.json()["detail"].startswith("job is done; only failed jobs")
 
 
 def test_retry_of_unknown_job_is_404(client: TestClient) -> None:

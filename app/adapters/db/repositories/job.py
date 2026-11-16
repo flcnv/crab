@@ -1,13 +1,15 @@
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, func, literal, select, update
+from sqlalchemy import and_, delete, func, literal, or_, select, update
 from sqlalchemy.dialects.postgresql import JSONB, insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.adapters.db.models import FrameAnalysisRow, FrameRow, JobRow, LLMCallRow, ReportRow
 from app.domain.errors import JobNotFoundError
 from app.domain.models import (
+    RUNNING_STATUSES,
     Frame,
     FrameAnalysis,
     Job,
@@ -52,11 +54,12 @@ class SqlJobRepository:
     async def set_status(self, job_id: UUID, status: JobStatus, error: str | None = None) -> None:
         await self._update_job(job_id, status=status, error=error)
 
-    async def requeue_failed(self, job_id: UUID) -> bool:
+    async def requeue_for_retry(self, job_id: UUID, stale_before: datetime) -> bool:
+        stalled = and_(JobRow.status.in_(RUNNING_STATUSES), JobRow.updated_at < stale_before)
         async with self._sm.begin() as s:
             result = await s.execute(
                 update(JobRow)
-                .where(JobRow.id == job_id, JobRow.status == JobStatus.FAILED)
+                .where(JobRow.id == job_id, or_(JobRow.status == JobStatus.FAILED, stalled))
                 .values(status=JobStatus.QUEUED, error=None)
                 .returning(JobRow.id)
             )

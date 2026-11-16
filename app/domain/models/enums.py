@@ -32,6 +32,11 @@ class JobStatus(StrEnum):
     FAILED = "failed"
 
 
+RUNNING_STATUSES = frozenset(
+    {JobStatus.EXTRACTING, JobStatus.ANALYZING, JobStatus.CONSOLIDATING, JobStatus.VERIFYING}
+)
+
+
 class ReviewReason(StrEnum):
     LOW_CONFIDENCE = "low_confidence"
     UNKNOWN_TYPE = "unknown_type"

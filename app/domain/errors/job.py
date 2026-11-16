@@ -9,6 +9,9 @@ class JobNotFoundError(LookupError):
 
 class JobNotRetryableError(ValueError):
     def __init__(self, job_id: UUID, status: str) -> None:
-        super().__init__(f"job is {status}, only failed jobs can be retried")
+        super().__init__(
+            f"job is {status}; only failed jobs, or running jobs without progress "
+            "for longer than the worker timeout, can be retried"
+        )
         self.job_id = job_id
         self.status = status

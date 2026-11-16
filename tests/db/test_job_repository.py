@@ -1,4 +1,5 @@
 import uuid
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -94,25 +95,31 @@ async def test_status_metadata_and_timings(repo: SqlJobRepository) -> None:
     assert got.stage_timings_s == {"extract_frames": 1.2, "analyze_frames": 8.0}
 
 
-async def test_requeue_failed_only_moves_failed_jobs(repo: SqlJobRepository) -> None:
+async def test_requeue_for_retry_moves_failed_and_stalled_jobs(repo: SqlJobRepository) -> None:
     job = await repo.create(uuid.uuid4(), "video", ["uploads/a.mp4"])
     await repo.set_status(job.id, JobStatus.ANALYZING)
-    assert await repo.requeue_failed(job.id) is False
+    long_ago = datetime.now(UTC) - timedelta(hours=1)
+    assert await repo.requeue_for_retry(job.id, stale_before=long_ago) is False
 
     await repo.set_status(job.id, JobStatus.FAILED, error="analyze_frames: boom")
-    assert await repo.requeue_failed(job.id) is True
-    assert await repo.requeue_failed(job.id) is False
+    assert await repo.requeue_for_retry(job.id, stale_before=long_ago) is True
+    assert await repo.requeue_for_retry(job.id, stale_before=long_ago) is False
 
     got = await repo.get(job.id)
     assert got is not None
     assert (got.status, got.error) == (JobStatus.QUEUED, None)
+
+    in_the_future = datetime.now(UTC) + timedelta(hours=1)
+    assert await repo.requeue_for_retry(job.id, stale_before=in_the_future) is False
+    await repo.set_status(job.id, JobStatus.CONSOLIDATING)
+    assert await repo.requeue_for_retry(job.id, stale_before=in_the_future) is True
 
 
 async def test_updates_on_unknown_job_raise(repo: SqlJobRepository) -> None:
     with pytest.raises(JobNotFoundError):
         await repo.set_status(uuid.uuid4(), JobStatus.DONE)
     with pytest.raises(JobNotFoundError):
-        await repo.requeue_failed(uuid.uuid4())
+        await repo.requeue_for_retry(uuid.uuid4(), stale_before=datetime.now(UTC))
     with pytest.raises(JobNotFoundError):
         await repo.save_frames(uuid.uuid4(), [])
 

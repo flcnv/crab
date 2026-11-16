@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     claude_timeout_s: float = 120.0
     claude_refusal_fallback: bool = True
     llm_concurrency: int = 4
+    job_timeout_s: int = 30 * 60
 
     verify_min_confidence: float = 0.6
     verify_size_tolerance: float = 0.15

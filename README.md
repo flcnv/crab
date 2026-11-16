@@ -105,7 +105,9 @@ Job states: `queued -> extracting -> analyzing -> consolidating -> verifying -> 
 Every stage is idempotent and skips work that is already stored, so re-running a failed job
 (`POST /jobs/{id}/retry`) resumes where it stopped. `verify` is the exception: it is cheap and
 recomputes the review from scratch on every run. A failing stage marks the job `failed` with
-`"<stage>: <reason>"` and never crashes the worker. Per-stage timings and every model call,
+`"<stage>: <reason>"` and never crashes the worker. A stage cut off by the worker timeout or a
+shutdown is marked `failed` too (`"<stage>: interrupted ..."`); a job left in a running state
+by a hard kill becomes retryable once it has made no progress for longer than the timeout. Per-stage timings and every model call,
 with tokens, cost and latency, are recorded.
 
 The report is stored once as JSON (the source of truth); Markdown and GeoJSON are rendered
@@ -229,14 +231,14 @@ uv run python -m eval.corruption                # safety net, free
 |--------|------|--------|
 | `POST` | `/jobs` | multipart `files`: one video **or** 1-50 photos -> `202 {job_id, status, status_url}` |
 | `GET` | `/jobs/{id}` | status, media kind, error, stage timings, cost |
-| `POST` | `/jobs/{id}/retry` | re-run a `failed` job -> `202 {job_id, status, status_url}`; finished stages are skipped; `409` for any other status |
+| `POST` | `/jobs/{id}/retry` | re-run a `failed` job, or one stuck in a running stage for longer than the worker timeout -> `202 {job_id, status, status_url}`; finished stages are skipped; `409` otherwise |
 | `GET` | `/jobs/{id}/report` | `TrenchReport` JSON; `409` until the job is `done` (a stored but not yet verified report is never served) or when it `failed` |
 | `GET` | `/jobs/{id}/report.md` | human-readable Markdown report, with a review column and the reasons per flagged line |
 | `GET` | `/jobs/{id}/report.geojson` | `FeatureCollection` with one point at the capture location and the lines (incl. `needs_review` and reasons) as properties; `404` without GPS |
 | `GET` | `/health` | liveness |
 
 Accepted files: `.mp4 .mov .m4v .webm` or `.jpg .jpeg .png .webp`, up to 500 MB per job.
-Errors: `404` unknown job, `409` report not ready or job failed (all three report formats) or retry of a job that did not fail, `413` too large, `422` invalid upload (wrong type, video + photos mixed).
+Errors: `404` unknown job, `409` report not ready or job failed (all three report formats) or retry of a job that neither failed nor stalled, `413` too large, `422` invalid upload (wrong type, video + photos mixed).
 
 ```bash
 curl -F "files=@trench.mp4" localhost:8000/jobs

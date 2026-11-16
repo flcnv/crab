@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 type Stage = Callable[[Deps, Job], Awaitable[None]]
 
+INTERRUPTED = "interrupted (worker timeout or shutdown)"
+
 
 async def ingest(deps: Deps, job: Job) -> None:
     if job.metadata is not None:
@@ -168,6 +170,12 @@ async def run_pipeline(deps: Deps, job_id: UUID) -> None:
         started = time.perf_counter()
         try:
             await stage(deps, job)
+        except asyncio.CancelledError:
+            logger.warning("job %s interrupted at %s", job_id, name)
+            await asyncio.shield(
+                deps.jobs.set_status(job_id, JobStatus.FAILED, f"{name}: {INTERRUPTED}")
+            )
+            raise
         except Exception as e:
             logger.exception("job %s failed at %s", job_id, name)
             await deps.jobs.set_status(job_id, JobStatus.FAILED, f"{name}: {e}")

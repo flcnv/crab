@@ -24,7 +24,7 @@ class WorkerSettings:
     functions: ClassVar = [process_job]
     on_startup = startup
     on_shutdown = shutdown
-    job_timeout = 30 * 60
+    job_timeout = get_settings().job_timeout_s
     max_tries = 1
     keep_result = 0
     redis_settings: ClassVar = RedisSettings.from_dsn(get_settings().redis_url)

@@ -1,6 +1,7 @@
 import uuid
 from collections.abc import AsyncIterable, AsyncIterator, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import PurePath
 from uuid import UUID
 
@@ -102,8 +103,10 @@ async def submit_job(
     return job
 
 
-async def retry_job(job_id: UUID, *, jobs: JobRepository, queue: JobQueue) -> Job:
-    if not await jobs.requeue_failed(job_id):
+async def retry_job(
+    job_id: UUID, *, jobs: JobRepository, queue: JobQueue, stale_after: timedelta
+) -> Job:
+    if not await jobs.requeue_for_retry(job_id, stale_before=datetime.now(UTC) - stale_after):
         job = await jobs.get(job_id)
         raise JobNotRetryableError(job_id, job.status if job else "unknown")
     await _enqueue_or_fail(job_id, jobs, queue)

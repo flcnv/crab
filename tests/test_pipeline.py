@@ -1,6 +1,7 @@
 import asyncio
 import dataclasses
 import uuid
+from datetime import timedelta
 from pathlib import Path
 from uuid import UUID
 
@@ -441,7 +442,7 @@ async def test_retried_job_resumes_and_reaches_done(deps: Deps) -> None:
         job_id,
     )
 
-    await retry_job(job_id, jobs=deps.jobs, queue=deps.queue)
+    await retry_job(job_id, jobs=deps.jobs, queue=deps.queue, stale_after=STALE_AFTER)
     await run_pipeline(deps, job_id)
 
     job = await deps.jobs.get(job_id)
@@ -450,3 +451,58 @@ async def test_retried_job_resumes_and_reaches_done(deps: Deps) -> None:
     assert isinstance(deps.frame_extractor, FakeFrameExtractor)
     assert deps.frame_extractor.calls == 1
     assert sorted(_vision(deps).calls) == ["f001", "f002", "f003"]
+
+
+STALE_AFTER = timedelta(minutes=30)
+
+
+class HangingVisionModel(FakeVisionModel):
+    def __init__(self) -> None:
+        super().__init__()
+        self.started = asyncio.Event()
+
+    async def analyze(self, image: bytes, frame_id: str) -> tuple[FrameAnalysis, list[LLMUsage]]:
+        self.started.set()
+        await asyncio.Event().wait()
+        raise AssertionError("unreachable")
+
+
+async def test_interrupted_stage_marks_job_failed_and_retry_resumes(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    hanging = dataclasses.replace(deps, vision_model=HangingVisionModel())
+
+    with pytest.raises(TimeoutError):
+        await asyncio.wait_for(run_pipeline(hanging, job_id), timeout=0.05)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert (job.status, job.error) == (
+        JobStatus.FAILED,
+        "analyze_frames: interrupted (worker timeout or shutdown)",
+    )
+
+    await retry_job(job_id, jobs=deps.jobs, queue=deps.queue, stale_after=STALE_AFTER)
+    await run_pipeline(deps, job_id)
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert (job.status, job.error) == (JobStatus.DONE, None)
+    assert isinstance(deps.frame_extractor, FakeFrameExtractor)
+    assert deps.frame_extractor.calls == 1
+
+
+async def test_cancelled_pipeline_is_marked_failed(deps: Deps) -> None:
+    job_id = await _new_job(deps, "video", "clip.mp4")
+    hanging = HangingVisionModel()
+    task = asyncio.create_task(
+        run_pipeline(dataclasses.replace(deps, vision_model=hanging), job_id)
+    )
+    await hanging.started.wait()
+
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+    job = await deps.jobs.get(job_id)
+    assert job is not None
+    assert job.status is JobStatus.FAILED

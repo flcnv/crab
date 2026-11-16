@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from datetime import timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -46,7 +47,12 @@ async def create_job(
 
 @router.post("/{job_id}/retry", status_code=status.HTTP_202_ACCEPTED)
 async def retry(job_id: UUID, request: Request, deps: DepsDep) -> JobCreated:
-    job = await retry_job(job_id, jobs=deps.jobs, queue=deps.queue)
+    job = await retry_job(
+        job_id,
+        jobs=deps.jobs,
+        queue=deps.queue,
+        stale_after=timedelta(seconds=deps.settings.job_timeout_s),
+    )
     return JobCreated(
         job_id=job.id,
         status=job.status,

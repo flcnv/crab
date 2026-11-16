@@ -3,6 +3,7 @@ from uuid import UUID
 
 from app.domain.errors import JobNotFoundError
 from app.domain.models import (
+    RUNNING_STATUSES,
     Frame,
     FrameAnalysis,
     Job,
@@ -54,8 +55,10 @@ class InMemoryJobRepository:
     async def set_status(self, job_id: UUID, status: JobStatus, error: str | None = None) -> None:
         self._update(job_id, status=status, error=error)
 
-    async def requeue_failed(self, job_id: UUID) -> bool:
-        if self._require(job_id).status is not JobStatus.FAILED:
+    async def requeue_for_retry(self, job_id: UUID, stale_before: datetime) -> bool:
+        job = self._require(job_id)
+        stalled = job.status in RUNNING_STATUSES and job.updated_at < stale_before
+        if job.status is not JobStatus.FAILED and not stalled:
             return False
         self._update(job_id, status=JobStatus.QUEUED, error=None)
         return True

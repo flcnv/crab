@@ -1,5 +1,6 @@
 import uuid
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -110,11 +111,41 @@ async def _job(
     return job.id
 
 
+STALE_AFTER = timedelta(minutes=30)
+
+
+def _age(jobs: InMemoryJobRepository, job_id: uuid.UUID, by: timedelta) -> None:
+    job = jobs.jobs[job_id]
+    jobs.jobs[job_id] = job.model_copy(update={"updated_at": datetime.now(UTC) - by})
+
+
+async def test_retry_requeues_a_job_stuck_in_a_running_stage() -> None:
+    jobs, queue = InMemoryJobRepository(), FakeJobQueue()
+    job_id = await _job(jobs, JobStatus.ANALYZING)
+    _age(jobs, job_id, STALE_AFTER + timedelta(seconds=1))
+
+    job = await retry_job(job_id, jobs=jobs, queue=queue, stale_after=STALE_AFTER)
+
+    assert (job.status, job.error) == (JobStatus.QUEUED, None)
+    assert queue.enqueued == [job_id]
+
+
+@pytest.mark.parametrize("status", [JobStatus.QUEUED, JobStatus.DONE])
+async def test_retry_never_requeues_queued_or_done_jobs_however_old(status: JobStatus) -> None:
+    jobs, queue = InMemoryJobRepository(), FakeJobQueue()
+    job_id = await _job(jobs, status)
+    _age(jobs, job_id, timedelta(days=1))
+
+    with pytest.raises(JobNotRetryableError):
+        await retry_job(job_id, jobs=jobs, queue=queue, stale_after=STALE_AFTER)
+    assert queue.enqueued == []
+
+
 async def test_retry_requeues_a_failed_job() -> None:
     jobs, queue = InMemoryJobRepository(), FakeJobQueue()
     job_id = await _job(jobs, JobStatus.FAILED, "verify: worker killed")
 
-    job = await retry_job(job_id, jobs=jobs, queue=queue)
+    job = await retry_job(job_id, jobs=jobs, queue=queue, stale_after=STALE_AFTER)
 
     assert (job.status, job.error) == (JobStatus.QUEUED, None)
     assert queue.enqueued == [job_id]
@@ -125,8 +156,8 @@ async def test_retry_rejects_jobs_that_did_not_fail(status: JobStatus) -> None:
     jobs, queue = InMemoryJobRepository(), FakeJobQueue()
     job_id = await _job(jobs, status)
 
-    with pytest.raises(JobNotRetryableError, match=f"job is {status}, only failed jobs"):
-        await retry_job(job_id, jobs=jobs, queue=queue)
+    with pytest.raises(JobNotRetryableError, match=f"job is {status}; only failed jobs"):
+        await retry_job(job_id, jobs=jobs, queue=queue, stale_after=STALE_AFTER)
 
     assert queue.enqueued == []
     job = await jobs.get(job_id)
@@ -136,7 +167,12 @@ async def test_retry_rejects_jobs_that_did_not_fail(status: JobStatus) -> None:
 
 async def test_retry_of_unknown_job() -> None:
     with pytest.raises(JobNotFoundError):
-        await retry_job(uuid.uuid4(), jobs=InMemoryJobRepository(), queue=FakeJobQueue())
+        await retry_job(
+            uuid.uuid4(),
+            jobs=InMemoryJobRepository(),
+            queue=FakeJobQueue(),
+            stale_after=STALE_AFTER,
+        )
 
 
 async def test_retry_that_cannot_be_enqueued_stays_failed() -> None:
@@ -144,7 +180,7 @@ async def test_retry_that_cannot_be_enqueued_stays_failed() -> None:
     job_id = await _job(jobs, JobStatus.FAILED, "analyze_frames: boom")
 
     with pytest.raises(ConnectionError):
-        await retry_job(job_id, jobs=jobs, queue=FakeJobQueue(fail=True))
+        await retry_job(job_id, jobs=jobs, queue=FakeJobQueue(fail=True), stale_after=STALE_AFTER)
 
     job = await jobs.get(job_id)
     assert job is not None
