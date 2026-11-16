@@ -15,7 +15,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.adapters.llm.claude import ClaudeClient, Effort, validation_summary
 from app.adapters.llm.prompts import load_prompt
-from app.adapters.llm.schemas import (
+from app.adapters.llm.schemas.agent import (
     GetFrameFindingsInput,
     GetFrameImageInput,
     SubmitReportInput,

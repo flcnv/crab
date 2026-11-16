@@ -15,7 +15,7 @@ from pydantic import ValidationError
 
 from app.adapters.llm.pricing import cost_usd
 from app.adapters.llm.prompts import load_prompt
-from app.adapters.llm.schemas import FrameFindings
+from app.adapters.llm.schemas.frame import FrameFindings
 from app.domain.errors import FrameAnalysisError, ModelCallError
 from app.domain.models import FrameAnalysis, LLMUsage
 

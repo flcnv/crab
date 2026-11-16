@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 
 from app.adapters.render.report import render_geojson, render_markdown
 from app.api.deps import DepsDep
-from app.api.schemas import JobCreated, JobOut
+from app.api.schemas.jobs import JobCreated, JobOut
 from app.domain.errors import JobNotFoundError
 from app.domain.models import Job, JobStatus, TrenchReport
 from app.domain.services import Upload, retry_job, submit_job
