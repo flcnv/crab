@@ -14,7 +14,6 @@ _STATUS_BY_ERROR: frozendict[type[Exception], int] = frozendict(
         JobNotRetryableError: status.HTTP_409_CONFLICT,
         InvalidUploadError: status.HTTP_422_UNPROCESSABLE_CONTENT,
         UploadTooLargeError: status.HTTP_413_CONTENT_TOO_LARGE,
-        NotImplementedError: status.HTTP_501_NOT_IMPLEMENTED,
     }
 )
 

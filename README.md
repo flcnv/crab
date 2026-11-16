@@ -190,8 +190,8 @@ eval lives in `eval/`, runs only on demand, and never runs in CI.
   ([report](eval/results/2026-11-15_safety_net.md)).
 
 ```bash
-uv run python -m eval.opentrench download       # seeded subset -> ~/datasets/opentrench3d
-uv run python -m eval.opentrench render         # views + truth
+uv run python -m eval.opentrench download       # the 21 clouds in eval/opentrench_cases.jsonl
+uv run python -m eval.opentrench render         # views + truth (--reselect: new seeded sample)
 uv run python -m eval.run_eval --split test     # dry run: planned calls and estimated cost
 uv run python -m eval.run_eval --split test --yes --model claude-sonnet-5-5   # paid run
 uv run python -m eval.corruption                # safety net, free
@@ -301,7 +301,8 @@ erDiagram
 - Every model call lands in `llm_calls`, failed ones included; a job's cost is their sum.
 - All foreign keys cascade on delete; saving new frames for a job drops its old analyses.
 
-Files live in `storage/`: `uploads/<job_id>/...` and `frames/<job_id>/fNNN.jpg`.
+Files live in `storage/`: `uploads/<job_id>/...` and `frames/<job_id>/fNNN.jpg`. Under Docker
+that is the named volume `storage`; the containers run as a non-root user.
 
 ## Run it
 
@@ -361,6 +362,8 @@ eval/          OpenTrench3D views and truth, metrics, runner, safety net, result
   multi-frame rules are covered by tests, not yet by an eval.
 - **Colour conventions are a heuristic**, not a standard (see Verification).
 - **Storage is the local filesystem** (see Design decisions).
+- **No authentication or rate limiting.** The API is meant to run locally or behind a gateway,
+  not on the open internet.
 
 ## How this was built with Claude Code
 

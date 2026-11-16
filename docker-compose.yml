@@ -11,7 +11,9 @@ x-app: &app
     REDIS_HOST: redis
     REDIS_PORT: 6379
   volumes:
-    - ./storage:/code/storage
+    # Named volume: it inherits the image's ownership of /code/storage, so the non-root
+    # app user can write to it. Inspect with: docker compose exec worker ls storage
+    - storage:/code/storage
   restart: unless-stopped
 
 services:
@@ -77,3 +79,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  storage:

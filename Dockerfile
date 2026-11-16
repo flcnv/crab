@@ -13,5 +13,8 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY . .
 RUN uv sync --frozen --no-dev
 
+RUN useradd --create-home --uid 10001 app && mkdir -p /code/storage && chown app /code/storage
+USER app
+
 ENV PATH="/code/.venv/bin:$PATH"
 CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -238,7 +238,13 @@ def cmd_list(_: argparse.Namespace) -> int:
     return 0
 
 
+def manifest_files(path: Path = CASES_PATH) -> list[RemoteFile]:
+    return [RemoteFile(case.source, 0) for case in read_cases(path)]
+
+
 def _selection(args: argparse.Namespace) -> list[RemoteFile]:
+    if CASES_PATH.exists() and not args.reselect:
+        return manifest_files()
     if not FILES_PATH.exists():
         cmd_list(args)
     files = [RemoteFile(**f) for f in json.loads(FILES_PATH.read_text(encoding="utf-8"))]
@@ -250,9 +256,11 @@ def cmd_download(args: argparse.Namespace) -> int:
 
     chosen = _selection(args)
     todo = [f for f in chosen if not local_path(f.name).exists()]
+    size = sum(f.size for f in todo)
     print(
-        f"{len(chosen)} point clouds selected, {len(todo)} to download "
-        f"({sum(f.size for f in todo) / 1e9:.2f} GB uncompressed) -> {DATA_ROOT}"
+        f"{len(chosen)} point clouds selected, {len(todo)} to download"
+        + (f" ({size / 1e9:.2f} GB uncompressed)" if size else "")
+        + f" -> {DATA_ROOT}"
     )
     if args.dry_run:
         return 0
@@ -319,6 +327,11 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.add_argument("--per-area", type=int, default=3)
         p.add_argument("--max-mb", type=int, default=120, help="skip larger point clouds")
+        p.add_argument(
+            "--reselect",
+            action="store_true",
+            help=f"pick a new seeded sample from the Kaggle listing instead of {CASES_PATH}",
+        )
         if name == "download":
             p.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)

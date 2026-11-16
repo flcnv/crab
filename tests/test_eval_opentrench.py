@@ -10,16 +10,19 @@ from eval.opentrench import (
     MAIN,
     OTHER,
     TRENCH,
+    OpenTrenchCase,
     PointCloud,
     RemoteFile,
     View,
     area_of,
     case_id_of,
+    manifest_files,
     read_ply,
     render,
     select_files,
     split_of,
     view_truth,
+    write_cases,
 )
 
 
@@ -109,3 +112,31 @@ def test_select_files_is_seeded_per_area_and_skips_duplicates_and_big_files() ->
     assert chosen == select_files(list(reversed(files)), per_area=3, max_bytes=100)
     assert sorted(area_of(f.name) for f in chosen) == ["Heating_Area_2"] * 3 + ["Water_Area_1"] * 3
     assert all("Finetuning_10" not in f.name and "Site_99" not in f.name for f in chosen)
+
+
+def test_manifest_files_reproduce_the_committed_selection(tmp_path: Path) -> None:
+    root = "OpenTrench3D/OpenTrench3D"
+    sources = [
+        f"{root}/Water_Area_3/Area_3_Site_19.ply",
+        f"{root}/Heating_Area_2/Area_2_Site_1.ply",
+    ]
+    cases = [
+        OpenTrenchCase(
+            case_id=case_id_of(s),
+            source=s,
+            area=area_of(s),
+            main_type=AREA_TYPES[area_of(s)],
+            split=split_of(area_of(s)),
+            views=[],
+        )
+        for s in sources
+    ]
+    write_cases(cases, tmp_path / "cases.jsonl")
+
+    assert [f.name for f in manifest_files(tmp_path / "cases.jsonl")] == sources
+
+
+def test_committed_manifest_lists_the_eval_clouds() -> None:
+    files = manifest_files()
+    assert len(files) == 21
+    assert len({area_of(f.name) for f in files}) == 7
