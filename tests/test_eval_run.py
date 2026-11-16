@@ -29,7 +29,7 @@ def view(file: str, name: str, *, main: bool = True, other: bool = False) -> Vie
         main_visible=main,
         other_visible=other,
         inactive_visible=False,
-        fractions={0: 0.1},
+        fractions={0: 0.1, 1: 0.01 if other else 0.0},
     )
 
 
@@ -120,5 +120,24 @@ async def test_run_and_score(renders: Path) -> None:
     assert (summary.main_found.k, summary.main_found.n) == (1, 2)
 
     md = to_markdown({"split": "dev", "model": "fake"}, summary, judged, results)
-    assert "1 views failed" in md
+    assert "2 views (1 failed)" in md
     assert "| c1 / top | gas | 0.85 | **not flagged** |" in md
+    assert "Not measurable" not in md
+
+
+async def test_views_with_other_utilities_are_not_judged_line_by_line(renders: Path) -> None:
+    cases = [case("c3", "test", view("c2_top.jpg", "top", other=True))]
+    results = await run_views(
+        plan(cases, "test"), FakeVision(), VerificationConfig(), max_edge=1500, render_dir=renders
+    )
+    summary, judged = score(results)
+    assert results[0].owner_fraction == 0.1
+    assert summary.judgeable_views == 0
+    assert (summary.correct.k, summary.correct.n) == (0, 0)
+    assert summary.unjudged == 2
+    assert (summary.main_found.k, summary.main_found.n) == (1, 1)
+    assert (summary.main_found_large.k, summary.main_found_large.n) == (1, 1)
+
+    md = to_markdown({"split": "test", "model": "fake"}, summary, judged, results)
+    assert "Not measurable on this split" in md
+    assert "ECE" not in md

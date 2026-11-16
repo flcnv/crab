@@ -30,14 +30,24 @@ from app.domain.models import (
 from app.domain.services import merge_lines, strip_unscaled_measurements, verify_report
 from app.settings import get_settings
 from eval.metrics import (
+    LARGE_OWNER_FRACTION,
     JudgedLine,
     Summary,
     ViewFacts,
     judge_lines,
-    main_type_found,
     summarise,
+    view_outcome,
 )
-from eval.opentrench import CASES_PATH, LICENCE, RENDER_DIR, OpenTrenchCase, read_cases
+from eval.opentrench import (
+    CASES_PATH,
+    INACTIVE,
+    LICENCE,
+    MAIN,
+    RENDER_DIR,
+    OpenTrenchCase,
+    ViewTruth,
+    read_cases,
+)
 
 RESULTS_DIR = Path("eval/results")
 SYSTEM_PROMPT_CHARS_PER_TOKEN = 4
@@ -66,6 +76,7 @@ class ViewResult(BaseModel):
     main_type: UtilityType
     owner_visible: bool
     other_visible: bool
+    owner_fraction: float
     error: str | None
     raw: FrameAnalysis | None
     lines: list[ReportLine]
@@ -80,17 +91,22 @@ def plan(
             case=case,
             view=v.view,
             file=v.file,
-            facts=ViewFacts(
-                main_type=case.main_type,
-                owner_visible=v.main_visible or v.inactive_visible,
-                other_visible=v.other_visible,
-            ),
+            facts=facts_of(case, v),
         )
         for case in cases
         if case.split == split
         for v in case.views
     ]
     return views[:limit] if limit else views
+
+
+def facts_of(case: OpenTrenchCase, v: ViewTruth) -> ViewFacts:
+    return ViewFacts(
+        main_type=case.main_type,
+        owner_visible=v.main_visible or v.inactive_visible,
+        other_visible=v.other_visible,
+        owner_fraction=v.fractions.get(MAIN, 0.0) + v.fractions.get(INACTIVE, 0.0),
+    )
 
 
 def estimate_cost(
@@ -146,6 +162,7 @@ async def run_views(
                 "main_type": v.case.main_type,
                 "owner_visible": v.facts.owner_visible,
                 "other_visible": v.facts.other_visible,
+                "owner_fraction": v.facts.owner_fraction,
             }
             try:
                 raw, usage = await vision.analyze(image, f"{v.case.case_id}:{v.view}")
@@ -159,17 +176,12 @@ async def run_views(
 
 def score(results: Sequence[ViewResult]) -> tuple[Summary, list[JudgedLine]]:
     judged: list[JudgedLine] = []
-    found: list[bool | None] = []
-    trench: list[bool] = []
+    outcomes = []
     for r in results:
-        facts = ViewFacts(r.main_type, r.owner_visible, r.other_visible)
-        if r.raw is None:
-            found.append(False if facts.owner_visible else None)
-            continue
+        facts = ViewFacts(r.main_type, r.owner_visible, r.other_visible, r.owner_fraction)
+        outcomes.append(view_outcome(facts, r.raw))
         judged += judge_lines(r.case_id, r.view, facts, r.lines)
-        found.append(main_type_found(facts, r.raw.lines))
-        trench.append(r.raw.is_trench_visible)
-    return summarise(judged, found, trench), judged
+    return summarise(judged, outcomes), judged
 
 
 def _commit() -> str:
@@ -191,19 +203,40 @@ def to_markdown(
     judged: Sequence[JudgedLine],
     results: Sequence[ViewResult],
 ) -> str:
-    rows = [
+    big = f"{LARGE_OWNER_FRACTION:.0%}"
+    view_rows = [
+        ("Area's utility visible: model named its type", summary.main_found),
+        (f"... utility covers >= {big} of the image", summary.main_found_large),
+        (f"... utility covers < {big} of the image", summary.main_found_small),
         (
-            "Views where the area's utility is visible and the model named its type",
-            summary.main_found,
+            "Area's utility not visible: model still named its type (upper bound, see below)",
+            summary.main_invented,
         ),
+        ("Model said 'no trench'", summary.no_trench_reported),
+    ]
+    all_line_rows = [
+        ("Lines left `unknown` (abstentions)", summary.abstain),
+        ("Review rate: lines flagged", summary.review_rate),
+    ]
+    judged_rows = [
         ("Judged lines with the right type", summary.correct),
         ("Wrong when confident (conf >= 0.8)", summary.wrong_when_confident),
-        ("Lines left `unknown` (abstentions)", summary.abstain),
         ("Review recall: wrong lines flagged", summary.review_recall),
         ("Review precision: flagged judged lines that are wrong", summary.review_precision),
-        ("Review rate: lines flagged", summary.review_rate),
-        ("Views where the model said 'no trench'", summary.no_trench_reported),
     ]
+    if summary.judgeable_views:
+        judged_section = [
+            "| metric | result [95 % Wilson CI] |",
+            "|---|---|",
+            *[f"| {name} | {rate} |" for name, rate in judged_rows],
+        ]
+    else:
+        judged_section = [
+            "**Not measurable on this split.** Every view also shows untyped other utilities, "
+            "so a line of another type cannot be told apart from a correct reading of one of "
+            "them. Type accuracy, calibration and review recall/precision need views without "
+            "other utilities."
+        ]
     calib = [
         f"| {b.lower:.1f}-{b.upper:.1f} | {b.n} | "
         f"{'-' if b.mean_confidence is None else f'{b.mean_confidence:.2f}'} | "
@@ -223,33 +256,67 @@ def to_markdown(
             "",
             " · ".join(f"{k} {v}" for k, v in meta.items()),
             "",
-            f"{summary.views} views, {summary.lines} predicted lines, {summary.unjudged} not "
-            "judgeable (concrete type while untyped 'other utilities' are visible). "
-            f"{len(errors)} views failed.",
+            f"{summary.views} views ({len(errors)} failed), {summary.lines} predicted lines, "
+            f"{summary.judgeable_views} views without other utilities (line-level judging).",
+            "",
+            "## View level",
             "",
             "| metric | result [95 % Wilson CI] |",
             "|---|---|",
-            *[f"| {name} | {rate} |" for name, rate in rows],
+            *[f"| {name} | {rate} |" for name, rate in view_rows],
             "",
-            f"ECE {summary.ece if summary.ece is None else f'{summary.ece:.3f}'} · "
-            f"Brier {summary.brier if summary.brier is None else f'{summary.brier:.3f}'} "
-            "(confidence = P(type correct), judged lines only)",
+            "## All lines",
             "",
-            "| confidence | n | mean conf. | accuracy |",
-            "|---|---|---|---|",
-            *calib,
+            "| metric | result [95 % Wilson CI] |",
+            "|---|---|",
+            *[f"| {name} | {rate} |" for name, rate in all_line_rows],
             "",
-            "## Wrong lines (most dangerous first: not flagged, confident)",
+            f"## Line level: only the {summary.judgeable_views} views without other utilities",
             "",
-            "| view | predicted | conf. | verification |",
-            "|---|---|---|---|",
-            *(failures or ["| - | - | - | - |"]),
+            f"{summary.unjudged} lines with a concrete type are not judged because they are in a "
+            "view with other utilities.",
+            "",
+            *judged_section,
+            "",
+            *(
+                [
+                    f"ECE {summary.ece if summary.ece is None else f'{summary.ece:.3f}'} · "
+                    f"Brier {summary.brier if summary.brier is None else f'{summary.brier:.3f}'} "
+                    "(confidence = P(type correct), judged lines only)",
+                    "",
+                    "| confidence | n | mean conf. | accuracy |",
+                    "|---|---|---|---|",
+                    *calib,
+                    "",
+                    "### Wrong lines (most dangerous first: not flagged, confident)",
+                    "",
+                    "| view | predicted | conf. | verification |",
+                    "|---|---|---|---|",
+                    *(failures or ["| - | - | - | - |"]),
+                    "",
+                ]
+                if summary.judgeable_views
+                else []
+            ),
+            "## How views and lines are judged",
+            "",
+            "- The area's utility is the area's main utility class, or its inactive class "
+            "(old line of the same network), covering >= 0.2 % of the rendered view.",
+            "- A view counts as *found* when any line in the raw model output has the area's "
+            "type. A failed model call counts as not found.",
+            "- *Not visible but named* is an upper bound: an untyped other utility in the view "
+            "could be of the same type.",
+            "- Line level, only in views without other utilities: the area's type with its "
+            "utility visible is correct, any other concrete type is wrong, `unknown` is an "
+            "abstention. Mixing in views with other utilities would count every correct line "
+            "and no wrong one, and inflate accuracy.",
             "",
             "## Limits of this eval",
             "",
-            "- Views are renders of photogrammetric point clouds (black background, holes), not phone photos.",
-            "- Truth knows two utility types (water, district heating) plus untyped 'other utilities'; "
-            "lines of a concrete type next to visible other utilities are not judged.",
+            "- Views are renders of photogrammetric point clouds (black background, holes), "
+            "not phone photos.",
+            "- Truth knows two utility types (water, district heating) plus untyped "
+            "'other utilities'.",
             "- No line count in the truth (per-point classes, not instances).",
             f"- Data: {LICENCE}. Denmark, not Switzerland.",
             "",
@@ -259,7 +326,9 @@ def to_markdown(
 
 def main(argv: list[str] | None = None) -> int:
     settings = get_settings()
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else None)
+    parser = argparse.ArgumentParser(
+        description="Frame-mode eval of the vision model on rendered OpenTrench3D views."
+    )
     parser.add_argument("--split", choices=("dev", "test"), default="dev")
     parser.add_argument("--model", default=settings.claude_model)
     parser.add_argument("--prompt", default=settings.prompt_version)
